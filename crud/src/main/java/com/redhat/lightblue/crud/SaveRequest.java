@@ -25,7 +25,7 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to save documents
  */
-public class SaveRequest extends DocRequest implements WithRange {
+public class SaveRequest extends DocRequest implements WithRange, WithProjection {
 
     private Projection returnFields;
     private boolean upsert;
@@ -37,6 +37,11 @@ public class SaveRequest extends DocRequest implements WithRange {
      * to retrieve the _id fields of the inserted entities.
      */
     public Projection getReturnFields() {
+        return returnFields;
+    }
+
+    @Override
+    public Projection getProjection() {
         return returnFields;
     }
 
