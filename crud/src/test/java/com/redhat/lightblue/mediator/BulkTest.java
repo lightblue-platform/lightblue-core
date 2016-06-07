@@ -18,16 +18,27 @@
  */
 package com.redhat.lightblue.mediator;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.*;
-import com.redhat.lightblue.crud.*;
-import com.redhat.lightblue.metadata.*;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.concurrent.Semaphore;
-import org.junit.Ignore;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.EntityVersion;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.crud.BulkRequest;
+import com.redhat.lightblue.crud.BulkResponse;
+import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.metadata.Metadata;
 
 public class BulkTest extends AbstractMediatorTest {
 
@@ -86,8 +97,6 @@ public class BulkTest extends AbstractMediatorTest {
         FindRequest freq = new FindRequest();
         freq.setEntityVersion(new EntityVersion("test", "1.0"));
         breq.add(freq);
-
-        mdManager.md.getAccess().getFind().setRoles("role1");
 
         BulkResponse bresp = mediator.bulkRequest(breq);
 
@@ -153,14 +162,18 @@ public class BulkTest extends AbstractMediatorTest {
 
     private class PInsertCb implements InsertCb {
         Semaphore sem = new Semaphore(0);
+        int nested = 0;
 
         @Override
         public Response call(InsertionRequest req) {
+            nested++;
             try {
                 sem.acquire();
                 return new Response();
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            } finally {
+                nested--;
             }
         }
     }
@@ -178,7 +191,7 @@ public class BulkTest extends AbstractMediatorTest {
     }
 
     @Test
-    public void parallelBulkTest() throws Exception {
+    public void parallelOrderedBulkTest() throws Exception {
         BulkRequest breq = new BulkRequest();
 
         FindRequest freq = new FindRequest();
@@ -245,6 +258,66 @@ public class BulkTest extends AbstractMediatorTest {
         validator.start();
 
         BulkResponse bresp = mediator.bulkRequest(breq);
+        validator.join();
+
+        Assert.assertTrue(validator.valid);
+    }
+
+    @Test
+    public void parallelUnorderedBulkTest() throws Exception {
+        BulkRequest breq = new BulkRequest();
+        breq.setOrdered(false);
+
+        FindRequest freq = new FindRequest();
+        freq.setEntityVersion(new EntityVersion("test", "1.0"));
+        freq.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
+
+        InsertionRequest ireq = new InsertionRequest();
+        ireq.setEntityVersion(new EntityVersion("test", "1.0"));
+        ireq.setEntityData(loadJsonNode("./sample1.json"));
+        ireq.setReturnFields(null);
+        ireq.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
+
+        breq.add(freq);
+        breq.add(freq);
+        breq.add(ireq);
+        breq.add(freq);
+        breq.add(freq);
+        breq.add(ireq);
+        breq.add(freq);
+
+        PFindCb findCb = new PFindCb();
+        PInsertCb insertCb = new PInsertCb();
+        ((TestMediator) mediator).findCb = findCb;
+        ((TestMediator) mediator).insertCb = insertCb;
+
+        ValidatorThread validator = new ValidatorThread(findCb, insertCb) {
+            @Override
+            public void run() {
+                try {
+                    // Wait until all 7 calls started
+                    while (find.nested + insert.nested < 7) {
+                        Thread.sleep(1);
+                    }
+
+                    // Let them all complete
+                    find.sem.release(5);
+                    insert.sem.release(2);
+
+                    // Wait until they're all completed
+                    while(find.nested > 0 && insert.nested > 0) {
+                        Thread.sleep(1);
+                    }
+
+                    valid = true;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        validator.start();
+
+        mediator.bulkRequest(breq);
         validator.join();
 
         Assert.assertTrue(validator.valid);

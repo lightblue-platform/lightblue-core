@@ -18,18 +18,16 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
-import static com.redhat.lightblue.util.JsonUtils.json;
-import java.math.BigDecimal;
 
 /**
  * Contains a list of requests. Each request has a sequence number that can be
@@ -59,12 +57,16 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
             requestJson.put("seq", seq++);
             requestsJson.add(requestJson);
         }
+        rootJson.put("ordered", ordered);
         return rootJson;
     }
 
     public static BulkRequest fromJson(ObjectNode node) {
         BulkRequest req = new BulkRequest();
-        req.parse((ArrayNode) node.get("requests"));
+        req.parseRequests((ArrayNode) node.get("requests"));
+        if (node.get("ordered") != null) {
+            req.ordered = node.get("ordered").asBoolean();
+        }
         return req;
     }
 
@@ -110,7 +112,7 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
     /**
      * Parses the bulk object from the given array node
      */
-    protected void parse(ArrayNode entriesArray) {
+    protected void parseRequests(ArrayNode entriesArray) {
         entries.clear();
         // Fill the entries into an array list, assuming for most
         // cases the array list will be ordered by the sequence

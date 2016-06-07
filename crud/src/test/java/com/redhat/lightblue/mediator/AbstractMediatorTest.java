@@ -128,6 +128,7 @@ public abstract class AbstractMediatorTest extends AbstractJsonSchemaTest {
         Factory factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
+        factory.setBulkParallelExecutions(100);
         new UIDInterceptor().register(factory.getInterceptors());
         new GeneratedFieldInterceptor().register(factory.getInterceptors());
         factory.addCRUDController("mongo", mockCrudController);
