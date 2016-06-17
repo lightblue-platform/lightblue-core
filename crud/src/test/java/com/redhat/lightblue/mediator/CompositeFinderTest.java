@@ -659,4 +659,16 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1, response.getEntityData().size());
     }
 
+    @Test
+    public void dont_do_outer_joins() throws Exception {
+        // We need to use a_with_index in this test, so the execution plan becomes A->B instead of B-> A
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'$and': [ {'field':'_id','op':'$in','values':['A99','ADEEP']}, {'field':'level1.arr1.*.ref.*.field1','op':'=','rvalue':'bdeep1'} ] }"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("A_with_index", "1.0.0"));
+        Response response = mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+    }
+
 }

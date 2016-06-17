@@ -1,0 +1,32 @@
+[{
+  "_id":"A99",
+  "objectType":"A",
+  "field1":"dwzedQr4hw5HdHwWhvE7SkvZB22",
+  "obj1":{
+    "field1":"d6gdfa8wh7F6l6Iq.KV8",
+    "c_ref":"C99"
+    },
+  "b_ref":"B99"
+  },{
+  "_id":"ADEEP",
+  "objectType":"A",
+  "level1": {
+    "arr1": [
+       { 
+         "b_ref":"BDEEP1"
+       },
+       { 
+         "b_ref":"BDEEP2"
+       }
+    ]
+  }
+  },{
+  "_id":"MANYB1",
+  "objectType":"A",
+  "nonid_b_ref":"MANYB1"
+  },{
+  "_id":"MANYB2",
+  "objectType":"A",
+  "nonid_b_ref":"MANYB2"
+  }
+]

@@ -123,7 +123,8 @@ public class CompositeFindImpl implements Finder {
             selectQueryPlan(req.getQuery(), minimalTree);
             LOGGER.debug("Search query plan:{}, retrieval query plan:{}", searchQPlan, retrievalQPlan);
             
-            executionPlan = new ExecutionPlan(req.getProjection(),
+            executionPlan = new ExecutionPlan(req.getQuery(),
+                                              req.getProjection(),
                                               req.getSort(),
                                               req.getFrom(),
                                               req.getTo(),

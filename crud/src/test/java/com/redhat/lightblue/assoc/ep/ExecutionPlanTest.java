@@ -94,7 +94,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 new IndexedFieldScorer(),
                 q,
                 minimalTree).choose();
-        ExecutionPlan ep = new ExecutionPlan(p, null, null, null, md, null, searchQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, null, searchQP);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("retrieveAandBonly");
@@ -129,7 +129,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 q,
                 minimalTree).choose();
         QueryPlan retrievalQP = new QueryPlanChooser(md, new First(), new SimpleScorer(), null, minimalTree).choose();
-        ExecutionPlan ep = new ExecutionPlan(p, null, null, null, md, searchQP, retrievalQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("retrieveABC");
@@ -170,7 +170,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 q,
                 minimalTree).choose();
 
-        ExecutionPlan ep = new ExecutionPlan(p, null, null, null, md, searchQP, retrievalQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("retrieveAandConly_CFirst");
@@ -224,7 +224,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 q,
                 minimalTree).choose();
 
-        ExecutionPlan ep = new ExecutionPlan(p, null, null, null, md, searchQP, retrievalQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("rev_search_with_arraycond");
