@@ -671,4 +671,40 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1, response.getEntityData().size());
     }
 
+    @Test
+    public void array_in_reference_fullarr() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'ref'}]"));
+        fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertEquals(3,response.getEntityData().get(0).get("ref").size());
+    }
+
+    @Test
+    public void array_in_reference_emptyarr() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'2'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'ref'}]"));
+        fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertNull(response.getEntityData().get(0).get("ref"));
+    }
+
+    @Test
+    public void array_in_reference_nullarr() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'3'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'ref'}]"));
+        fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertNull(response.getEntityData().get(0).get("ref"));
+    }
+
 }
