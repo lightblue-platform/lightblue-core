@@ -1,0 +1,5 @@
+[
+    { "_id":"1","objectType":"arr_parent","arr":["1","2","3"]},
+    { "_id":"2","objectType":"arr_parent","arr":[]},
+    { "_id":"3","objectType":"arr_parent"}
+]
