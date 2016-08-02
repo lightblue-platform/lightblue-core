@@ -44,7 +44,11 @@ public class Copy extends AbstractSearchStep {
             public Stream<ResultDocument> stream() {
                 // Create new documents for each document in the source. This will
                 // create the correct slots based on this execution block
-                return super.stream().map(d -> new ResultDocument(block, d.getDoc()));
+                return super.stream().map(d -> {
+                        if(recordResultSetSize)
+                            ctx.incMatchCount();
+                        return new ResultDocument(block, d.getDoc());
+                    });
             }
         };
     }
