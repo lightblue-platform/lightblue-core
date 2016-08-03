@@ -61,4 +61,11 @@ public class Copy extends AbstractSearchStep {
         node.set("copy", source.getStep().toJson());
         return node;
     }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        ObjectNode node = JsonNodeFactory.instance.objectNode();
+        node.set("copy", source.getStep().explain(ctx));
+        return node;
+    }
 }

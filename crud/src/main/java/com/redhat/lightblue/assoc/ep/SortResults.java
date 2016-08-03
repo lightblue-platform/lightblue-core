@@ -78,4 +78,12 @@ public class SortResults extends Step<ResultDocument> {
         o.set("source", source.getStep().toJson());
         return o;
     }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("sort", sort.toJson());
+        o.set("source", source.getStep().explain(ctx));
+        return o;
+    }
 }

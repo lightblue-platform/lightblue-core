@@ -65,15 +65,24 @@ public class Unique extends Step<ResultDocument> {
         };
     }
 
-    @Override
-    public JsonNode toJson() {
+    private JsonNode toJson(ToJsonCb<Step> cb) {
         ObjectNode o = JsonNodeFactory.instance.objectNode();
         ArrayNode arr = JsonNodeFactory.instance.arrayNode();
         for (Path p : idx.getIdentityFields()) {
             arr.add(JsonNodeFactory.instance.textNode(p.toString()));
         }
         o.set("unique", arr);
-        o.set("source", source.getStep().toJson());
+        o.set("source", cb.toJson(source.getStep()));
         return o;
+    }
+
+    @Override
+    public JsonNode toJson() {
+        return toJson(Step::toJson);
+    }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        return toJson(s->{return s.explain(ctx);});
     }
 }

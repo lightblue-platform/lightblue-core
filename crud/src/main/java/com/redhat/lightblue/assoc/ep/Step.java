@@ -33,6 +33,10 @@ public abstract class Step<R> {
 
     protected final ExecutionBlock block;
 
+    public interface ToJsonCb<T> {
+        JsonNode toJson(T t);
+    }
+
     public Step(ExecutionBlock block) {
         this.block = block;
         block.registerStep(this);
@@ -48,9 +52,7 @@ public abstract class Step<R> {
     public void initialize() {
     }
 
-    public JsonNode explain(ExecutionContext ctx) {
-        return toJson();
-    }
+    public abstract JsonNode explain(ExecutionContext ctx);
 
     /**
      * Returns the associated block of this step
