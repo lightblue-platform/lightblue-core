@@ -592,6 +592,16 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(2, response.getEntityData().get(0).get("us").size());
     }
 
+   @Test
+    public void rev_search_with_arraycond_matchcount() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'array':'us.*.authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'us','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("L", "0.0.1"));
+        Response response = mediator.find(fr);
+        Assert.assertEquals(1, response.getMatchCount());
+    }
+    
     @Test
     public void elem_match_forward() throws Exception {
         FindRequest fr = new FindRequest();
