@@ -235,4 +235,8 @@ public class ExecutionBlock {
     public JsonNode toJson() {
         return resultStep.toJson();
     }
+
+    public JsonNode explain(ExecutionContext ctx) {
+        return resultStep.explain(ctx);
+    }
 }

@@ -60,4 +60,13 @@ public class Project extends Step<ResultDocument> {
         o.set("source", source.getStep().toJson());
         return o;
     }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("project", projection.toJson());
+        o.set("source", source.getStep().explain(ctx));
+        return o;
+    }
+
 }

@@ -187,24 +187,34 @@ public class Assemble extends Step<ResultDocument> {
             queries = new ArrayList<>();
         }
     }
-
-    @Override
-    public JsonNode toJson() {
+    
+    private JsonNode toJson(Step.ToJsonCb<Step> scb,Step.ToJsonCb<ExecutionBlock> bcb) {
         ObjectNode o = JsonNodeFactory.instance.objectNode();
         ObjectNode a = JsonNodeFactory.instance.objectNode();
         o.set("assemble", a);
         a.set("entity", JsonNodeFactory.instance.textNode(block.getMetadata().getName()));
-        a.set("left", source.getStep().toJson());
+        a.set("left", scb.toJson(source.getStep()));
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
         a.set("right", array);
         for (ExecutionBlock b : destinationBlocks) {
             ObjectNode detail=JsonNodeFactory.instance.objectNode();
             AssociationQuery aq = b.getAssociationQueryForEdge(block);
             detail.set("associationQuery",aq.getQuery().toJson());
-            detail.set("source",b.toJson());
+            detail.set("source",bcb.toJson(b));
             array.add(detail);
         }
         return o;
+    }
+
+    @Override
+    public JsonNode toJson() {
+        return toJson(Step::toJson,ExecutionBlock::toJson);
+    }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        return toJson(s->{return s.explain(ctx);},
+                      t->{return t.explain(ctx);});
     }
 
 }

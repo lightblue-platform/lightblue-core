@@ -124,4 +124,26 @@ public class JoinSearch extends AbstractSearchStep {
         }
         return o;
     }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("join-search", source.getStep().explain(ctx));
+        if (query != null) {
+            o.set("query", query.toJson());
+        }
+        if (projection != null) {
+            o.set("projection", projection.toJson());
+        }
+        if (sort != null) {
+            o.set("sort", sort.toJson());
+        }
+        if (from != null) {
+            o.set("from", JsonNodeFactory.instance.numberNode(from));
+        }
+        if (to != null) {
+            o.set("to", JsonNodeFactory.instance.numberNode(to));
+        }
+        return o;
+    }
 }

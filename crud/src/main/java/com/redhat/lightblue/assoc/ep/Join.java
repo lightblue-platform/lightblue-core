@@ -226,14 +226,23 @@ public class Join extends Step<JoinTuple> {
         }
     }
 
-    @Override
-    public JsonNode toJson() {
+    private JsonNode toJson(ToJsonCb<Step> cb) {
         ObjectNode o = JsonNodeFactory.instance.objectNode();
         ArrayNode arr = JsonNodeFactory.instance.arrayNode();
         for (Source<ResultDocument> s : sources) {
-            arr.add(s.getStep().toJson());
+            arr.add(cb.toJson(s.getStep()));
         }
         o.set("join", arr);
         return o;
+    }
+
+    @Override
+    public JsonNode toJson() {
+        return toJson(Step::toJson);
+    }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        return toJson(s->{return s.explain(ctx);});
     }
 }

@@ -107,6 +107,9 @@ public class JoinTest extends AbstractJsonSchemaTest {
         public JsonNode toJson() {
             return null;
         }
+        public JsonNode explain(ExecutionContext ctx) {
+            return null;
+        }
     }
 
     private Projection projection(String s) throws Exception {

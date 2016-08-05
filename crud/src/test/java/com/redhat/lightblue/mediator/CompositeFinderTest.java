@@ -50,6 +50,7 @@ import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
+import com.redhat.lightblue.crud.ExplainQuerySupport;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 
@@ -124,7 +125,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         return ((TestMediator) m).ctx;
     }
 
-    private class CompositeTestCrudController extends TestCrudController {
+    private class CompositeTestCrudController extends TestCrudController implements ExplainQuerySupport {
         public CompositeTestCrudController(TestCrudController.GetData gd) {
             super(gd);
         }
@@ -159,6 +160,16 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
             } else {
                 return super.find(ctx, query, projection, sort, from, to);
             }
+        }
+        @Override
+        public void explain(CRUDOperationContext ctx,
+                            QueryExpression query,
+                            Projection projection,
+                            Sort sort,
+                            Long from,
+                            Long to,
+                            JsonDoc destDoc) {
+            destDoc.modify(new Path("testController"),JsonNodeFactory.instance.textNode("test"),true);
         }
     }
 
@@ -347,6 +358,21 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
+    }
+
+    @Test
+    public void retrieveAandConly_CFirst_range_explain() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'obj1.c.*.objectType','op':'=','rvalue':'C'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c'}]"));
+        fr.setFrom(0l);
+        fr.setTo(0l);
+        fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
+        Response response = mediator.explain(fr);
+        Assert.assertEquals(1, response.getEntityData().size());
+        JsonNode doc=response.getEntityData().get(0);
+        // Make sure explain descends all the way to the  controller
+        Assert.assertTrue(doc.toString().indexOf("testController")!=-1);
     }
 
     @Test
