@@ -48,6 +48,6 @@ public class FilterNullTest {
     public void nestedRemoval() throws Exception {
         JsonNode node = json("{'x':'a','y':[null,{'z':null,'a':'a','b':['a','b',null]}]}");
         JsonDoc.filterNulls(node);
-        JSONAssert.assertEquals(esc("{'x':'a','y':[{'a':'a','b':['a','b']}]}"), node.toString(), false);
+        JSONAssert.assertEquals(esc("{'x':'a','y':[null, {'a':'a','b':['a','b', null]}]}"), node.toString(), false);
     }
 }
