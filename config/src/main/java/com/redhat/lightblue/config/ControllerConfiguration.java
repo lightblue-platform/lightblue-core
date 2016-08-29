@@ -125,7 +125,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                 }
                 extensions = (ObjectNode) node.get("extensions");
                 options = (ObjectNode) node.get("options");
-                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={} options", node, backend, controllerFactory, extensions,options);
+                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={} options={}", node, backend, controllerFactory, extensions,options);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
