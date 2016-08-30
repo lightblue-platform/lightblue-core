@@ -245,6 +245,18 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void retrieveAandB_noproject() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'obj1.c.*._id','op':'=','rvalue':'CDEEP2'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
+        fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
+        Response response = mediator.find(fr);
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertEquals("ADEEP2", response.getEntityData().get(0).get("_id").asText());
+    }
+
+    
+    @Test
     public void retrieveAandBonly_manyA() throws Exception {
         FindRequest fr = new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'$in','values':['A01','A02','A03']}"));

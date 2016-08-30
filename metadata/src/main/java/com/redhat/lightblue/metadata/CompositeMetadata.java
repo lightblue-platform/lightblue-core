@@ -185,6 +185,11 @@ public class CompositeMetadata extends EntityMetadata {
         return bld.toString();
     }
 
+    @Override
+    public String toString() {
+        return toTreeString();
+    }
+
     /**
      * Returns the composite metadata containing the field pointed by the given
      * path
