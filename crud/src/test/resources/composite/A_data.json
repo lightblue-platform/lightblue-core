@@ -903,6 +903,23 @@
     ]
   }
   },{
+  "_id":"ADEEP2",
+   "objectType":"A",
+   "b_ref":"BNONP",
+      "obj1":{
+       "c_ref":"CDEEP2"
+   },
+   "level1": {
+    "arr1": [
+       { 
+         "b_ref":"B01"
+       },
+       { 
+         "b_ref":"B02"
+       }
+    ]
+   }
+  },{
   "_id":"MANYB1",
   "objectType":"A",
   "nonid_b_ref":"MANYB1"
