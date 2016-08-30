@@ -39,14 +39,6 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     }
 
     @Test
-    public void test() throws Exception {
-        Projection p = EvalTestContext.projectionFromJson("[{'field':'field2'},{'field':'field6.*', 'recursive': true}]");
-        Projector projector = Projector.getInstance(p, md);
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
-        System.out.println(pdoc);
-    }
-
-    @Test
     public void fieldProjectorTest_nonrecursive() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field2'},{'field':'field6.*'}]");
         Projector projector = Projector.getInstance(p, md);
