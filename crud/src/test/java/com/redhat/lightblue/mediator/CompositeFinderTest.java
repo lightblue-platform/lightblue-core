@@ -245,6 +245,21 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void retrieveAandBonly_defaultVersion() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+        fr.setEntityVersion(new EntityVersion("A_def", "1.0.0"));
+        Response response = mediator.find(fr);
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
+        QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
+        // This one must have A -> B
+        Assert.assertEquals(1, qplan.getSources().length);
+        Assert.assertEquals("A_def", qplan.getSources()[0].getMetadata().getName());
+    }
+
+    @Test
     public void retrieveAandBonly_manyA() throws Exception {
         FindRequest fr = new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'$in','values':['A01','A02','A03']}"));
