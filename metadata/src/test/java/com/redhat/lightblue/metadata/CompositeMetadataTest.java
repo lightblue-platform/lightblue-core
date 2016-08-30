@@ -291,4 +291,12 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         Assert.assertTrue(field == a.resolve(new Path("obj1.c.*._id")));
         Assert.assertEquals("obj1.c.*._id", field.getFullPath().toString());
     }
+
+    @Test
+    public void defaultVersionInRefTest() throws Exception {
+        EntityMetadata md=getMd("composite/A_def.json");
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+        ResolvedReferenceField ref = (ResolvedReferenceField) a.resolve(new Path("obj1.c"));
+        Assert.assertNotNull(ref);
+    }
 }

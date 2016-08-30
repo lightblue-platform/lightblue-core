@@ -41,6 +41,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
     private ObjectNode extensions;
+    private ObjectNode options;
 
     public ControllerConfiguration() {
     }
@@ -49,6 +50,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
         backend = c.backend;
         controllerFactory = c.controllerFactory;
         extensions = c.extensions;
+        options=c.options;
     }
 
     /**
@@ -93,6 +95,20 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
         extensions = node;
     }
 
+    /**
+     * The options for the controller
+     */
+    public ObjectNode getOptions() {
+        return options;
+    }
+
+    /**
+     * The  options for the controller
+     */
+    public void setOptions(ObjectNode node) {
+        options = node;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void initializeFromJson(JsonNode node) {
@@ -108,7 +124,8 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                             x.asText());
                 }
                 extensions = (ObjectNode) node.get("extensions");
-                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={}", node, backend, controllerFactory, extensions);
+                options = (ObjectNode) node.get("options");
+                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={} options={}", node, backend, controllerFactory, extensions,options);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -170,9 +170,9 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void nf3_less_than_nf5() throws Exception {
+    public void nf3_less_than_nf9() throws Exception {
         QueryEvaluationContext ctx = QueryEvaluator.
-                getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf3','op':'<','rfield':'field6.nf5'}"), md).
+                getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf3','op':'<','rfield':'field6.nf9'}"), md).
                 evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
@@ -231,6 +231,14 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
                 getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'!=','rfield':'field6.nf5'}"), md).
                 evaluate(jsonDoc);
         Assert.assertFalse(ctx.getResult());
+    }
+
+    @Test
+    public void nf3_greater_than_nf11() throws Exception {
+        QueryEvaluationContext ctx = QueryEvaluator.
+                getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf3','op':'>','rfield':'field6.nf11'}"), md).
+                evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
     }
 
 }

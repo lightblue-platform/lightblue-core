@@ -127,14 +127,16 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                             }
                         }
                         LOGGER.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
-                        if (ldocValue != null && rdocValue != null) {
-                            // Both fields are values
+                        // Treat null (both value and list are null) as a value
+                        boolean leftIsValue = ldocValue != null || ldocList == null;
+                        boolean rightIsValue = rdocValue != null || rdocList == null;
+                        if (leftIsValue && rightIsValue) {
                             int result = fieldMd.getType().compare(ldocValue, rdocValue);
                             LOGGER.debug(" result={}", result);
                             if (operator.apply(result)) {
                                 ctx.setResult(true);
                             }
-                        } else if (ldocList != null && rdocList != null) {
+                        } else if (!leftIsValue && !rightIsValue) {
                             // Both fields are arrays. Compare each element
                             Type type = ((ArrayField) fieldMd).getElement().getType();
                             int ln = ldocList.size();
@@ -151,7 +153,7 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                             if (cmpOp(CMP_LOOKUP[cmp], operator)) {
                                 ctx.setResult(true);
                             }
-                        } else if (ldocList != null && rdocValue != null) {
+                        } else if (!leftIsValue) {
                             // Left field is an array, right field is a value
                             BinaryComparisonOperator resultOp = lvCompare(rdocValue, ldocList,
                                     ((ArrayField) fieldMd).getElement().getType()).invert();
@@ -159,7 +161,7 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                             if (cmpOp(resultOp, operator)) {
                                 ctx.setResult(true);
                             }
-                        } else if (ldocValue != null && rdocList != null) {
+                        } else {
                             // left field is a value, right field is an array
                             BinaryComparisonOperator resultOp = lvCompare(ldocValue, rdocList, fieldMd.getType());
                             LOGGER.debug("Comparing field with array {} {} {}={}", ldocValue, operator, rdocList, resultOp);

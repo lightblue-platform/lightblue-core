@@ -117,7 +117,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals(4, newDoc.get(new Path("field6.nf3")).asInt());
         Assert.assertEquals(false, newDoc.get(new Path("field6.nf4")).asBoolean());
         Assert.assertEquals(5, newDoc.get(new Path("field6.nf5.0")).asInt());
-        Assert.assertEquals(10, newDoc.get(new Path("field6.nf5.1")).asInt());
+        Assert.assertEquals(JSON_NODE_FACTORY.nullNode(), newDoc.get(new Path("field6.nf5.1")));
         Assert.assertEquals(15, newDoc.get(new Path("field6.nf5.2")).asInt());
         Assert.assertEquals(20, newDoc.get(new Path("field6.nf5.3")).asInt());
         Assert.assertEquals("one", newDoc.get(new Path("field6.nf6.0")).asText());
@@ -153,7 +153,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals(4, newDoc.get(new Path("field6.nf3")).asInt());
         Assert.assertEquals(false, newDoc.get(new Path("field6.nf4")).asBoolean());
         Assert.assertEquals(5, newDoc.get(new Path("field6.nf5.0")).asInt());
-        Assert.assertEquals(10, newDoc.get(new Path("field6.nf5.1")).asInt());
+        Assert.assertEquals(JSON_NODE_FACTORY.nullNode(), newDoc.get(new Path("field6.nf5.1")));
         Assert.assertEquals(15, newDoc.get(new Path("field6.nf5.2")).asInt());
         Assert.assertEquals(20, newDoc.get(new Path("field6.nf5.3")).asInt());
         Assert.assertEquals("one", newDoc.get(new Path("field6.nf6.0")).asText());

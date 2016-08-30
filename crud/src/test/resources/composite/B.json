@@ -5,7 +5,8 @@
         "backend":"mongo",
         "datasource": "mongodata",
         "collection": "user"
-    }
+    },
+      "defaultVersion":"1.0.0"
   },
   "schema" : {
     "name" : "B",

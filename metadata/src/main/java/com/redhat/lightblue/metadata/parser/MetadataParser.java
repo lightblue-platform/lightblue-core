@@ -873,7 +873,7 @@ public abstract class MetadataParser<T> {
                                                T object) {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
-        field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
+        field.setVersionValue(getStringProperty(object, STR_VERSION_VALUE));
         field.setProjection(getProjection(object, STR_PROJECTION));
         field.setQuery(getQuery(object, STR_QUERY));
         field.setSort(getSort(object, STR_SORT));
@@ -1493,7 +1493,8 @@ public abstract class MetadataParser<T> {
 
     private void convertReferenceField(ReferenceField field, T fieldObject) {
         putString(fieldObject, STR_ENTITY, field.getEntityName());
-        putString(fieldObject, STR_VERSION_VALUE, field.getVersionValue());
+        if(field.getVersionValue()!=null)
+            putString(fieldObject, STR_VERSION_VALUE, field.getVersionValue());
         if (field.getProjection() != null) {
             putProjection(fieldObject, STR_PROJECTION, field.getProjection());
         }

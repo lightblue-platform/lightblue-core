@@ -73,6 +73,15 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void fieldProjectorTest_recursive_doesNotFilterNullsInArrays() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field6.*','recursive':true}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        Assert.assertEquals(4, pdoc.get(new Path("field6.nf5")).size());
+        Assert.assertEquals(JSON_NODE_FACTORY.nullNode(), pdoc.get(new Path("field6.nf5.1")));
+    }
+
+    @Test
     public void fieldProjectorTest_arr_range() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[1,2],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
@@ -90,7 +99,6 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field7.0.elemf2")));
         Assert.assertNull(pdoc.get(new Path("field7.1.elemf1")));
         Assert.assertNull(pdoc.get(new Path("field7.1.elemf2")));
-
     }
 
     @Test
