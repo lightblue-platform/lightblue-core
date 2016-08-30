@@ -496,30 +496,19 @@ public class JsonDoc implements Serializable {
      */
     public static JsonNode filterNulls(JsonNode root) {
         if (root instanceof ArrayNode) {
-            ArrayNode a = (ArrayNode) root;
-            int n = a.size();
-            for (int i = n - 1; i >= 0; i--) {
-                JsonNode node = a.get(i);
-                if (node == null || node instanceof NullNode) {
-                    a.remove(i);
-                } else {
-                    filterNulls(node);
-                }
+            for (JsonNode element : root) {
+                filterNulls(element);
             }
         } else if (root instanceof ObjectNode) {
             ObjectNode o = (ObjectNode) root;
-            List<String> removeList = new ArrayList<>();
             for (Iterator<Map.Entry<String, JsonNode>> itr = o.fields(); itr.hasNext();) {
                 Map.Entry<String, JsonNode> entry = itr.next();
                 JsonNode value = entry.getValue();
                 if (value == null || value instanceof NullNode) {
-                    removeList.add(entry.getKey());
+                    itr.remove();
                 } else {
-                    filterNulls(entry.getValue());
+                    filterNulls(value);
                 }
-            }
-            for (String x : removeList) {
-                o.remove(x);
             }
         }
         return root;

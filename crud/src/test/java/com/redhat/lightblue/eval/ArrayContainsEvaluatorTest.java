@@ -70,7 +70,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void contains_all_returns_true_when_all_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$all', 'values':[5,null,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -80,7 +80,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void contains_all_returns_false_when_all_expression_values_not_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$all', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -90,7 +90,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void contains_none_returns_false_when_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$none', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -130,7 +130,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void one_$parent_contains_all_returns_true_when_all_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$all', 'values':[5,null,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -140,7 +140,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void one_$parent_contains_all_returns_false_when_all_expression_values_not_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$all', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -150,7 +150,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void one_$parent_contains_none_returns_false_when_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$none', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -190,7 +190,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void two_$parent_contains_all_returns_true_when_all_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$all', 'values':[5,null,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -200,7 +200,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void two_$parent_contains_all_returns_false_when_all_expression_values_not_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$all', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -210,7 +210,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void two_$parent_contains_none_returns_false_when_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$none', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -250,7 +250,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void one_$this_contains_all_returns_true_when_all_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$all', 'values':[5,null,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -260,7 +260,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void one_$this_contains_all_returns_false_when_all_expression_values_not_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$all', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -270,7 +270,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void one_$this_contains_none_returns_false_when_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$none', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -310,7 +310,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void two_$this_contains_all_returns_true_when_all_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$all', 'values':[5,null,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -320,7 +320,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void two_$this_contains_all_returns_false_when_all_expression_values_not_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$all', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
@@ -330,7 +330,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void two_$this_contains_none_returns_false_when_expression_values_in_array() throws Exception {
-        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
+        QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$none', 'values':[5,null,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
         QueryEvaluationContext context = eval.evaluate(jsonDoc);
