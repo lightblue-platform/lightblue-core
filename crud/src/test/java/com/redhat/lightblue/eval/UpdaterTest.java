@@ -194,13 +194,13 @@ public class UpdaterTest extends AbstractJsonNodeTest {
 
     @Test
     public void array_foreach_removethis() throws Exception {
-        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field6.nf5' : { 'field':'$this','op':'=','rvalue':10} , '$update' : '$remove' } }");
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field6.nf5' : { 'field':'$this','op':'=','rvalue':15} , '$update' : '$remove' } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertEquals(4, jsonDoc.get(new Path("field6.nf5")).size());
-        Assert.assertEquals(10, jsonDoc.get(new Path("field6.nf5.1")).asInt());
+        Assert.assertEquals(15, jsonDoc.get(new Path("field6.nf5.2")).asInt());
         updater.update(jsonDoc, md.getFieldTreeRoot(), new Path());
         Assert.assertEquals(3, jsonDoc.get(new Path("field6.nf5")).size());
-        Assert.assertEquals(15, jsonDoc.get(new Path("field6.nf5.1")).asInt());
+        Assert.assertEquals(20, jsonDoc.get(new Path("field6.nf5.2")).asInt());
     }
 
     @Test
