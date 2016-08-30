@@ -121,6 +121,19 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void query_b_project_c() throws Exception {
+        EntityMetadata md = getMd("composite/A.json");
+        GMD gmd = new GMD();
+        gmd.add(query("{'field':'b.*.field1','op':'=','rvalue':'x'}"));
+        gmd.add(projection("[{'field':'*'},{'field':'obj1.c'}]"));
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
+        System.out.println(a.toTreeString());
+        Assert.assertNotNull(a.getChildMetadata(new Path("b")));
+        Assert.assertNotNull(a.getChildMetadata(new Path("obj1.c")));
+    }
+
+    @Test
     public void query_b_and_c_in_A() throws Exception {
         EntityMetadata md = getMd("composite/A.json");
         GMD gmd = new GMD();
