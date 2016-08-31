@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Callable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +51,7 @@ import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.WithQuery;
+import com.redhat.lightblue.crud.WithRange;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.metadata.CompositeMetadata;
@@ -68,13 +74,15 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
+import com.redhat.lightblue.assoc.CompositeFindImpl;
+
 /**
  * The mediator looks at a request, performs basic validation, and passes the
  * operation to one or more of the controllers based on the request attributes.
  */
 public class Mediator {
 
-    public static final String CTX_QPLAN="meditor:qplan";
+    public static final String CTX_QPLAN = "meditor:qplan";
 
     public static final String CRUD_MSG_PREFIX = "CRUD controller={}";
 
@@ -86,7 +94,7 @@ public class Mediator {
     private final Factory factory;
 
     public Mediator(Metadata md,
-            Factory factory) {
+                    Factory factory) {
         this.metadata = md;
         this.factory = factory;
     }
@@ -113,7 +121,7 @@ public class Mediator {
             } else {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_INSERT, ctx);
                 CRUDController controller = factory.getCRUDController(md);
-                updatePredefinedFields(ctx,controller,md.getName());
+                updatePredefinedFields(ctx, controller, md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -121,11 +129,11 @@ public class Mediator {
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
-                        response.setEntityData(JsonDoc.listToDoc(insertedDocuments, factory.getNodeFactory()));
+                        response.setEntityData(JsonDoc.listToDoc(applyRange(req, insertedDocuments), factory.getNodeFactory()));
                         response.setModifiedCount(insertedDocuments.size());
                     }
-                    if (!ctx.hasErrors()&&!ctx.hasDocumentErrors()&&
-                        insertedDocuments != null && insertedDocuments.size() == ctx.getDocuments().size()) {
+                    if (!ctx.hasErrors() && !ctx.hasDocumentErrors()
+                            && insertedDocuments != null && insertedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
                     } else if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
                         ctx.setStatus(OperationStatus.PARTIAL);
@@ -181,7 +189,7 @@ public class Mediator {
             } else {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_SAVE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
-                updatePredefinedFields(ctx,controller,md.getName());
+                updatePredefinedFields(ctx, controller, md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -189,11 +197,11 @@ public class Mediator {
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
-                        response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
+                        response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
                         response.setModifiedCount(updatedDocuments.size());
                     }
-                    if (!ctx.hasErrors()&&!ctx.hasDocumentErrors()&&
-                        updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
+                    if (!ctx.hasErrors() && !ctx.hasDocumentErrors()
+                            && updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
                     } else if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                         ctx.setStatus(OperationStatus.PARTIAL);
@@ -244,38 +252,40 @@ public class Mediator {
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "update " + ctx.getTopLevelEntityName()));
-            } else if(checkQueryAccess(ctx,req.getQuery())) {
+            } else if (checkQueryAccess(ctx, req.getQuery())) {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_UPDATE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDUpdateResponse updateResponse;
-                if(ctx.isSimple()) {
+                if (ctx.isSimple()) {
                     updateResponse = controller.update(ctx,
-                                                       req.getQuery(),
-                                                       req.getUpdateExpression(),
-                                                       req.getReturnFields());
+                            req.getQuery(),
+                            req.getUpdateExpression(),
+                            req.getReturnFields());
                 } else {
                     LOGGER.debug("Composite search required for update");
-                    QueryExpression q=rewriteUpdateQueryForCompositeSearch(md,ctx);
-                    LOGGER.debug("New query:{}",q);
-                    if(q!=null)
-                        updateResponse=controller.update(ctx,q,req.getUpdateExpression(),req.getReturnFields());
-                    else {
-                        updateResponse=new CRUDUpdateResponse();
+                    QueryExpression q = rewriteUpdateQueryForCompositeSearch(md, ctx);
+                    LOGGER.debug("New query:{}", q);
+                    if (q != null) {
+                        updateResponse = controller.update(ctx, q, req.getUpdateExpression(), req.getReturnFields());
+                    } else {
+                        updateResponse = new CRUDUpdateResponse();
                         updateResponse.setNumUpdated(0);
                         updateResponse.setNumFailed(0);
+                        updateResponse.setNumMatched(0);
                     }
                 }
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
                 response.setModifiedCount(updateResponse.getNumUpdated());
+                response.setMatchCount(updateResponse.getNumMatched());
                 List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                 if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
-                    response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
+                    response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
                 }
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
-                } else if(ctx.hasDocumentErrors()) {
+                } else if (ctx.hasDocumentErrors()) {
                     ctx.setStatus(OperationStatus.PARTIAL);
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
@@ -310,28 +320,28 @@ public class Mediator {
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "delete " + ctx.getTopLevelEntityName()));
-            } else if(checkQueryAccess(ctx,req.getQuery())) {
+            } else if (checkQueryAccess(ctx, req.getQuery())) {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_DELETE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
 
                 CRUDDeleteResponse result;
-                if(ctx.isSimple()) {
-                    result = controller.delete(ctx,req.getQuery());
+                if (ctx.isSimple()) {
+                    result = controller.delete(ctx, req.getQuery());
                 } else {
                     LOGGER.debug("Composite search required for delete");
-                    QueryExpression q=rewriteUpdateQueryForCompositeSearch(md,ctx);
-                    LOGGER.debug("New query:{}",q);
-                    if(q!=null)
-                        result=controller.delete(ctx,q);
-                    else {
-                        result=new CRUDDeleteResponse();
+                    QueryExpression q = rewriteUpdateQueryForCompositeSearch(md, ctx);
+                    LOGGER.debug("New query:{}", q);
+                    if (q != null) {
+                        result = controller.delete(ctx, q);
+                    } else {
+                        result = new CRUDDeleteResponse();
                         result.setNumDeleted(0);
                     }
                 }
-                
+
                 ctx.getHookManager().queueMediatorHooks(ctx);
-                response.setModifiedCount(result.getNumDeleted());
+                response.setModifiedCount(result == null ? 0 : result.getNumDeleted());
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
                 } else {
@@ -356,61 +366,64 @@ public class Mediator {
         return response;
     }
 
-    
-    private QueryExpression rewriteUpdateQueryForCompositeSearch(CompositeMetadata md,OperationContext ctx) {
+    private QueryExpression rewriteUpdateQueryForCompositeSearch(CompositeMetadata md, OperationContext ctx) {
         // Construct a new find request with the composite query
         // Retrieve only the identities
         // This fails if the entity doesn't have identities
-        DocIdExtractor docIdx=new DocIdExtractor(md);
+        DocIdExtractor docIdx = new DocIdExtractor(md);
         // Identity fields also contains the objectType, we'll filter that out while writing the query
-        Path[] identityFields=docIdx.getIdentityFields();
+        Path[] identityFields = docIdx.getIdentityFields();
 
-        FindRequest freq=new FindRequest();
+        FindRequest freq = new FindRequest();
         freq.setEntityVersion(ctx.getRequest().getEntityVersion());
         freq.setClientId(ctx.getRequest().getClientId());
         freq.setExecution(ctx.getRequest().getExecution());
-        freq.setQuery(((WithQuery)ctx.getRequest()).getQuery());
+        freq.setQuery(((WithQuery) ctx.getRequest()).getQuery());
         // Project the identity fields
-        List<Projection> pl=new ArrayList<>(identityFields.length);
-        for(Path field:identityFields)
-            pl.add(new FieldProjection(field,true,false));
+        List<Projection> pl = new ArrayList<>(identityFields.length);
+        for (Path field : identityFields) {
+            pl.add(new FieldProjection(field, true, false));
+        }
         freq.setProjection(new ProjectionList(pl));
-        LOGGER.debug("Query:{} projection:{}",freq.getQuery(),freq.getProjection());
-        
-        OperationContext findCtx=new OperationContext(freq,CRUDOperation.FIND,ctx);
-        Finder finder=new CompositeFindImpl(md,factory);
-        CRUDFindResponse response=finder.find(findCtx,freq.getCRUDFindRequest());
-        List<JsonDoc> docs=findCtx.getOutputDocumentsWithoutErrors();
-        LOGGER.debug("Found documents:{}",docs.size());
+        LOGGER.debug("Query:{} projection:{}", freq.getQuery(), freq.getProjection());
+
+        OperationContext findCtx = new OperationContext(freq, CRUDOperation.FIND, ctx);
+        CompositeFindImpl finder = new CompositeFindImpl(md);
+        finder.setParallelism(9);
+        CRUDFindResponse response = finder.find(findCtx, freq.getCRUDFindRequest());
+        List<JsonDoc> docs = findCtx.getOutputDocumentsWithoutErrors();
+        LOGGER.debug("Found documents:{}", docs.size());
 
         // Now write a query
-        List<QueryExpression> orq=new ArrayList<>();
-        for(JsonDoc doc:docs) {
-            DocId id=docIdx.getDocId(doc);
-            List<QueryExpression> idList=new ArrayList<>(identityFields.length);
-            for(int ix=0;ix<identityFields.length;ix++) {
-                if(!identityFields[ix].equals(PredefinedFields.OBJECTTYPE_PATH)) {
-                    Object value=id.getValue(ix);
+        List<QueryExpression> orq = new ArrayList<>();
+        for (JsonDoc doc : docs) {
+            DocId id = docIdx.getDocId(doc);
+            List<QueryExpression> idList = new ArrayList<>(identityFields.length);
+            for (int ix = 0; ix < identityFields.length; ix++) {
+                if (!identityFields[ix].equals(PredefinedFields.OBJECTTYPE_PATH)) {
+                    Object value = id.getValue(ix);
                     idList.add(new ValueComparisonExpression(identityFields[ix],
-                                                             BinaryComparisonOperator._eq,
-                                                             new Value(value)));
+                            BinaryComparisonOperator._eq,
+                            new Value(value)));
                 }
             }
             QueryExpression idq;
-            if(idList.size()==1)
-                idq=idList.get(0);
-            else
-                idq=new NaryLogicalExpression(NaryLogicalOperator._and,idList);
+            if (idList.size() == 1) {
+                idq = idList.get(0);
+            } else {
+                idq = new NaryLogicalExpression(NaryLogicalOperator._and, idList);
+            }
             orq.add(idq);
         }
-        if(orq.size()==0)
+        if (orq.isEmpty()) {
             return null;
-        else if(orq.size()==1)
+        } else if (orq.size() == 1) {
             return orq.get(0);
-        else
-            return new NaryLogicalExpression(NaryLogicalOperator._or,orq);
+        } else {
+            return new NaryLogicalExpression(NaryLogicalOperator._or, orq);
+        }
     }
-    
+
     /**
      * Finds documents
      *
@@ -430,18 +443,20 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 LOGGER.debug("No access");
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
-            } else if(checkQueryAccess(ctx,req.getQuery())) {
+            } else if (checkQueryAccess(ctx, req.getQuery())) {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND, ctx);
                 Finder finder;
-                if(ctx.isSimple()) {
+                if (ctx.isSimple()) {
                     LOGGER.debug("Simple entity");
-                    finder=new SimpleFindImpl(md,factory);
+                    finder = new SimpleFindImpl(md, factory);
                 } else {
                     LOGGER.debug("Composite entity");
-                    finder=new CompositeFindImpl(md,factory);
+                    finder = new CompositeFindImpl(md);
+                    // This can be read from a configuration
+                    ((CompositeFindImpl) finder).setParallelism(9);
                 }
 
-                CRUDFindResponse result=finder.find(ctx,req.getCRUDFindRequest());
+                CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
 
                 List<JsonDoc> foundDocuments = ctx.getOutputDocumentsWithoutErrors();
                 if (foundDocuments != null && foundDocuments.size() == ctx.getDocuments().size()) {
@@ -452,7 +467,7 @@ public class Mediator {
                     ctx.setStatus(OperationStatus.ERROR);
                 }
 
-                response.setMatchCount(result.getSize());
+                response.setMatchCount(result == null ? 0 : result.getSize());
                 List<DocCtx> documents = ctx.getDocuments();
                 if (documents != null) {
                     List<JsonDoc> resultList = new ArrayList<>(documents.size());
@@ -485,25 +500,139 @@ public class Mediator {
         return response;
     }
 
+    /**
+     * Explains the query. Part of the implementation is done here at
+     * the core level, and then passed to the backend to fill in
+     * back-end specifics
+     */
+    public Response explain(FindRequest req) {
+        LOGGER.debug("explain {}", req.getEntityVersion());
+        Error.push("explain(" + req.getEntityVersion().toString() + ")");
+        Response response = new Response(factory.getNodeFactory());
+        response.setStatus(OperationStatus.ERROR);
+        try {
+            OperationContext ctx = newCtx(req, CRUDOperation.FIND);
+            CompositeMetadata md = ctx.getTopLevelEntityMetadata();
+            Finder finder;
+            if (ctx.isSimple()) {
+                LOGGER.debug("Simple entity");
+                finder = new SimpleFindImpl(md, factory);
+            } else {
+                LOGGER.debug("Composite entity");
+                finder = new CompositeFindImpl(md);
+                // This can be read from a configuration
+                ((CompositeFindImpl) finder).setParallelism(9);
+            }
+            
+            finder.explain(ctx, req.getCRUDFindRequest());
+            
+            List<JsonDoc> foundDocuments = ctx.getOutputDocumentsWithoutErrors();
+            if (foundDocuments != null && !foundDocuments.isEmpty()) {
+                ctx.setStatus(OperationStatus.COMPLETE);
+                List<DocCtx> documents = ctx.getDocuments();
+                if (documents != null) {
+                    response.setMatchCount(documents.size());
+                    List<JsonDoc> resultList = new ArrayList<>(documents.size());
+                    for (DocCtx doc : documents) {
+                        resultList.add(doc.getOutputDocument());
+                    }
+                    response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
+                }
+            } else {
+                ctx.setStatus(OperationStatus.ERROR);
+            }
+            
+            response.setStatus(ctx.getStatus());
+            response.getErrors().addAll(ctx.getErrors());
+            response.getDataErrors().addAll(ctx.getDataErrors());
+        } catch (Error e) {
+            LOGGER.debug("Error during explain:{}", e);
+            response.getErrors().add(e);
+        } catch (Exception e) {
+            LOGGER.debug("Exception during explain:{}", e);
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
+        } finally {
+            Error.pop();
+        }
+        return response;        
+    }
+
+    public static class BulkExecutionContext {
+        final Future<Response>[] futures;
+        final Response[] responses;
+
+        public BulkExecutionContext(int size) {
+            futures = new Future[size];
+            responses = new Response[size];
+        }
+    }
+
+    protected void wait(BulkExecutionContext ctx) {
+        for (int i = 0; i < ctx.futures.length; i++) {
+            if (ctx.futures[i] != null) {
+                try {
+                    LOGGER.debug("Waiting for a find request to complete");
+                    ctx.responses[i] = ctx.futures[i].get();
+                } catch (Exception e) {
+                    LOGGER.debug("Find request wait failed", e);
+                }
+            }
+        }
+    }
+
+    protected Callable<Response> getAsyncFind(final FindRequest req) {
+        return new Callable<Response>() {
+            @Override
+            public Response call() {
+                return find((FindRequest) req);
+            }
+        };
+    }
+
     public BulkResponse bulkRequest(BulkRequest requests) {
         LOGGER.debug("Bulk request start");
         Error.push("bulk operation");
-        BulkResponse responses=new BulkResponse();
-        for(Request req:requests.getEntries()) {
-            switch(req.getOperation()) {
-            case FIND: responses.add(find((FindRequest)req));break;
-            case INSERT: responses.add(insert((InsertionRequest)req));break;
-            case DELETE: responses.add(delete((DeleteRequest)req));break;
-            case UPDATE: responses.add(update((UpdateRequest)req));break;
-            case SAVE: responses.add(save((SaveRequest)req));break;
+        ExecutorService executor = Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
+        try {
+            LOGGER.debug("Executing {} find requests in parallel", factory.getBulkParallelExecutions());
+            List<Request> requestList = requests.getEntries();
+            int n = requestList.size();
+            BulkExecutionContext ctx = new BulkExecutionContext(n);
+
+            for (int i = 0; i < n; i++) {
+                Request req = requestList.get(i);
+                if (req.getOperation() == CRUDOperation.FIND) {
+                    ctx.futures[i] = executor.submit(getAsyncFind((FindRequest) req));
+                } else {
+                    wait(ctx);
+                    switch (req.getOperation()) {
+                        case INSERT:
+                            ctx.responses[i] = insert((InsertionRequest) req);
+                            break;
+                        case DELETE:
+                            ctx.responses[i] = delete((DeleteRequest) req);
+                            break;
+                        case UPDATE:
+                            ctx.responses[i] = update((UpdateRequest) req);
+                            break;
+                        case SAVE:
+                            ctx.responses[i] = save((SaveRequest) req);
+                            break;
+                    }
+                }
             }
+            wait(ctx);
+            LOGGER.debug("Bulk execution completed");
+            BulkResponse response = new BulkResponse();
+            response.setEntries(ctx.responses);
+            Error.pop();
+            return response;
+        } finally {
+            executor.shutdown();
         }
-        Error.pop();
-        return responses;
     }
 
-
-    protected OperationContext newCtx(Request request,CRUDOperation CRUDOperation) {
+    protected OperationContext newCtx(Request request, CRUDOperation CRUDOperation) {
         return new OperationContext(request, metadata, factory, CRUDOperation);
     }
 
@@ -531,41 +660,59 @@ public class Mediator {
         LOGGER.debug("Constraint validation complete");
     }
 
-    private void updatePredefinedFields(OperationContext ctx,CRUDController controller, String entity) {
+    private void updatePredefinedFields(OperationContext ctx, CRUDController controller, String entity) {
         for (JsonDoc doc : ctx.getDocuments()) {
-            PredefinedFields.updateArraySizes(ctx.getTopLevelEntityMetadata(),factory.getNodeFactory(), doc);
+            PredefinedFields.updateArraySizes(ctx.getTopLevelEntityMetadata(), factory.getNodeFactory(), doc);
             JsonNode node = doc.get(OBJECT_TYPE_PATH);
             if (node == null) {
                 doc.modify(OBJECT_TYPE_PATH, factory.getNodeFactory().textNode(entity), false);
             } else if (!node.asText().equals(entity)) {
                 throw Error.get(CrudConstants.ERR_INVALID_ENTITY, node.asText());
             }
-            controller.updatePredefinedFields(ctx,doc);
+            controller.updatePredefinedFields(ctx, doc);
         }
     }
 
     /**
-     * Checks if the caller has access to all the query fields. Returns false if not, and sets the error status in ctx
+     * Checks if the caller has access to all the query fields. Returns false if
+     * not, and sets the error status in ctx
      */
-    private boolean checkQueryAccess(OperationContext ctx,QueryExpression query) {
-        boolean ret=true;
-        if(query!=null) {
-            CompositeMetadata md=ctx.getTopLevelEntityMetadata();
-            FieldAccessRoleEvaluator eval=new FieldAccessRoleEvaluator(md,ctx.getCallerRoles());
-            List<FieldInfo> fields=query.getQueryFields();
-            LOGGER.debug("Checking access for query fields {}",fields);
-            for(FieldInfo field:fields) {
-                LOGGER.debug("Access checking field {}",field.getFieldName());
-                if(eval.hasAccess(field.getFieldName(),FieldAccessRoleEvaluator.Operation.find)) {
-                    LOGGER.debug("Field {} is readable",field.getFieldName());
+    private boolean checkQueryAccess(OperationContext ctx, QueryExpression query) {
+        boolean ret = true;
+        if (query != null) {
+            CompositeMetadata md = ctx.getTopLevelEntityMetadata();
+            FieldAccessRoleEvaluator eval = new FieldAccessRoleEvaluator(md, ctx.getCallerRoles());
+            List<FieldInfo> fields = query.getQueryFields();
+            LOGGER.debug("Checking access for query fields {}", fields);
+            for (FieldInfo field : fields) {
+                LOGGER.debug("Access checking field {}", field.getFieldName());
+                if (eval.hasAccess(field.getFieldName(), FieldAccessRoleEvaluator.Operation.find)) {
+                    LOGGER.debug("Field {} is readable", field.getFieldName());
                 } else {
-                    LOGGER.debug("Field {} is not readable",field.getFieldName());
+                    LOGGER.debug("Field {} is not readable", field.getFieldName());
                     ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, field.getFieldName().toString()));
                     ctx.setStatus(OperationStatus.ERROR);
-                    ret=false;
+                    ret = false;
                 }
             }
         }
         return ret;
+    }
+
+    List<JsonDoc> applyRange(WithRange requestWithRange, List<JsonDoc> responseDocuments) {
+        Long from = requestWithRange.getFrom();
+        Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo() + 1;
+
+        if (from != null) {
+            if (to != null) {
+                return responseDocuments.subList(from.intValue(), to.intValue());
+            } else {
+                return responseDocuments.subList(from.intValue(), responseDocuments.size());
+            }
+        } else if (to != null) {
+            return responseDocuments.subList(0, to.intValue());
+        } else {
+            return responseDocuments;
+        }
     }
 }

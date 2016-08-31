@@ -58,9 +58,9 @@ public final class BigDecimalType implements Type, Serializable {
 
     @Override
     public Object fromJson(JsonNode node) {
-        if (node instanceof NullNode) {
+        if (node == null || node instanceof NullNode) {
             return null;
-        } else if(node instanceof TextNode) {
+        } else if (node instanceof TextNode) {
             return new BigDecimal(node.asText());
         } else if (node.isValueNode()) {
             return node.decimalValue();

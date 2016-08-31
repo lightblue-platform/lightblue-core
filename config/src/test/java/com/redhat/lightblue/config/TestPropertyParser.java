@@ -22,13 +22,4 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.PropertyParser;
 
 public class TestPropertyParser extends PropertyParser {
-    @Override
-    public Object parse(String name, MetadataParser p, Object node) {
-        return null;
-    }
-
-    @Override
-    public void convert(MetadataParser p, Object emptyNode, Object object) {
-
-    }
 }

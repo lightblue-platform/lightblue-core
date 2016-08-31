@@ -1,0 +1,19 @@
+[{
+  "_id":"A01",
+  "objectType":"A_def",
+  "field1":"8nH0wBwk7C",
+  "obj1":{
+    "field1":"WImgCng",
+    "c_ref":"C01"
+    },
+  "b_ref":"B01"
+  },{
+  "_id":"A02",
+  "objectType":"A_def",
+  "field1":"PvbBP",
+  "obj1":{
+    "field1":"7f-ADUF1A",
+    "c_ref":"C02"
+    },
+  "b_ref":"B02"
+  }]

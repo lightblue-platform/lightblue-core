@@ -51,10 +51,9 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.util.JsonDoc;
 
-
 public class TestCrudController implements CRUDController {
 
-    private static final JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(true);
+    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
     public interface GetData {
         List<JsonDoc> getData(String entityName);
@@ -63,27 +62,35 @@ public class TestCrudController implements CRUDController {
     private final GetData gd;
 
     public TestCrudController(GetData gd) {
-        this.gd=gd;
+        this.gd = gd;
     }
 
     @Override
     public CRUDInsertionResponse insert(CRUDOperationContext ctx,
-                                        Projection projection) {return null;}
+                                        Projection projection) {
+        return null;
+    }
 
     @Override
     public CRUDSaveResponse save(CRUDOperationContext ctx,
                                  boolean upsert,
-                                 Projection projection) {return null;}
+                                 Projection projection) {
+        return null;
+    }
 
     @Override
     public CRUDUpdateResponse update(CRUDOperationContext ctx,
                                      QueryExpression query,
                                      UpdateExpression update,
-                                     Projection projection) {return null;}
+                                     Projection projection) {
+        return null;
+    }
 
     @Override
     public CRUDDeleteResponse delete(CRUDOperationContext ctx,
-                                     QueryExpression query) {return null;}
+                                     QueryExpression query) {
+        return null;
+    }
 
     @Override
     public CRUDFindResponse find(CRUDOperationContext ctx,
@@ -92,22 +99,33 @@ public class TestCrudController implements CRUDController {
                                  Sort sort,
                                  Long from,
                                  Long to) {
-        QueryEvaluator eval=query==null?null:QueryEvaluator.getInstance(query,ctx.getEntityMetadata(ctx.getEntityName()));
-        Projector projector=Projector.getInstance(projection,ctx.getEntityMetadata(ctx.getEntityName()));
-        List<DocCtx> output=new ArrayList<>();
-        for(JsonDoc doc:gd.getData(ctx.getEntityName())) {
-            if(eval==null) {
-                output.add(new DocCtx(projector.project(doc,nodeFactory)));
+        QueryEvaluator eval = query == null ? null : QueryEvaluator.getInstance(query, ctx.getEntityMetadata(ctx.getEntityName()));
+        Projector projector = projection == null ? null : Projector.getInstance(projection, ctx.getEntityMetadata(ctx.getEntityName()));
+        List<DocCtx> output = new ArrayList<>();
+        for (JsonDoc doc : gd.getData(ctx.getEntityName())) {
+            if (eval == null) {
+                output.add(new DocCtx(projector == null ? new JsonDoc(nodeFactory.objectNode()) : projector.project(doc, nodeFactory)));
             } else {
-                QueryEvaluationContext qctx=eval.evaluate(doc);
-                if(qctx.getResult()) {
-                    output.add(new DocCtx(projector.project(doc,nodeFactory)));
+                QueryEvaluationContext qctx = eval.evaluate(doc);
+                if (qctx.getResult()) {
+                    output.add(new DocCtx(projector == null ? new JsonDoc(nodeFactory.objectNode()) : projector.project(doc, nodeFactory)));
                 }
             }
         }
-        ctx.setDocuments(output);
-        CRUDFindResponse ret=new CRUDFindResponse();
+        CRUDFindResponse ret = new CRUDFindResponse();
         ret.setSize(output.size());
+
+        int f = from == null ? 0 : from.intValue();
+        int t = to == null ? output.size() : (to.intValue() + 1);
+        if (t < f || f >= output.size()) {
+            output = new ArrayList<>();
+        } else {
+            if (t > output.size()) {
+                t = output.size();
+            }
+            output = output.subList(f, t);
+        }
+        ctx.setDocuments(output);
         return ret;
     }
 

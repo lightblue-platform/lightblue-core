@@ -152,7 +152,7 @@ public class SetExpressionEvaluator extends Updater {
             } else if (mdNode instanceof ObjectField || mdNode instanceof ObjectArrayElement) {
                 data = initializeObject(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ArrayField) {
-                data = initializeArray(rvalue,refMdNode,mdNode,field,refPath);
+                data = initializeArray(rvalue, refMdNode, mdNode, field, refPath);
             }
             setValues.add(data);
         }
@@ -166,8 +166,9 @@ public class SetExpressionEvaluator extends Updater {
             }
         } else if (rvalue.getType() != RValueExpression.RValueType._null) {
             Value v = rvalue.getValue();
-            if (v.getValue() instanceof JsonNode)
+            if (v.getValue() instanceof JsonNode) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
+            }
         }
 
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
@@ -214,28 +215,28 @@ public class SetExpressionEvaluator extends Updater {
 
         LOGGER.debug("Starting");
         for (FieldData df : setValues) {
-            LOGGER.debug("Set field {} in ctx: {}", df.field, contextPath);
-            JsonNode oldValueNode = null;
+            LOGGER.debug("Set field {} in ctx: {} to {}/{}", df.field, contextPath, df.value, df.value.getType());
+            JsonNode oldValueNode;
             JsonNode newValueNode = null;
             Object newValue = null;
             Type newValueType = null;
             switch (df.value.getType()) {
-            case _null:
-                newValueNode = factory.nullNode();
-                break;
-            case _dereference:
-                JsonNode refNode = doc.get(new Path(contextPath, df.refPath));
-                if (refNode != null) {
-                    newValueNode = refNode.deepCopy();
-                    newValue = df.refType.fromJson(newValueNode);
-                    newValueType = df.refType;
-                }
-                break;
-            case _value:
-                newValue = df.value.getValue().getValue();
-                newValueNode = newValue instanceof JsonNode ? (JsonNode) newValue : df.fieldType.toJson(factory, newValue);
-                newValueType = df.fieldType;
-                break;
+                case _null:
+                    newValueNode = factory.nullNode();
+                    break;
+                case _dereference:
+                    JsonNode refNode = doc.get(new Path(contextPath, df.refPath));
+                    if (refNode != null) {
+                        newValueNode = refNode.deepCopy();
+                        newValue = df.refType.fromJson(newValueNode);
+                        newValueType = df.refType;
+                    }
+                    break;
+                case _value:
+                    newValue = df.value.getValue().getValue();
+                    newValueNode = newValue instanceof JsonNode ? (JsonNode) newValue : df.fieldType.toJson(factory, newValue);
+                    newValueType = df.fieldType;
+                    break;
             }
             oldValueNode = setOrAdd(doc, contextPath, df, newValueNode, newValue, newValueType);
             if (!ret) {
@@ -251,11 +252,7 @@ public class SetExpressionEvaluator extends Updater {
         Path fieldPath = new Path(contextPath, df.field);
         if (op == UpdateOperator._set) {
             LOGGER.debug("set fieldPath={}, newValue={}", fieldPath, newValueNode);
-            if (masked) {
-                copyProjection(project, doc, fieldPath);
-            } else {
-                oldValueNode = doc.modify(fieldPath, newValueNode, true);
-            }
+            oldValueNode = doc.modify(fieldPath, newValueNode, true);
         } else if (op == UpdateOperator._add) {
             oldValueNode = doc.get(fieldPath);
             if (newValueNode != null && oldValueNode != null) {

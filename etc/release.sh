@@ -6,10 +6,12 @@ RELEASE_VERSION=$1
 DEVEL_VERSION=$2
 
 if [ $1"x" == "x" ] || [ $2"x" == "x" ]; then
-    echo "Usage: ./release.sh <release version> <new snapshot version>"
-    echo "Example: ./release 1.1.0 1.2.0-SNAPSHOT"
+    echo "Usage: ./release.sh <release version> <new snapshot version> [upstream repo]"
+    echo "Example: ./release 1.1.0 1.2.0-SNAPSHOT origin"
     exit 1
 fi
+
+UPSTREAM=${3-origin}
 
 # prepare and verify state
 git fetch --all
@@ -24,12 +26,12 @@ if [ $BRANCH != "master" ]; then
     fi
 fi
 
-# check that local branch is equal to upstream master (assumes remote of origin)
-MERGE_BASE=`git merge-base HEAD origin/master`
+# check that local branch is equal to upstream master 
+MERGE_BASE=`git merge-base HEAD ${UPSTREAM}/master`
 HEAD_HASH=`git rev-parse HEAD`
 
 if [ $MERGE_BASE != $HEAD_HASH ]; then
-    echo "Local branch is not in sync with origin/master.  Fix and run this script again."
+    echo "Local branch is not in sync with ${UPSTREAM}/master.  Fix and run this script again."
     exit 1
 fi
 
@@ -45,9 +47,17 @@ mvn release:prepare -P release \
                     -Dtag=V${RELEASE_VERSION} || exit
 
 # push prepared changes (doing separate just to have control)
-git push origin master --tags
+git push ${UPSTREAM} master --tags
 
 # perform release
 mvn release:perform -P release || exit
 
+# update to latest lightblue snapshot dependencies
+mvn versions:use-latest-snapshots versions:update-properties -Dincludes=*lightblue* -DallowSnapshots=true
+git add pom.xml **/pom.xml
+git commit -m "Updated to latest snapshot dependencies"
+git push ${UPSTREAM} master
+
+# deploy updated snapshots
 mvn clean deploy
+

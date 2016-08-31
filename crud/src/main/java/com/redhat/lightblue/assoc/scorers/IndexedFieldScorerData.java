@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 import com.redhat.lightblue.metadata.Index;
 
@@ -33,73 +34,91 @@ import com.redhat.lightblue.assoc.QueryPlanData;
 
 public class IndexedFieldScorerData extends QueryPlanData {
 
+    private Index idIndex;
+    private List<Path> idFields;
     private Set<Path> indexableFields;
-    private Map<Index,Set<Path>> indexMap;
+    private Map<Index, Set<Path>> indexMap;
     private boolean rootNode;
+    private boolean identitySearch;
+
+    private transient CostAndSize cs = null;
 
     /**
-     * Somewhat arbitrary numbers to estimate the cost involved in
-     * retrieving data. A real DB engine would use DB statistics.
+     * Somewhat arbitrary numbers to estimate the cost involved in retrieving
+     * data. A real DB engine would use DB statistics.
+     *
+     * Cost Size IdentitySearch 1 1 Indexed search 2 5 Nonindexed search 10000 5
+     * No criteria 10 10000
      */
+    /**
+     * Cost of running a query on a indexes id field
+     */
+    private static final BigInteger COST_ID = new BigInteger("1");
 
     /**
      * Cost of running a query on an indexed field
      */
-    private static final BigInteger COST_INDEXED=new BigInteger("2");
+    private static final BigInteger COST_INDEXED = new BigInteger("2");
 
     /**
      * Cost of running a query without an indexed field
      */
-    private static final BigInteger COST_UNINDEXED=new BigInteger("20");
-
-    /**
-     * Cost of evaluating a query once root is retrieved
-     */
-    private static final BigInteger COST_POST_ROOT_W_QUERY_FACTOR=new BigInteger("2");
+    private static final BigInteger COST_UNINDEXED = new BigInteger("10000");
 
     /*
      * Cost associated with not having a query
      */
-    private static final BigInteger COST_NOQ=new BigInteger("1");
+    private static final BigInteger COST_NOQ = new BigInteger("10");
 
     /**
-     * Expected size of a result set with a query
+     * Expected size of a result set with identity
      */
-    private static final BigInteger SZ_Q=new BigInteger("10");
+    private static final BigInteger SZ_ID = new BigInteger("1");
 
     /**
-     * Expected size of a result set without a query. We assume the
-     * caller is not stupid enough to attempt to retrieve all data of
-     * a 1M record DB
+     * Expected size of a result set with query
      */
-    private static final BigInteger SZ_NOQ=new BigInteger("100");
+    private static final BigInteger SZ_IX = new BigInteger("5");
 
-    public BigInteger estimatedCost() {
-        if(hasQueries()) {
-            if(hasUsefulIndexes()) {
-                return COST_INDEXED ;
+    /**
+     * Expected size of a result set without a query. We assume the caller is
+     * not stupid enough to attempt to retrieve all data of a 1M record DB
+     */
+    private static final BigInteger SZ_NOQ = new BigInteger("10000");
+
+    public BigInteger estimateNodeCostPerQ() {
+        return estimateCost(identitySearch, hasQueries(), hasUsefulIndexes());
+    }
+
+    public BigInteger estimateNodeResultSetSizePerQ() {
+        if (identitySearch) {
+            return SZ_ID;
+        } else if (hasQueries()) {
+            return SZ_IX;
+        } else {
+            return SZ_NOQ;
+        }
+    }
+
+    public static BigInteger estimateCost(boolean identitySearch, boolean hasQueries, boolean hasUsefulIndexes) {
+        if (identitySearch) {
+            return COST_ID;
+        } else if (hasQueries) {
+            if (hasUsefulIndexes) {
+                return COST_INDEXED;
             } else {
                 return COST_UNINDEXED;
             }
-        } else
+        } else {
             return COST_NOQ;
+        }
     }
 
-    /**
-     * If there is a query after root, then we have to manually filter records, which is costly
-     */
-    public BigInteger estimatedRootDescendantCost(BigInteger resultSetSize) {
-        if(hasQueries())
-            return COST_POST_ROOT_W_QUERY_FACTOR.multiply(resultSetSize);
-        else
-            return BigInteger.ONE;
-    }
-
-    public BigInteger estimatedResultSize() {
-        if(hasQueries())
-            return SZ_Q;
-        else
-            return SZ_NOQ;
+    public CostAndSize getCostAndSize() {
+        if (cs == null) {
+            cs = new CostAndSize(estimateNodeCostPerQ(), estimateNodeResultSetSizePerQ());
+        }
+        return cs;
     }
 
     /**
@@ -113,7 +132,7 @@ public class IndexedFieldScorerData extends QueryPlanData {
      * True if this is the root node
      */
     public void setRootNode(boolean v) {
-        rootNode=v;
+        rootNode = v;
     }
 
     public boolean hasUsefulIndexes() {
@@ -125,37 +144,79 @@ public class IndexedFieldScorerData extends QueryPlanData {
     }
 
     /**
-     * Set of fields that are collected from the queries associated to
-     * this node that can be used for indexed access. These are the
-     * entity relative names of the paths
+     * Set of fields that are collected from the queries associated to this node
+     * that can be used for indexed access. These are the entity relative names
+     * of the paths
      */
     public Set<Path> getIndexableFields() {
         return indexableFields;
     }
 
     /**
-     * Set of fields that are collected from the queries associated to
-     * this node that can be used for indexed access. These are the
-     * entity relative names of the paths
+     * Set of fields that are collected from the queries associated to this node
+     * that can be used for indexed access. These are the entity relative names
+     * of the paths
      */
     public void setIndexableFields(Set<Path> f) {
-        indexableFields=f;
+        indexableFields = f;
     }
 
     /**
-     * Index info that shows which collections of fields can be
-     * searched by which index
+     * Index info that shows which collections of fields can be searched by
+     * which index
      */
-    public Map<Index,Set<Path>> getIndexMap() {
+    public Map<Index, Set<Path>> getIndexMap() {
         return indexMap;
     }
 
     /**
-     * Index info that shows which collections of fields can be
-     * searched by which index
+     * Index info that shows which collections of fields can be searched by
+     * which index
      */
-    public void setIndexMap(Map<Index,Set<Path>> map) {
-        indexMap=map;
+    public void setIndexMap(Map<Index, Set<Path>> map) {
+        indexMap = map;
+    }
+
+    /**
+     * The index for the entity id
+     */
+    public Index getIdIndex() {
+        return idIndex;
+    }
+
+    /**
+     * The index for the entity id
+     */
+    public void setIdIndex(Index i) {
+        idIndex = i;
+    }
+
+    /**
+     * The identities of the entity
+     */
+    public List<Path> getIdFields() {
+        return idFields;
+    }
+
+    /**
+     * The identities of the entity
+     */
+    public void setIdFields(List<Path> list) {
+        idFields = list;
+    }
+
+    /**
+     * If there is an identity search on this entity
+     */
+    public boolean isIdentitySearch() {
+        return identitySearch;
+    }
+
+    /**
+     * If there is an identity search on this entity
+     */
+    public void setIdentitySearch(boolean b) {
+        identitySearch = b;
     }
 
     @Override
@@ -167,15 +228,19 @@ public class IndexedFieldScorerData extends QueryPlanData {
     public void copyFrom(QueryPlanData source) {
         super.copyFrom(source);
         if (source instanceof IndexedFieldScorerData) {
-            if (((IndexedFieldScorerData) source).indexableFields != null)
-                indexableFields = new HashSet<>(((IndexedFieldScorerData) source).indexableFields);
-            if (((IndexedFieldScorerData) source).indexMap != null)
-                indexMap = new HashMap<>(((IndexedFieldScorerData) source).indexMap);
+            IndexedFieldScorerData s = (IndexedFieldScorerData) source;
+            idIndex = s.idIndex;
+            idFields = s.idFields;
+            indexableFields = s.indexableFields;
+            indexMap = s.indexMap;
+            rootNode = s.rootNode;
+            identitySearch = s.identitySearch;
+            cs = s.cs;
         }
     }
 
     @Override
     public String toString() {
-        return super.toString()+" indexableFields:"+indexableFields+" indexMap:"+indexMap;
+        return super.toString() + " indexableFields:" + indexableFields + " indexMap:" + indexMap;
     }
 }

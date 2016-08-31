@@ -1,6 +1,5 @@
 language: java
 jdk:
-    - openjdk7
     - oraclejdk8
 sudo: false
 before_install:
@@ -25,3 +24,4 @@ env:
     global:
         - secure: KUsWgSyKeNX8dIs/lKdxsgsXub98d1pqSqEFuEGMEvrxGoFaB63B1zoIwYI5uzv67Ir36N0H7GVgeqYsELKaU8mMcRevd/FXkALuGyUdS8/pbiXVEYtDDdWZP1VYF/p4cm3+ZzvEIhqj8ZgLWeIlXpIRYm4WAsnDzrTEG93INgk=
         - secure: q/2hWviyGa/Kr7zWes9f6gIW3rJ7xf7lh5tMFrtvNuhfEO4XRra+ZYG5yBHgvvLu+J/AaksmU4SBDmEY85GuLn5uh25s6OM9vwhnpJ9lz7FQ6jK6Jnm7IwMuHYIuTTXf5m702APingF73dkYijxgMnyOK9EEHE5/cWEgznOizY4=
+sudo: false

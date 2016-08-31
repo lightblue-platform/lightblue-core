@@ -21,6 +21,7 @@ package com.redhat.lightblue.crud.validator;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
@@ -42,19 +43,21 @@ public class EnumChecker implements FieldConstraintValueChecker {
                                 Path valuePath,
                                 JsonDoc doc,
                                 JsonNode fieldValue) {
-        String name = ((EnumConstraint) constraint).getName();
-        Set<String> values = null;
+        if (fieldValue != null && !(fieldValue instanceof NullNode)) {
+            String name = ((EnumConstraint) constraint).getName();
+            Set<String> values = null;
 
-        if (name != null) {
-            // find value set for this enum
-            Enum e = validator.getEntityMetadata().getEntityInfo().getEnums().getEnum(name);
-            if (e != null) {
-                values = e.getValues();
+            if (name != null) {
+                // find value set for this enum
+                Enum e = validator.getEntityMetadata().getEntityInfo().getEnums().getEnum(name);
+                if (e != null) {
+                    values = e.getValues();
+                }
             }
-        }
 
-        if (null == values || !values.contains(fieldValue.asText())) {
-            validator.addDocError(Error.get(CrudConstants.ERR_INVALID_ENUM, fieldValue.asText()));
+            if (null == values || !values.contains(fieldValue.asText())) {
+                validator.addDocError(Error.get(CrudConstants.ERR_INVALID_ENUM, fieldValue.asText()));
+            }
         }
     }
 }

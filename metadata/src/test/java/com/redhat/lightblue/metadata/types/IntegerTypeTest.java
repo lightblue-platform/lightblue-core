@@ -79,7 +79,7 @@ public class IntegerTypeTest {
     public void testFromJsonStr() {
         JsonNode jsonNode = JsonNodeFactory.instance.textNode("100");
         Object fromJson = integerType.fromJson(jsonNode);
-        assertEquals(100,((Number)fromJson).intValue());
+        assertEquals(100, ((Number) fromJson).intValue());
     }
 
     @Test(expected = Error.class)

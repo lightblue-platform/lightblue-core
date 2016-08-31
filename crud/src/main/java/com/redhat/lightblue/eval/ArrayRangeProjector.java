@@ -30,8 +30,8 @@ import com.redhat.lightblue.query.Projection;
  */
 public class ArrayRangeProjector extends ArrayProjector {
 
-    private final int from;
-    private final int to;
+    private final Integer from;
+    private final Integer to;
 
     /**
      * Ctor
@@ -51,7 +51,16 @@ public class ArrayRangeProjector extends ArrayProjector {
     protected Projection.Inclusion projectArray(Path p, QueryEvaluationContext ctx) {
         // Is this array element in range?
         int index = p.getIndex(p.numSegments() - 1);
-        if (index >= from && index <= to) {
+        if (to == null) {
+            if (index >= from) {
+                // This array element is selected.
+                return isIncluded() ? Projection.Inclusion.explicit_inclusion : Projection.Inclusion.explicit_exclusion;
+            } else {
+                return Projection.Inclusion.explicit_exclusion;
+            }
+        } else if (to < 0) {
+            return Projection.Inclusion.explicit_exclusion;
+        } else if (from <= to && index >= from && index <= to) {
             // This array element is selected.
             return isIncluded() ? Projection.Inclusion.explicit_inclusion : Projection.Inclusion.explicit_exclusion;
         } else {

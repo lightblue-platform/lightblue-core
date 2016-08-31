@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.JsonInitializable;
 
 /**
@@ -37,11 +36,12 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
 
     private static final long serialVersionUID = 1l;
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(ControllerConfiguration.class);
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControllerConfiguration.class);
+
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
     private ObjectNode extensions;
+    private ObjectNode options;
 
     public ControllerConfiguration() {
     }
@@ -50,6 +50,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
         backend = c.backend;
         controllerFactory = c.controllerFactory;
         extensions = c.extensions;
+        options=c.options;
     }
 
     /**
@@ -77,7 +78,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
      * @param clazz the class to set
      */
     public void setControllerFactory(Class<? extends ControllerFactory> clazz) {
-        this.controllerFactory = clazz;
+        controllerFactory = clazz;
     }
 
     /**
@@ -91,9 +92,24 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
      * The configuration for extensions
      */
     public void setExtensions(ObjectNode node) {
-        extensions=node;
+        extensions = node;
     }
 
+    /**
+     * The options for the controller
+     */
+    public ObjectNode getOptions() {
+        return options;
+    }
+
+    /**
+     * The  options for the controller
+     */
+    public void setOptions(ObjectNode node) {
+        options = node;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void initializeFromJson(JsonNode node) {
         try {
@@ -104,10 +120,12 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                 }
                 x = node.get("controllerFactory");
                 if (x != null) {
-                    controllerFactory = (Class<ControllerFactory>) Class.forName(x.asText());
+                    controllerFactory = (Class<ControllerFactory>) Thread.currentThread().getContextClassLoader().loadClass(
+                            x.asText());
                 }
-                extensions=(ObjectNode)node.get("extensions");
-                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={}",node,backend,controllerFactory,extensions);
+                extensions = (ObjectNode) node.get("extensions");
+                options = (ObjectNode) node.get("options");
+                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={} options={}", node, backend, controllerFactory, extensions,options);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

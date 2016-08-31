@@ -22,7 +22,9 @@ package com.redhat.lightblue.mediator;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 
-public interface Finder  {
+public interface Finder {
 
     CRUDFindResponse find(OperationContext ctx, CRUDFindRequest req);
+
+    void explain(OperationContext ctx, CRUDFindRequest req);
 }

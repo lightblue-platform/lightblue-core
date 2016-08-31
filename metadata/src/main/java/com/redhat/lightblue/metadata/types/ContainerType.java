@@ -48,25 +48,44 @@ public abstract class ContainerType implements Type {
 
     @Override
     public int compare(Object v1, Object v2) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_COMPARE_NOT_SUPPORTED);
+        if (v1 == null) {
+            if (v2 == null) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else if (v2 == null) {
+            return 1;
+        } else {
+            throw new UnsupportedOperationException(MetadataConstants.ERR_COMPARE_NOT_SUPPORTED);
+        }
     }
 
     @Override
     public Object cast(Object v) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_CAST_NOT_SUPPORTED);
+        if (v == null) {
+            return null;
+        } else {
+            throw new UnsupportedOperationException(MetadataConstants.ERR_CAST_NOT_SUPPORTED);
+        }
     }
 
     @Override
     public JsonNode toJson(JsonNodeFactory factory, Object value) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_TO_JSON_NOT_SUPPORTED);
+        if (value == null) {
+            return factory.nullNode();
+        } else {
+            throw new UnsupportedOperationException(MetadataConstants.ERR_TO_JSON_NOT_SUPPORTED);
+        }
     }
 
     @Override
     public Object fromJson(JsonNode value) {
-        if (value instanceof NullNode) {
+        if (value == null || value instanceof NullNode) {
             return null;
-        } else
+        } else {
             throw new UnsupportedOperationException(MetadataConstants.ERR_FROM_JSON_NOT_SUPPORTED);
+        }
     }
 
     @Override

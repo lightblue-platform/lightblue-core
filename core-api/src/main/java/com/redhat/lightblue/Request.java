@@ -20,6 +20,7 @@ package com.redhat.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.util.JsonObject;
 
 import com.redhat.lightblue.crud.CRUDOperation;
@@ -93,12 +94,17 @@ public abstract class Request extends JsonObject {
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
         node.put("entity", entityVersion.getEntity());
-        node.put("entityVersion", entityVersion.getVersion());
+        if (entityVersion.getVersion() != null) {
+            node.put("entityVersion", entityVersion.getVersion());
+        }
         if (client != null) {
             node.set("client", client.toJson());
         }
         if (execution != null) {
             node.set("execution", execution.toJson());
+        }
+        if (getOperation() != null) {
+            node.put("op", getOperation().name());
         }
         return node;
     }
@@ -110,11 +116,11 @@ public abstract class Request extends JsonObject {
     protected void parse(ObjectNode node) {
         entityVersion = new EntityVersion();
         JsonNode x = node.get("entity");
-        if (x != null) {
+        if (x != null && !(x instanceof NullNode)) {
             entityVersion.setEntity(x.asText());
         }
         x = node.get("entityVersion");
-        if (x != null) {
+        if (x != null && !(x instanceof NullNode)) {
             entityVersion.setVersion(x.asText());
         }
         // TODO: clientIdentification

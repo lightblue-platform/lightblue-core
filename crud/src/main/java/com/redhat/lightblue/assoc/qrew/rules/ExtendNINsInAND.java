@@ -25,22 +25,21 @@ import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$and:{...,{$nin:{field:x,values:[v]},..,{field:x,op:!=,rvalue:w}...}}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
  *   q={$and:{...,{$nin:{field:x,values:[v, w]}},...}}
  * </pre>
  */
 public class ExtendNINsInAND extends ExtendRelationalInLogical {
 
-    public static final Rewriter INSTANCE=new ExtendNINsInAND();
+    public static final Rewriter INSTANCE = new ExtendNINsInAND();
 
     public ExtendNINsInAND() {
         super(NaryLogicalOperator._and,
-              BinaryComparisonOperator._neq,
-              NaryRelationalOperator._not_in);
+                BinaryComparisonOperator._neq,
+                NaryRelationalOperator._not_in);
     }
 }

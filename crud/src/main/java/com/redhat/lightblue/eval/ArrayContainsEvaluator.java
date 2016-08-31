@@ -92,10 +92,8 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
             if (value == null) {
                 return true;
             }
-        } else {
-            if (value != null && elem.getType().compare(value, type.fromJson(valueNode)) == 0) {
-                return true;
-            }
+        } else if (value != null && elem.getType().compare(value, type.fromJson(valueNode)) == 0) {
+            return true;
         }
         return false;
     }

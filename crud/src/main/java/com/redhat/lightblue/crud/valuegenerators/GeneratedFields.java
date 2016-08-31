@@ -19,12 +19,14 @@
 package com.redhat.lightblue.crud.valuegenerators;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.crud.Factory;
@@ -41,12 +43,12 @@ import java.util.List;
 /**
  * Initializes generated fields if they are not already initialized.
  *
- * If a generated field is required but it is not in the document, or
- * it is in the document with a null value, it is inserted into the
- * document and initialized.
+ * If a generated field is required but it is not in the document, or it is in
+ * the document with a null value, it is inserted into the document and
+ * initialized.
  *
- * If a generated field is not required, but it exists in the document
- * with null value, it is initialized.
+ * If a generated field is not required, but it exists in the document with null
+ * value, it is initialized.
  *
  */
 public final class GeneratedFields {
@@ -58,25 +60,25 @@ public final class GeneratedFields {
         while (cursor.next()) {
             FieldTreeNode node = cursor.getCurrentNode();
             // Process all generated fields
-            if(node instanceof SimpleField) {
-                SimpleField field=(SimpleField)node;
-                ValueGenerator generator=field.getValueGenerator();
-                if(generator!=null) {
+            if (node instanceof SimpleField) {
+                SimpleField field = (SimpleField) node;
+                ValueGenerator generator = field.getValueGenerator();
+                if (generator != null) {
                     Path p = cursor.getCurrentPath();
                     LOGGER.debug("Processing generated field {}", p);
                     if (required(field)) {
                         LOGGER.debug("Field {} is required", p);
-                        setRequiredField(factory, doc, field, p, 1, null,md,generator.isOverwrite());
+                        setRequiredField(factory, doc, field, p, 1, null, md, generator.isOverwrite());
                     } else {
                         LOGGER.debug("Field {} is not required", p);
                         KeyValueCursor<Path, JsonNode> nodeCursor = doc.getAllNodes(p);
                         while (nodeCursor.hasNext()) {
                             nodeCursor.next();
                             JsonNode valueNode = nodeCursor.getCurrentValue();
-                            if (valueNode.isNull()||generator.isOverwrite()) {
-                                JsonNode value=generate(factory,
-                                                        field,
-                                                        md);
+                            if (valueNode.isNull() || generator.isOverwrite()) {
+                                JsonNode value = generate(factory,
+                                        field,
+                                        md);
                                 LOGGER.debug("Setting {} to {}", nodeCursor.getCurrentKey(), value);
                                 doc.modify(nodeCursor.getCurrentKey(), value, true);
                             }
@@ -107,13 +109,13 @@ public final class GeneratedFields {
                 }
                 LOGGER.debug("Processing segment {}", arrPath);
                 JsonNode node = doc.get(arrPath);
-                if (node != null) {
+                if (node != null && !(node instanceof NullNode)) {
                     int size = node.size();
                     LOGGER.debug("{} size={}", arrPath, size);
                     arrPath.push(0);
                     for (int i = 0; i < size; i++) {
                         arrPath.setLast(i);
-                        setRequiredField(factory, doc, field, fieldPath, segment + 1, arrPath.immutableCopy(),md,overwrite);
+                        setRequiredField(factory, doc, field, fieldPath, segment + 1, arrPath.immutableCopy(), md, overwrite);
                     }
                 }
                 break;
@@ -126,26 +128,37 @@ public final class GeneratedFields {
             } else {
                 p = new MutablePath(fieldPath).rewriteIndexes(resolvedPath);
             }
-            LOGGER.debug("Setting {}", p);
-            JsonNode valueNode = doc.get(p);
-            if (overwrite||(valueNode == null || valueNode.isNull())) {
-                JsonNode value=generate(factory,
-                                        field,
-                                        md);
-                LOGGER.debug("Setting {} to {}", p, value);
-                doc.modify(p, value, true);
+            // Make sure the parent node exists, and not a null node
+            boolean nullParent = false;
+            if (p.numSegments() > 1) {
+                JsonNode parentNode = doc.get(p.prefix(-1));
+                if (parentNode == null || parentNode instanceof NullNode) {
+                    nullParent = true;
+                }
+            }
+            if (!nullParent) {
+                LOGGER.debug("Setting {}", p);
+                JsonNode valueNode = doc.get(p);
+                if (overwrite || (valueNode == null || valueNode.isNull())) {
+                    JsonNode value = generate(factory,
+                            field,
+                            md);
+                    LOGGER.debug("Setting {} to {}", p, value);
+                    doc.modify(p, value, true);
+                }
             }
         }
     }
 
-    private static JsonNode generate(Factory factory,
-                                     SimpleField field,
-                                     EntityMetadata md) {
-        ValueGeneratorSupport vgs=factory.getValueGenerator(field.getValueGenerator(),md.getDataStore().getBackend());
-        if(vgs==null)
-            throw new IllegalArgumentException("Cannot generate value for "+field.getFullPath());
-        Object value=vgs.generateValue(md,field.getValueGenerator());
-        return field.getType().toJson(factory.getNodeFactory(),value);
+    public static JsonNode generate(Factory factory,
+                                    SimpleField field,
+                                    EntityMetadata md) {
+        ValueGeneratorSupport vgs = factory.getValueGenerator(field.getValueGenerator(), md.getDataStore().getBackend());
+        if (vgs == null) {
+            throw new IllegalArgumentException("Cannot generate value for " + field.getFullPath());
+        }
+        Object value = vgs.generateValue(md, field.getValueGenerator());
+        return field.getType().toJson(factory.getNodeFactory(), value);
     }
 
     private static boolean required(SimpleField f) {
@@ -156,6 +169,8 @@ public final class GeneratedFields {
                     return ((RequiredConstraint) c).getValue();
                 } else if (c instanceof IdentityConstraint) {
                     return ((IdentityConstraint) c).isValidForFieldType(f.getType());
+                } else if (c instanceof ArrayElementIdConstraint) {
+                    return ((ArrayElementIdConstraint) c).isValidForFieldType(f.getType());
                 }
             }
         }

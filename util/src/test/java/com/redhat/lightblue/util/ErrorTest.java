@@ -247,7 +247,7 @@ public class ErrorTest {
     @Test
     public void toJson_empty() throws Exception {
         Method method = Error.class.getMethod("get", String.class);
-        Error e = (Error)method.invoke(null, new Object[]{null});
+        Error e = (Error) method.invoke(null, new Object[]{null});
         JsonNode node = e.toJson();
         JSONAssert.assertEquals("{}", node.toString(), false);
     }

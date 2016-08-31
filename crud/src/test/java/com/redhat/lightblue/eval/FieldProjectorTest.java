@@ -55,7 +55,7 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field2'},{'field':'field6.*','recursive':true}]");
         Projector projector = Projector.getInstance(p, md);
 
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4],'nf11':null}}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,null,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4],'nf11':null}}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
@@ -78,7 +78,7 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field7.$parent.field2'},{'field':'field7.$parent.field6.*','recursive':true}]");
         Projector projector = Projector.getInstance(p, md);
 
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4],'nf11':null}}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,null,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4],'nf11':null}}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
@@ -101,7 +101,7 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field6.nf7.$parent.$parent.field2'},{'field':'field6.nf7.$parent.$parent.field6.*','recursive':true}]");
         Projector projector = Projector.getInstance(p, md);
 
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4],'nf11':null}}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,null,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4],'nf11':null}}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 

@@ -30,9 +30,9 @@ import com.redhat.lightblue.util.JsonObject;
 import com.redhat.lightblue.Request;
 
 /**
- * Base class for bulk request and responses. This class contains the
- * code common to both, as bulk request and response are structurally
- * similar. It deals with a JSON of the form:
+ * Base class for bulk request and responses. This class contains the code
+ * common to both, as bulk request and response are structurally similar. It
+ * deals with a JSON of the form:
  *
  *
  * <pre>
@@ -45,11 +45,11 @@ import com.redhat.lightblue.Request;
  *         }
  *     ]
  *   }
- * </pre> 
+ * </pre>
  */
 abstract class AbstractBulkJsonObject<T extends JsonObject> extends JsonObject {
 
-    protected final List<T> entries=new ArrayList<T>();
+    protected final List<T> entries = new ArrayList<>();
 
     /**
      * Returns all entries in the bulk object
@@ -66,9 +66,15 @@ abstract class AbstractBulkJsonObject<T extends JsonObject> extends JsonObject {
         entries.addAll(x);
     }
 
+    public void setEntries(T[] x) {
+        entries.clear();
+        for (T t : x) {
+            entries.add(t);
+        }
+    }
+
     public void add(T x) {
         entries.add(x);
     }
-
 
 }

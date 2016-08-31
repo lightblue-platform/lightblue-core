@@ -43,15 +43,13 @@ public class ArraySizeChecker implements FieldConstraintValueChecker {
                                 JsonNode fieldValue) {
         int value = ((ArraySizeConstraint) constraint).getValue();
         String type = ((ArraySizeConstraint) constraint).getType();
-        if(fieldValue!=null&&!(fieldValue instanceof NullNode)) {
+        if (fieldValue != null && !(fieldValue instanceof NullNode)) {
             if (ArraySizeConstraint.MIN.equals(type)) {
                 if (((ArrayNode) fieldValue).size() < value) {
                     validator.addDocError(Error.get(CrudConstants.ERR_ARRAY_TOO_SMALL, Integer.toString(((ArrayNode) fieldValue).size())));
                 }
-            } else {
-                if (((ArrayNode) fieldValue).size() > value) {
-                    validator.addDocError(Error.get(CrudConstants.ERR_ARRAY_TOO_LARGE, Integer.toString(((ArrayNode) fieldValue).size())));
-                }
+            } else if (((ArrayNode) fieldValue).size() > value) {
+                validator.addDocError(Error.get(CrudConstants.ERR_ARRAY_TOO_LARGE, Integer.toString(((ArrayNode) fieldValue).size())));
             }
         }
     }

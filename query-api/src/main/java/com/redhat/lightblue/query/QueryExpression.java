@@ -38,183 +38,11 @@ public abstract class QueryExpression extends JsonObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryExpression.class);
 
-    private static final class BindableClausesItr extends QueryIterator {
-        private List<QueryInContext> list;
-
-        public BindableClausesItr(List<QueryInContext> l) {
-            this.list = l;
-        }
-
-        @Override
-        protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
-            list.add(new QueryInContext(ctx, q));
-            return q;
-        }
-        @Override
-        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
-            list.add(new QueryInContext(ctx,q));
-            return q;
-        }
-    }
-
-    private static final class GetQueryFieldsItr extends QueryIterator {
-        private List<FieldInfo> fields;
-
-        public GetQueryFieldsItr(List<FieldInfo> fields) {
-            this.fields = fields;
-        }
-
-        @Override
-        protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getArray()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path ctx) {
-            // Array match expression does not have the array itself as a field.
-            // All the fields references in the nested expression are the fields used by this expression
-            return super.itrArrayMatchExpression(q,ctx);
-        }
-
-        @Override
-        protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            fields.add(new FieldInfo(new Path(ctx, q.getRfield()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            fields.add(new FieldInfo(new Path(ctx, q.getRfield()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            return q;
-        }
-    }
-
-    private static final class BindItr extends QueryIterator {
-        private List<FieldBinding> bindingResult;
-        private Set<Path> bindRequest;
-
-        public BindItr(List<FieldBinding> bindingResult,
-                       Set<Path> bindRequest) {
-            this.bindingResult = bindingResult;
-            this.bindRequest = bindRequest;
-        }
-
-        private QueryExpression checkError(QueryExpression q, Path field, Path ctx) {
-            if (bindRequest.contains(new Path(ctx, field))) {
-                throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING, q.toString());
-            }
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path ctx) {
-            return checkError(q, q.getArray(), ctx);
-        }
-
-        @Override
-        protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path ctx) {
-            return checkError(q, q.getField(), ctx);
-        }
-
-        @Override
-        protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path ctx) {
-            return checkError(q, q.getField(), ctx);
-        }
-
-        @Override
-        protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path ctx) {
-            return checkError(q, q.getField(), ctx);
-        }
-
-        @Override
-        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
-            QueryExpression newq=q;
-            Path l = new Path(ctx, q.getField());
-            Path r = new Path(ctx, q.getRfield());
-            boolean bindl = bindRequest.contains(l);
-            boolean bindr = bindRequest.contains(r);
-            if (bindl && bindr) {
-                throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING, q.toString());
-            }
-            if (bindl || bindr) {
-                // If we're here, only one of the fields is bound
-                if (bindr) {    
-                    BoundValueList newValue = new BoundValueList();
-                    newq = new NaryValueRelationalExpression(q.getField(), q.getOp(), newValue);
-                    bindingResult.add(new ListBinding(r, newValue, q, newq));
-                } else {
-                    BoundValue newValue=new BoundValue();
-                    List<Value> list=new ArrayList<>(1);
-                    list.add(newValue);
-                    newq = new ArrayContainsExpression(q.getRfield(), q.getOp()==NaryRelationalOperator._in?
-                                                       ContainsOperator._all:ContainsOperator._none, 
-                                                       list);
-                    bindingResult.add(new ValueBinding(l, newValue, q, newq));
-                }                
-            }
-            return newq; 
-        }
-
-        @Override
-        protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path ctx) {
-            checkError(q, q.getArray(), ctx);
-            return super.itrArrayMatchExpression(q, ctx);
-        }
-
-        @Override
-        protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
-            QueryExpression newq=q;
-            Path l = new Path(ctx, q.getField());
-            Path r = new Path(ctx, q.getRfield());
-            boolean bindl = bindRequest.contains(l);
-            boolean bindr = bindRequest.contains(r);
-            if (bindl && bindr) {
-                throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING, q.toString());
-            }
-            if (bindl || bindr) {
-                // If we're here, only one of the fields is bound
-                BoundValue newValue = new BoundValue();
-                if (bindr) {
-                    newq = new ValueComparisonExpression(q.getField(), q.getOp(), newValue);
-                    bindingResult.add(new ValueBinding(r, newValue, q, newq));
-                } else {
-                    newq = new ValueComparisonExpression(q.getRfield(), q.getOp().invert(), newValue);
-                    bindingResult.add(new ValueBinding(l, newValue, q, newq));
-                }
-            }
-            return newq;
-        }
-
-    }
-
     /**
      * Returns field information about the query
      */
     public List<FieldInfo> getQueryFields() {
-        List<FieldInfo> list = new ArrayList<FieldInfo>(16);
-        getQueryFields(list);
-        return list;
+        return GetQueryFields.getQueryFields(this);
     }
 
     /**
@@ -223,61 +51,14 @@ public abstract class QueryExpression extends JsonObject {
      * @param fields The call adds the field information to this list
      */
     public void getQueryFields(List<FieldInfo> fields) {
-        getQueryFields(fields, Path.EMPTY);
+        GetQueryFields.getQueryFields(fields, this);
     }
 
     /**
      * The implementation should populate the list with the field information
      */
     public void getQueryFields(List<FieldInfo> fields, Path ctx) {
-        new GetQueryFieldsItr(fields).iterate(this, ctx);
-    }
-
-    /**
-     * Returns the query expressions that can be bound to a value
-     *
-     * These clauses are bindable:
-     * <ul>
-     * <li>FieldComparisonExpression</li>
-     * <li>NaryFieldRelationalExpression</li>
-     * </ul>
-     */
-    public List<QueryInContext> getBindableClauses() {
-        List<QueryInContext> list = new ArrayList<>();
-        getBindableClauses(list, Path.EMPTY);
-        return list;
-    }
-
-    /**
-     * Adds the query expressions that can be bound to a value to the given list
-     */
-    public void getBindableClauses(List<QueryInContext> list, Path ctx) {
-        new BindableClausesItr(list).iterate(this, ctx);
-    }
-
-    public QueryExpression bind(List<FieldBinding> bindingResult,
-                                Set<Path> bindRequest) {
-        return bind(Path.EMPTY, bindingResult, bindRequest);
-    }
-
-    /**
-     * Binds all the bindable fields in the bindRequest, populates the
-     * bindingResult with binding information, and return a new QueryExpression
-     * with bound values.
-     *
-     * @param ctx Context
-     * @param bindingResult The results of the bindings will be added to this
-     * list
-     * @param bindRequest Full paths to the fields to be bound. If there are
-     * array elements, '*' must be used
-     *
-     * @return A new instance of the query object with boun values. If there are
-     * no bindable values, the same query object will be returned.
-     */
-    public QueryExpression bind(Path ctx,
-                                List<FieldBinding> bindingResult,
-                                Set<Path> bindRequest) {
-        return new BindItr(bindingResult, bindRequest).iterate(this, ctx);
+        GetQueryFields.getQueryFields(fields, this, ctx);
     }
 
     /**
@@ -339,8 +120,8 @@ public abstract class QueryExpression extends JsonObject {
     }
 
     private static boolean isFieldQueried(Path field, Path qField, Path context) {
-        LOGGER.debug("Checking if field {} is included in qfield={} with context={}",field,qField,context);
-        Path absField = new Path(context, qField);
+        LOGGER.debug("Checking if field {} is included in qfield={} with context={}", field, qField, context);
+        Path absField = context.isEmpty() ? qField : new Path(context, qField);
         if (field.matchingPrefix(absField)) {
             LOGGER.debug("Field {} is queried", absField);
             return true;

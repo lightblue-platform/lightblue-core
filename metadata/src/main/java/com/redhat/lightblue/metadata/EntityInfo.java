@@ -18,18 +18,12 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Non-version specific bits of metadata.
  *
  * @author nmalik
  */
-public class EntityInfo implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+public class EntityInfo extends MetadataObject {
 
     private final String name;
     private String defaultVersion;
@@ -37,7 +31,6 @@ public class EntityInfo implements Serializable {
     private final Indexes indexes = new Indexes();
     private final Enums enums = new Enums();
     private DataStore backend;
-    private final Map<String, Object> properties = new HashMap<>();
 
     public EntityInfo(String name) {
         this.name = name;
@@ -88,9 +81,5 @@ public class EntityInfo implements Serializable {
      */
     public void setDataStore(DataStore argDataStore) {
         this.backend = argDataStore;
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
     }
 }

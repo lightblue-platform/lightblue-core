@@ -94,7 +94,7 @@ public class DataSourcesConfiguration implements JsonInitializable, Serializable
         Map<String, D> map = new HashMap<>();
         for (Map.Entry<String, DataSourceConfiguration> entry : datasources.entrySet()) {
             if (clazz.isAssignableFrom(entry.getValue().getClass())) {
-                map.put(entry.getKey(), (D)entry.getValue());
+                map.put(entry.getKey(), (D) entry.getValue());
             }
         }
         return map;
@@ -125,7 +125,7 @@ public class DataSourcesConfiguration implements JsonInitializable, Serializable
                 String type = typeNode.asText();
                 LOGGER.debug("{} is a {}", name, type);
                 try {
-                    Class clazz = Class.forName(type);
+                    Class clazz = Thread.currentThread().getContextClassLoader().loadClass(type);
                     DataSourceConfiguration ds = (DataSourceConfiguration) clazz.newInstance();
                     ds.initializeFromJson(dsNode);
                     datasources.put(name, ds);

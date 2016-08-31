@@ -26,14 +26,23 @@ import com.redhat.lightblue.util.Path;
 public abstract class QueryIteratorSkeleton<T> {
 
     protected abstract T itrAllMatchExpression(AllMatchExpression q, Path context);
+
     protected abstract T itrValueComparisonExpression(ValueComparisonExpression q, Path context);
+
     protected abstract T itrFieldComparisonExpression(FieldComparisonExpression q, Path context);
+
     protected abstract T itrRegexMatchExpression(RegexMatchExpression q, Path context);
+
     protected abstract T itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context);
+
     protected abstract T itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context);
+
     protected abstract T itrArrayContainsExpression(ArrayContainsExpression q, Path context);
+
     protected abstract T itrUnaryLogicalExpression(UnaryLogicalExpression q, Path context);
+
     protected abstract T itrNaryLogicalExpression(NaryLogicalExpression q, Path context);
+
     protected abstract T itrArrayMatchExpression(ArrayMatchExpression q, Path context);
 
     /**
@@ -41,29 +50,29 @@ public abstract class QueryIteratorSkeleton<T> {
      * interpreted relative to the given context
      */
     public T iterate(QueryExpression q, Path context) {
-        T ret=null;
+        T ret;
         if (q instanceof ValueComparisonExpression) {
-            ret=itrValueComparisonExpression((ValueComparisonExpression) q, context);
+            ret = itrValueComparisonExpression((ValueComparisonExpression) q, context);
         } else if (q instanceof FieldComparisonExpression) {
-            ret=itrFieldComparisonExpression((FieldComparisonExpression) q, context);
+            ret = itrFieldComparisonExpression((FieldComparisonExpression) q, context);
         } else if (q instanceof RegexMatchExpression) {
-            ret=itrRegexMatchExpression((RegexMatchExpression) q, context);
+            ret = itrRegexMatchExpression((RegexMatchExpression) q, context);
         } else if (q instanceof NaryValueRelationalExpression) {
-            ret=itrNaryValueRelationalExpression((NaryValueRelationalExpression) q, context);
+            ret = itrNaryValueRelationalExpression((NaryValueRelationalExpression) q, context);
         } else if (q instanceof NaryFieldRelationalExpression) {
-            ret=itrNaryFieldRelationalExpression((NaryFieldRelationalExpression) q, context);
+            ret = itrNaryFieldRelationalExpression((NaryFieldRelationalExpression) q, context);
         } else if (q instanceof UnaryLogicalExpression) {
-            ret=itrUnaryLogicalExpression((UnaryLogicalExpression) q, context);
+            ret = itrUnaryLogicalExpression((UnaryLogicalExpression) q, context);
         } else if (q instanceof NaryLogicalExpression) {
-            ret=itrNaryLogicalExpression((NaryLogicalExpression) q, context);
+            ret = itrNaryLogicalExpression((NaryLogicalExpression) q, context);
         } else if (q instanceof ArrayContainsExpression) {
-            ret=itrArrayContainsExpression((ArrayContainsExpression) q, context);
+            ret = itrArrayContainsExpression((ArrayContainsExpression) q, context);
         } else if (q instanceof ArrayMatchExpression) {
-            ret=itrArrayMatchExpression((ArrayMatchExpression) q, context);
-        } else if(q instanceof AllMatchExpression) {
-            ret=itrAllMatchExpression((AllMatchExpression) q, context);
+            ret = itrArrayMatchExpression((ArrayMatchExpression) q, context);
+        } else if (q instanceof AllMatchExpression) {
+            ret = itrAllMatchExpression((AllMatchExpression) q, context);
         } else {
-            throw new IllegalArgumentException("Unrecognized query subclass:"+q.getClass().getName());
+            throw new IllegalArgumentException("Unrecognized query subclass:" + q.getClass().getName());
         }
         return ret;
     }

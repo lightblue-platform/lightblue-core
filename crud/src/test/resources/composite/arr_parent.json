@@ -1,0 +1,43 @@
+{
+  "entityInfo" : {
+    "name": "arr_parent",
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "arr_parent"
+    }
+  },
+  "schema" : {
+    "name" : "arr_parent",
+    "version": {
+        "value": "1.0.0",
+        "changelog": "Test"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access" : {
+        "insert": ["anyone"],
+        "find":["anyone"],
+        "update":["anyone"],
+        "delete":["anyone"]
+    },
+    "fields": {
+        "_id": {"type": "string", "constraints":{ "identity":1 } },
+        "objectType": {"type": "string"},
+        "ref": {
+            "entity":"arr_child",
+            "versionValue":"1.0.0",
+            "type":"reference",
+            "query":{"field":"_id","op":"$in","rfield":"$parent.arr" }
+        },
+        "arr":{
+            "type":"array",
+            "items":{
+                "type":"string"
+            }
+        }
+    }
+  }
+}
+

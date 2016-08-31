@@ -53,7 +53,7 @@ public class ValueGeneratorTest extends AbstractJsonNodeTest {
     public void parseTest() throws Exception {
         EntityMetadata md = getMd("metadata-json-schema-test-valid/schema-test-metadata-object-valueGenerator.json");
 
-        ValueGenerator vg = ((SimpleField)md.resolve(new Path("customerId"))).getValueGenerator();
+        ValueGenerator vg = ((SimpleField) md.resolve(new Path("customerId"))).getValueGenerator();
         Assert.assertEquals(ValueGeneratorType.IntSequence, vg.getValueGeneratorType());
         Assert.assertEquals(2, vg.getProperties().size());
         Assert.assertEquals("10000", vg.getProperties().get("min"));

@@ -19,6 +19,7 @@
 package com.redhat.lightblue.util.test;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,7 +51,8 @@ public abstract class AbstractJsonNodeTest {
     }
 
     /**
-     * Load contents of resource on classpath as String using the currentThreads {@link ClassLoader}.
+     * Load contents of resource on classpath as String using the currentThreads
+     * {@link ClassLoader}.
      *
      * @param resourceName - path to resource
      * @return the resource as a String
@@ -61,7 +63,9 @@ public abstract class AbstractJsonNodeTest {
     }
 
     /**
-     * Loads contents of resource on classpath as String using the passed in {@link ClassLoader}.
+     * Loads contents of resource on classpath as String using the passed in
+     * {@link ClassLoader}.
+     *
      * @param resourceName - path to resource
      * @param loader - {@link ClassLoader} to use
      * @return the resource as a String
@@ -69,12 +73,17 @@ public abstract class AbstractJsonNodeTest {
      */
     public static final String loadResource(String resourceName, ClassLoader loader) throws IOException {
         try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            if (null == is) {
+                throw new FileNotFoundException(resourceName);
+            }
             return loadResource(is);
         }
     }
 
     /**
-     * Loads contents of resource on classpath as String using the passed in {@link Class}.
+     * Loads contents of resource on classpath as String using the passed in
+     * {@link Class}.
+     *
      * @param resourceName
      * @param loader - {@link Class} to use.
      * @return the resource as a String
@@ -82,6 +91,9 @@ public abstract class AbstractJsonNodeTest {
      */
     public static final String loadResource(String resourceName, Class<?> loader) throws IOException {
         try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            if (null == is) {
+                throw new FileNotFoundException(resourceName);
+            }
             return loadResource(is);
         }
     }

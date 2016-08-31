@@ -47,8 +47,8 @@ public class HookDoc {
      */
     public HookDoc(HookDoc hd) {
         this(hd.getEntityMetadata(),
-                hd.getPostDoc(),
                 hd.getPreDoc(),
+                hd.getPostDoc(),
                 hd.getCRUDOperation(),
                 hd.when,
                 hd.who);

@@ -18,25 +18,30 @@
  */
 package com.redhat.lightblue.crud;
 
-import com.redhat.lightblue.crud.DocRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.query.Projection;
 
 /**
  * Request to save documents
  */
-public class SaveRequest extends DocRequest {
+public class SaveRequest extends DocRequest implements WithRange, WithProjection {
 
     private Projection returnFields;
     private boolean upsert;
+    private Long from;
+    private Long to;
 
     /**
      * Specifies the fields of the inserted entities to return. This can be used
      * to retrieve the _id fields of the inserted entities.
      */
     public Projection getReturnFields() {
+        return returnFields;
+    }
+
+    @Override
+    public Projection getProjection() {
         return returnFields;
     }
 
@@ -62,6 +67,25 @@ public class SaveRequest extends DocRequest {
         upsert = b;
     }
 
+    @Override
+    public Long getFrom() {
+        return from;
+    }
+
+    public void setFrom(Long from) {
+        this.from = from;
+    }
+
+    @Override
+    public Long getTo() {
+        return to;
+    }
+
+    public void setTo(Long to) {
+        this.to = to;
+    }
+
+    @Override
     public CRUDOperation getOperation() {
         return CRUDOperation.SAVE;
     }
@@ -76,6 +100,7 @@ public class SaveRequest extends DocRequest {
             node.set("projection", returnFields.toJson());
         }
         node.put("upsert", upsert);
+        WithRange.toJson(this, getFactory(), node);
         return node;
     }
 
@@ -93,6 +118,9 @@ public class SaveRequest extends DocRequest {
         if (x != null) {
             req.upsert = x.asBoolean();
         }
+        Range r = WithRange.fromJson(node);
+        req.setFrom(r.from);
+        req.setTo(r.to);
         return req;
     }
 }

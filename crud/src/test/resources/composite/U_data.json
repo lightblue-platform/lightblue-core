@@ -1,2 +1,5 @@
-[ { "_id":1,"status":"active","authentications":[ { "uid":"1","principal":"a","providerName":"p" } ],"legalEntities":[ {"legalEntityId":1,"title":"s" } ],"objectType":"U" } ]
+[ { "_id":1,"status":"active","authentications":[ { "uid":"1","principal":"a","providerName":"p" } ],"legalEntities":[ {"legalEntityId":1,"title":"s","emails":[{"address":"email@x.com"}] } ],"objectType":"U" },
+  { "_id":2,"status":"active","authentications":[ { "uid":"1","principal":"a" } ],"legalEntities":[ {"legalEntityId":1,"title":"s" } ],"objectType":"U" },
+  { "_id":3,"status":"active","authentications":[ { "uid":"1","principal":"b" } ],"legalEntities":[ {"legalEntityId":2,"title":"s" } ],"objectType":"U" } 
+  ]
   

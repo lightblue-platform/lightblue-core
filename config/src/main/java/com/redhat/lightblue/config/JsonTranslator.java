@@ -32,16 +32,15 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * This class is used to translate json documents into POJO,
- * optionally validating based on a schema. The POJO classes and their
- * correcponding schema must be registered before they're used to
- * parse json docs.
+ * This class is used to translate json documents into POJO, optionally
+ * validating based on a schema. The POJO classes and their correcponding schema
+ * must be registered before they're used to parse json docs.
  */
 public class JsonTranslator {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(JsonTranslator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonTranslator.class);
 
-    private final Map<Class,TranslationInfo> translationMap=new HashMap<>();
+    private final Map<Class, TranslationInfo> translationMap = new HashMap<>();
 
     /**
      * An abstraction that defines how json document is parsed to a POJO
@@ -54,8 +53,8 @@ public class JsonTranslator {
     }
 
     /**
-     * An implementation of FromJson that uses a static factory method
-     * that gets a JsonNode object as argument, and returns a POJO
+     * An implementation of FromJson that uses a static factory method that gets
+     * a JsonNode object as argument, and returns a POJO
      */
     public static class StaticFactoryMethod implements FromJson {
 
@@ -65,43 +64,42 @@ public class JsonTranslator {
          * Initialize the instance using the factory method
          */
         public StaticFactoryMethod(Method m) {
-            this.method=m;
+            this.method = m;
         }
 
         /**
-         * Initialize the instance using the given class, method name,
-         * and arg type describing the static factory method
+         * Initialize the instance using the given class, method name, and arg
+         * type describing the static factory method
          */
-        public StaticFactoryMethod(Class c, String method,Class argType)
-            throws NoSuchMethodException  {
-            this(c.getMethod(method,argType));
+        public StaticFactoryMethod(Class c, String method, Class argType)
+                throws NoSuchMethodException {
+            this(c.getMethod(method, argType));
         }
 
         /**
-         * Initialize the instance using the given class and method
-         * name describing the static factory method that gets a
-         * JsonNode argument.
+         * Initialize the instance using the given class and method name
+         * describing the static factory method that gets a JsonNode argument.
          */
-        public StaticFactoryMethod(Class c,String method) 
-            throws NoSuchMethodException {
-            this(c,method,JsonNode.class);
+        public StaticFactoryMethod(Class c, String method)
+                throws NoSuchMethodException {
+            this(c, method, JsonNode.class);
         }
 
         /**
-         * Calls the method to parse the JsonNode 
+         * Calls the method to parse the JsonNode
          */
         @Override
         public Object fromJson(JsonNode node) {
             try {
-              return method.invoke(null,node);
+                return method.invoke(null, node);
             } catch (InvocationTargetException e) {
-            	if (e.getCause() instanceof IllegalArgumentException) {
-            		throw (IllegalArgumentException) e.getCause();
-            	} else {
-            		throw new IllegalArgumentException(e);	
-            	}
+                if (e.getCause() instanceof IllegalArgumentException) {
+                    throw (IllegalArgumentException) e.getCause();
+                } else {
+                    throw new IllegalArgumentException(e);
+                }
             } catch (IllegalAccessException e) {
-            	throw new IllegalArgumentException("Cannot call method: " + method, e);
+                throw new IllegalArgumentException("Cannot call method: " + method, e);
             }
         }
     }
@@ -111,9 +109,9 @@ public class JsonTranslator {
         private boolean validate;
         private final JsonSchema schema;
 
-        public TranslationInfo(FromJson fromJson,JsonSchema schema) {
-            this.fromJson=fromJson;
-            this.schema=schema;
+        public TranslationInfo(FromJson fromJson, JsonSchema schema) {
+            this.fromJson = fromJson;
+            this.schema = schema;
         }
 
         public JsonSchema getSchema() {
@@ -124,45 +122,45 @@ public class JsonTranslator {
     /**
      * Registers a translation
      *
-     * @param clazz The POJO class that will be returned when a JSON
-     * document of this type is parsed
-     * @param fromJson The implementation of FromJson interface that
-     * performs the actual parsing
+     * @param clazz The POJO class that will be returned when a JSON document of
+     * this type is parsed
+     * @param fromJson The implementation of FromJson interface that performs
+     * the actual parsing
      * @param resource The resource name in class path containing the schema
      */
-    public void registerTranslation(Class clazz,FromJson fromJson, String resource) {
+    public void registerTranslation(Class clazz, FromJson fromJson, String resource) {
         try {
-            registerTranslation(clazz,fromJson,JsonUtils.loadSchema(resource));
+            registerTranslation(clazz, fromJson, JsonUtils.loadSchema(resource));
         } catch (Exception e) {
-            throw new IllegalArgumentException(resource,e);
+            throw new IllegalArgumentException(resource, e);
         }
     }
 
     /**
      * Registers a translation with the given schema
-     * 
-     * @param clazz The POJO class that will be returned when a JSON
-     * document of this type is parsed
-     * @param fromJson The implementation of FromJson interface that
-     * performs the actual parsing
+     *
+     * @param clazz The POJO class that will be returned when a JSON document of
+     * this type is parsed
+     * @param fromJson The implementation of FromJson interface that performs
+     * the actual parsing
      * @param schema The JSON schema
      */
-    public void registerTranslation(Class clazz,FromJson fromJson,JsonSchema schema) {
-        TranslationInfo ti=new TranslationInfo(fromJson,schema);
-        translationMap.put(clazz,ti);
+    public void registerTranslation(Class clazz, FromJson fromJson, JsonSchema schema) {
+        TranslationInfo ti = new TranslationInfo(fromJson, schema);
+        translationMap.put(clazz, ti);
     }
 
     /**
-     * Registers a translation with the given schema for a POJO with a
-     * static factory method getting a JsonNode argument
+     * Registers a translation with the given schema for a POJO with a static
+     * factory method getting a JsonNode argument
      *
-     * @param clazz  The POJO class that will be returned when a JSON
-     * document of this type is parsed
+     * @param clazz The POJO class that will be returned when a JSON document of
+     * this type is parsed
      * @param schema The JSON schema
      */
-    public void registerTranslation(Class clazz,JsonSchema schema) 
-        throws NoSuchMethodException {
-        registerTranslation(clazz,new StaticFactoryMethod(clazz,"fromJson"),schema);
+    public void registerTranslation(Class clazz, JsonSchema schema)
+            throws NoSuchMethodException {
+        registerTranslation(clazz, new StaticFactoryMethod(clazz, "fromJson"), schema);
     }
 
     /**
@@ -173,9 +171,10 @@ public class JsonTranslator {
      * @param validate The new value of the validation flag
      */
     public void setValidation(Class clazz, boolean validate) {
-        for(Map.Entry<Class,TranslationInfo> entry:translationMap.entrySet()) {
-            if(clazz.isAssignableFrom(entry.getKey()))
-                entry.getValue().validate=validate;
+        for (Map.Entry<Class, TranslationInfo> entry : translationMap.entrySet()) {
+            if (clazz.isAssignableFrom(entry.getKey())) {
+                entry.getValue().validate = validate;
+            }
         }
     }
 
@@ -183,7 +182,7 @@ public class JsonTranslator {
      * Sets the validation flag for all POJOs
      */
     public void setAllValidation(boolean validate) {
-        setValidation(Object.class,validate);
+        setValidation(Object.class, validate);
     }
 
     /**
@@ -193,22 +192,23 @@ public class JsonTranslator {
      * @param clazz The expected return POJO type
      * @param node The JSON node that will be parsed
      *
-     * If there are schema validation errors, an Error will be thrown
-     * with errors messages in itall
+     * If there are schema validation errors, an Error will be thrown with
+     * errors messages in itall
      *
      * @return The POJO
      */
-    public <T> T parse(Class<T> clazz,JsonNode node) {
-        LOGGER.debug("Parsing {}",clazz);
-        TranslationInfo t=translationMap.get(clazz);
-        if(t==null)
-            throw new IllegalArgumentException("No translation for "+clazz.getName());
-        if(t.validate) {
-            LOGGER.debug("validating {}",clazz);
+    public <T> T parse(Class<T> clazz, JsonNode node) {
+        LOGGER.debug("Parsing {}", clazz);
+        TranslationInfo t = translationMap.get(clazz);
+        if (t == null) {
+            throw new IllegalArgumentException("No translation for " + clazz.getName());
+        }
+        if (t.validate) {
+            LOGGER.debug("validating {}", clazz);
             try {
-                String validationErrors=JsonUtils.jsonSchemaValidation(t.getSchema(),node);
-                if(validationErrors!=null) {
-                    throw Error.get(ConfigConstants.ERR_VALIDATION_FAILED,validationErrors);
+                String validationErrors = JsonUtils.jsonSchemaValidation(t.getSchema(), node);
+                if (validationErrors != null) {
+                    throw Error.get(ConfigConstants.ERR_VALIDATION_FAILED, validationErrors);
                 }
             } catch (RuntimeException re) {
                 throw re;
@@ -216,6 +216,6 @@ public class JsonTranslator {
                 throw new IllegalArgumentException(e);
             }
         }
-        return (T)t.fromJson.fromJson(node);
+        return (T) t.fromJson.fromJson(node);
     }
 }

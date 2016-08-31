@@ -34,14 +34,13 @@ public class Fields implements Serializable {
     private final Map<String, Field> fieldMap = new HashMap<>();
     private final List<Field> fields = new ArrayList<>();
     private FieldTreeNode parent;
-    private final Map<String, Object> properties = new HashMap<>();
 
     public Fields(FieldTreeNode parent) {
         this.parent = parent;
     }
 
     protected void setParent(FieldTreeNode parent) {
-        this.parent=parent;
+        this.parent = parent;
     }
 
     public int getNumChildren() {
@@ -100,10 +99,6 @@ public class Fields implements Serializable {
         return resolve(p, 0);
     }
 
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
-
     protected FieldTreeNode resolve(Path p, int level) {
         if (level >= p.numSegments()) {
             throw Error.get(MetadataConstants.ERR_INVALID_REDIRECTION, p.toString());
@@ -114,24 +109,25 @@ public class Fields implements Serializable {
 
         try {
             if (p.isIndex(level)) {
-                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE,name+" in "+p.toString());
+                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE, name + " in " + p.toString());
             } else if (name.equals(Path.ANY)) {
-                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE,name+" in "+p.toString());
+                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE, name + " in " + p.toString());
             } else if (name.equals(Path.THIS)) {
                 if (level + 1 >= p.numSegments()) {
                     return this.parent;
                 }
                 return this.resolve(p, level + 1);
-            } else if(name.equals(Path.PARENT)) {
-                if(parent!=null&&!(parent instanceof EntitySchema.RootNode))
-                    return parent.resolve(p,level); // Delegate full resolution to the parent.
-                else
-                    throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE,name+" in "+p.toString());
+            } else if (name.equals(Path.PARENT)) {
+                if (parent != null && !(parent instanceof EntitySchema.RootNode)) {
+                    return parent.resolve(p, level); // Delegate full resolution to the parent.
+                } else {
+                    throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE, name + " in " + p.toString());
+                }
             }
 
             Field field = getField(name);
             if (field == null) {
-                throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE,name+" in "+p.toString());
+                throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE, name + " in " + p.toString());
             }
             return field.resolve(p, level + 1);
 

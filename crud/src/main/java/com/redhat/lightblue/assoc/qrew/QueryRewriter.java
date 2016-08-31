@@ -34,25 +34,29 @@ import com.redhat.lightblue.util.CopyOnWriteIterator;
 import com.redhat.lightblue.assoc.qrew.rules.*;
 
 /**
- * Implementation of Rewriter that orchestrates rewriting rules with registered Rewriter instances.
+ * Implementation of Rewriter that orchestrates rewriting rules with registered
+ * Rewriter instances.
  */
 public final class QueryRewriter extends Rewriter {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(QueryRewriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryRewriter.class);
 
-    private static final Set<Rewriter> rewriteRules=new HashSet<>(16);
+    private static final Set<Rewriter> rewriteRules = new HashSet<>(16);
 
     public QueryRewriter() {
         this(true);
     }
 
     public QueryRewriter(boolean withDefaultRules) {
-        if(withDefaultRules)
+        if (withDefaultRules) {
             registerDefaultRules();
+        }
     }
 
     /**
-     * Register a Rewriter instance.  If attempt to register QueryRewriter returns without doing anything.
+     * Register a Rewriter instance. If attempt to register QueryRewriter
+     * returns without doing anything.
+     *
      * @param rule the rewriter to register
      */
     public void register(Rewriter rule) {
@@ -77,65 +81,71 @@ public final class QueryRewriter extends Rewriter {
         register(ExtendINsInOR.INSTANCE);
         register(ExtendNINsInAND.INSTANCE);
         register(PromoteNestedAND.INSTANCE);
+        register(SimpleElemMatchIsComparison.INSTANCE);
     }
 
     protected QueryExpression rewriteIteration(QueryExpression q) {
-        LOGGER.debug("Rewrite iteration begins for q={}",q);
-        QueryExpression newq=q;
+        LOGGER.debug("Rewrite iteration begins for q={}", q);
+        QueryExpression newq = q;
         if (q instanceof UnaryLogicalExpression) {
             LOGGER.debug("q is a unary logical expression, rewriting nested query");
-            QueryExpression nestedq=((UnaryLogicalExpression)q).getQuery();
-            QueryExpression newNestedq=rewriteIteration(nestedq);
-            LOGGER.debug("Rewritten nested query={}",newNestedq);
-            if(newNestedq!=nestedq)
-                newq=new UnaryLogicalExpression( ((UnaryLogicalExpression)q).getOp(), newNestedq);
+            QueryExpression nestedq = ((UnaryLogicalExpression) q).getQuery();
+            QueryExpression newNestedq = rewriteIteration(nestedq);
+            LOGGER.debug("Rewritten nested query={}", newNestedq);
+            if (newNestedq != nestedq) {
+                newq = new UnaryLogicalExpression(((UnaryLogicalExpression) q).getOp(), newNestedq);
+            }
         } else if (q instanceof NaryLogicalExpression) {
             LOGGER.debug("q is a n-ary logical expression, rewriting nested terms");
-            CopyOnWriteIterator<QueryExpression> cowr=new CopyOnWriteIterator<>( ((NaryLogicalExpression)q).getQueries());
-            while(cowr.hasNext()) {
-                QueryExpression nestedq=cowr.next();
-                QueryExpression newNestedq=rewriteIteration(nestedq);
-                if(newNestedq!=nestedq)
+            CopyOnWriteIterator<QueryExpression> cowr = new CopyOnWriteIterator<>(((NaryLogicalExpression) q).getQueries());
+            while (cowr.hasNext()) {
+                QueryExpression nestedq = cowr.next();
+                QueryExpression newNestedq = rewriteIteration(nestedq);
+                if (newNestedq != nestedq) {
                     cowr.set(newNestedq);
+                }
             }
-            if(cowr.isCopied())
-                newq=new NaryLogicalExpression( ((NaryLogicalExpression)q).getOp(),cowr.getCopiedList());
+            if (cowr.isCopied()) {
+                newq = new NaryLogicalExpression(((NaryLogicalExpression) q).getOp(), cowr.getCopiedList());
+            }
         } else if (q instanceof ArrayMatchExpression) {
             LOGGER.debug("q is an array match expression, rewriting nested query");
-            QueryExpression nestedq=((ArrayMatchExpression)q).getElemMatch();
-            QueryExpression newNestedq=rewriteIteration(nestedq);
-            LOGGER.debug("Rewritten nested query={}",newNestedq);
-            if(newNestedq!=nestedq)
-                newq=new ArrayMatchExpression( ((ArrayMatchExpression)q).getArray(),newNestedq);
-        } 
+            QueryExpression nestedq = ((ArrayMatchExpression) q).getElemMatch();
+            QueryExpression newNestedq = rewriteIteration(nestedq);
+            LOGGER.debug("Rewritten nested query={}", newNestedq);
+            if (newNestedq != nestedq) {
+                newq = new ArrayMatchExpression(((ArrayMatchExpression) q).getArray(), newNestedq);
+            }
+        }
         LOGGER.debug("Applying rewrite rules to q");
-        newq=applyRules(newq);
-        LOGGER.debug("Rewritten q={}",newq);
-        
+        newq = applyRules(newq);
+        LOGGER.debug("Rewritten q={}", newq);
+
         return newq;
     }
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
-        QueryExpression trc=q;
+        QueryExpression trc = q;
         QueryExpression newq;
-        boolean done=false;
+        boolean done = false;
         do {
-            newq=rewriteIteration(trc);
-            LOGGER.debug("Rewrite iteration pre={}",trc);
-            LOGGER.debug("Rewrite iteration post={}",newq);
-            if(newq==trc)
-                done=true;
-            trc=newq;
-        } while(!done);
+            newq = rewriteIteration(trc);
+            LOGGER.debug("Rewrite iteration pre={}", trc);
+            LOGGER.debug("Rewrite iteration post={}", newq);
+            if (newq == trc) {
+                done = true;
+            }
+            trc = newq;
+        } while (!done);
         return newq;
     }
 
     private QueryExpression applyRules(QueryExpression q) {
-        QueryExpression newq=q;
-        for(Rewriter r:rewriteRules)
-            newq=r.rewrite(newq);
+        QueryExpression newq = q;
+        for (Rewriter r : rewriteRules) {
+            newq = r.rewrite(newq);
+        }
         return newq;
     }
 }
-

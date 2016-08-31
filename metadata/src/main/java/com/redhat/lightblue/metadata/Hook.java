@@ -20,10 +20,7 @@ package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.query.Projection;
 
-import java.io.Serializable;
-
-public class Hook implements Serializable {
-    private static final long serialVersionUID = 1l;
+public class Hook extends MetadataObject {
 
     private final String name;
     private Projection projection;

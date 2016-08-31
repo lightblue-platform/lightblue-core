@@ -153,4 +153,5 @@ public class EntityVersionTest {
         entityVersion = new EntityVersion(entity, null);
         assertTrue(entityVersion.toString().contains(entity));
     }
+
 }

@@ -18,18 +18,17 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-
-public class EnumValue implements Serializable{
+public class EnumValue extends MetadataObject {
 
     private static final long serialVersionUID = -1182170538084137297L;
 
     private String name;
     private String description;
 
-    public EnumValue(){}
+    public EnumValue() {
+    }
 
-    public EnumValue(String name, String description){
+    public EnumValue(String name, String description) {
         this.name = name;
         this.description = description;
     }
@@ -76,16 +75,14 @@ public class EnumValue implements Serializable{
             if (other.description != null) {
                 return false;
             }
-        }
-        else if (!description.equals(other.description)) {
+        } else if (!description.equals(other.description)) {
             return false;
         }
         if (name == null) {
             if (other.name != null) {
                 return false;
             }
-        }
-        else if (!name.equals(other.name)) {
+        } else if (!name.equals(other.name)) {
             return false;
         }
         return true;

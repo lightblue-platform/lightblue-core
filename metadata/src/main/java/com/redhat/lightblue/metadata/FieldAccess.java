@@ -18,11 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-
-public class FieldAccess implements Serializable, MetadataAccess {
-
-    private static final long serialVersionUID = 1l;
+public class FieldAccess extends MetadataObject implements MetadataAccess {
 
     private final Access find = new Access();
     private final Access update = new Access();

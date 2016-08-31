@@ -45,7 +45,7 @@ public final class DocIdExtractor implements Serializable {
      * Creates a document ID extractor for the given schema
      */
     public DocIdExtractor(EntitySchema sch) {
-        Field[] identityFields=sch.getIdentityFields();
+        Field[] identityFields = sch.getIdentityFields();
         if (identityFields == null || identityFields.length == 0) {
             throw new IllegalArgumentException("Empty identity fields");
         }
@@ -76,7 +76,8 @@ public final class DocIdExtractor implements Serializable {
     }
 
     /**
-     * Returns the identity fields. The returned array also contains the objectType field
+     * Returns the identity fields. The returned array also contains the
+     * objectType field
      */
     public Path[] getIdentityFields() {
         return identityFields;

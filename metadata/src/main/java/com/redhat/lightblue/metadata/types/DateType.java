@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata.types;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,31 +28,32 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.util.Constants;
 import com.redhat.lightblue.util.Error;
 
 public final class DateType implements Type, Serializable {
 
     private static final long serialVersionUID = 1l;
 
+    /**
+     * Use {@link Constants#DATE_FORMAT_STR}DATE_FORMAT_STR}
+     */
+    @Deprecated
+    public static final String DATE_FORMAT_STR = Constants.DATE_FORMAT_STR;
+
     public static final Type TYPE = new DateType();
     public static final String NAME = "date";
 
-    public static final String DATE_FORMAT_STR = "yyyyMMdd'T'HH:mm:ss.SSSZ";
-    /** Contains the lightblue {@link DateFormat} for each Thread. */
-    private static final ThreadLocal<DateFormat> DATE_FORMATS = new ThreadLocal<>();
-    /** It is faster to clone than to create new {@link DateFormat} instances.
-     * This is the base instance from which others are cloned. */
-    private static final DateFormat BASE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STR);
-
     /**
-     * Returns a DateFormat instance using the DATE_FORMAT_STR. Clone of
-     * the static internal variable, because SimpleDateFormat is not thread safe
+     * Returns a DateFormat instance using the DATE_FORMAT_STR. Clone of the
+     * static internal variable, because SimpleDateFormat is not thread safe
+     *
+     * <p>
+     * Use: {@link Constants#getDateFormat()}</p>
      */
+    @Deprecated
     public static DateFormat getDateFormat() {
-        if (DATE_FORMATS.get() == null) {
-            DATE_FORMATS.set((DateFormat) BASE_DATE_FORMAT.clone());
-        }
-        return DATE_FORMATS.get();
+        return Constants.getDateFormat();
     }
 
     @Override
@@ -73,16 +73,16 @@ public final class DateType implements Type, Serializable {
 
     @Override
     public JsonNode toJson(JsonNodeFactory factory, Object obj) {
-        return factory.textNode(getDateFormat().format((Date) cast(obj)));
+        return factory.textNode(Constants.getDateFormat().format((Date) cast(obj)));
     }
 
     @Override
     public Object fromJson(JsonNode node) {
-        if (node instanceof NullNode) {
+        if (node == null || node instanceof NullNode) {
             return null;
-        } else  if (node.isValueNode()) {
+        } else if (node.isValueNode()) {
             try {
-                return getDateFormat().parse(node.asText());
+                return Constants.getDateFormat().parse(node.asText());
             } catch (ParseException e) {
                 throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
             }
@@ -95,7 +95,7 @@ public final class DateType implements Type, Serializable {
     public Object cast(Object obj) {
         Date value = null;
         if (obj != null) {
-            DateFormat fmt = getDateFormat();
+            DateFormat fmt = Constants.getDateFormat();
             if (obj instanceof Date) {
                 value = (Date) obj;
             } else if (obj instanceof String) {

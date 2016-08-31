@@ -74,8 +74,8 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
     }
 
     private class GMD extends AbstractGetMetadata {
-        public GMD(Projection p,QueryExpression q) {
-            super(p,q);
+        public GMD(Projection p, QueryExpression q) {
+            super(p, q);
         }
 
         @Override
@@ -83,7 +83,7 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
                                                   String entityName,
                                                   String version) {
             try {
-                return getMd("composite/"+entityName+".json");
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -92,74 +92,74 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
 
     @Test
     public void basicPlanTest() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+        QueryPlan qp = new QueryPlan(md, new IndexedFieldScorer());
         System.out.println(qp.mxToString());
         System.out.println(qp.treeToString());
 
-        QueryPlanNode[] sources=qp.getSources();
-        Assert.assertEquals(1,sources.length);
-        Assert.assertEquals("A",sources[0].getMetadata().getName());
+        QueryPlanNode[] sources = qp.getSources();
+        Assert.assertEquals(1, sources.length);
+        Assert.assertEquals("A", sources[0].getMetadata().getName());
 
-        QueryPlanNode[] dests=sources[0].getDestinations();
-        Assert.assertEquals(1,dests.length);
-        Assert.assertEquals("C",dests[0].getMetadata().getName());
-        Assert.assertEquals(0,dests[0].getDestinations().length);
-        Assert.assertEquals(1,dests[0].getSources().length);
-        Assert.assertEquals("A",dests[0].getSources()[0].getMetadata().getName());
+        QueryPlanNode[] dests = sources[0].getDestinations();
+        Assert.assertEquals(1, dests.length);
+        Assert.assertEquals("C", dests[0].getMetadata().getName());
+        Assert.assertEquals(0, dests[0].getDestinations().length);
+        Assert.assertEquals(1, dests[0].getSources().length);
+        Assert.assertEquals("A", dests[0].getSources()[0].getMetadata().getName());
     }
 
     @Test
     public void basicFlipTest() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+        QueryPlan qp = new QueryPlan(md, new IndexedFieldScorer());
         System.out.println(qp.mxToString());
         System.out.println(qp.treeToString());
-        qp.flip(qp.getSources()[0],qp.getSources()[0].getDestinations()[0]);
+        qp.flip(qp.getSources()[0], qp.getSources()[0].getDestinations()[0]);
         System.out.println(qp.mxToString());
         System.out.println(qp.treeToString());
 
-        QueryPlanNode[] sources=qp.getSources();
-        Assert.assertEquals(1,sources.length);
-        Assert.assertEquals("C",sources[0].getMetadata().getName());
+        QueryPlanNode[] sources = qp.getSources();
+        Assert.assertEquals(1, sources.length);
+        Assert.assertEquals("C", sources[0].getMetadata().getName());
 
-        QueryPlanNode[] dests=sources[0].getDestinations();
-        Assert.assertEquals(1,dests.length);
-        Assert.assertEquals("A",dests[0].getMetadata().getName());
-        Assert.assertEquals(0,dests[0].getDestinations().length);
-        Assert.assertEquals(1,dests[0].getSources().length);
-        Assert.assertEquals("C",dests[0].getSources()[0].getMetadata().getName());
+        QueryPlanNode[] dests = sources[0].getDestinations();
+        Assert.assertEquals(1, dests.length);
+        Assert.assertEquals("A", dests[0].getMetadata().getName());
+        Assert.assertEquals(0, dests[0].getDestinations().length);
+        Assert.assertEquals(1, dests[0].getSources().length);
+        Assert.assertEquals("C", dests[0].getSources()[0].getMetadata().getName());
     }
 
     @Test
     public void two_level_test() throws Exception {
-        GMD gmd=new GMD(projection("[{'field':'r.*.r.*','include':1},{'field':'b.*.','include':1}]"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/R.json"),gmd);
-        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
+        GMD gmd = new GMD(projection("[{'field':'r.*.r.*','include':1},{'field':'b.*.','include':1}]"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/R.json"), gmd);
+        QueryPlan qp = new QueryPlan(md, new IndexedFieldScorer());
         System.out.println(qp.mxToString());
         System.out.println(qp.treeToString());
 
-        QueryPlanNode[] sources=qp.getSources();
-        QueryPlanNode r=sources[0];
-        Assert.assertEquals(1,sources.length);
-        Assert.assertEquals("R",r.getMetadata().getName());
-        
-        QueryPlanNode[] dests=r.getDestinations();
-        Assert.assertEquals(2,dests.length);
-        QueryPlanNode rr=dests[0].getMetadata().getName().equals("R")?dests[0]:dests[1];
-        QueryPlanNode rb=dests[0].getMetadata().getName().equals("B")?dests[0]:dests[1];
-        Assert.assertEquals(0,rb.getDestinations().length);
-        
-        dests=rr.getDestinations();
-        Assert.assertEquals(1,dests.length);
-        QueryPlanNode rrr=dests[0];
-        Assert.assertEquals("R",rrr.getMetadata().getName());
-        
-        dests=rrr.getDestinations();
-        Assert.assertEquals(0,dests.length);
-        
+        QueryPlanNode[] sources = qp.getSources();
+        QueryPlanNode r = sources[0];
+        Assert.assertEquals(1, sources.length);
+        Assert.assertEquals("R", r.getMetadata().getName());
+
+        QueryPlanNode[] dests = r.getDestinations();
+        Assert.assertEquals(2, dests.length);
+        QueryPlanNode rr = dests[0].getMetadata().getName().equals("R") ? dests[0] : dests[1];
+        QueryPlanNode rb = dests[0].getMetadata().getName().equals("B") ? dests[0] : dests[1];
+        Assert.assertEquals(0, rb.getDestinations().length);
+
+        dests = rr.getDestinations();
+        Assert.assertEquals(1, dests.length);
+        QueryPlanNode rrr = dests[0];
+        Assert.assertEquals("R", rrr.getMetadata().getName());
+
+        dests = rrr.getDestinations();
+        Assert.assertEquals(0, dests.length);
+
     }
 
     @Ignore
@@ -172,21 +172,21 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
         // an order of magnitude slower.
         int count = 1000000;
 
-        long timeStringBuilder = 0;
+        long timeStringBuilder;
         {
             long before = System.currentTimeMillis();
             StringBuilder bld = new StringBuilder();
             for (int i = 0; i < count; i++) {
-                bld.delete(0,100);
+                bld.delete(0, 100);
                 bld.append("asdf").append('_').append(1);
                 String name = bld.toString();
             }
             long after = System.currentTimeMillis();
 
-            timeStringBuilder = after-before;
+            timeStringBuilder = after - before;
         }
 
-        long timeString= 0;
+        long timeString;
         {
             long before = System.currentTimeMillis();
             for (int i = 0; i < count; i++) {
@@ -194,7 +194,7 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
             }
             long after = System.currentTimeMillis();
 
-            timeString= after-before;
+            timeString = after - before;
         }
 
         Assert.assertTrue(timeString < timeStringBuilder);

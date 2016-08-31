@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.Iterator;
 
-import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.metadata.MetadataConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +41,9 @@ import com.redhat.lightblue.util.Error;
 
 public class QueryPlanChooser {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(QueryPlanChooser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryPlanChooser.class);
 
-    private static final QueryRewriter qrewriter=new QueryRewriter(true);
+    private static final QueryRewriter qrewriter = new QueryRewriter(true);
 
     private final CompositeMetadata compositeMetadata;
     private final QueryExpression requestQuery;
@@ -65,73 +63,64 @@ public class QueryPlanChooser {
         LOGGER.debug("QueryPlanChooser.ctor");
         Error.push("QueryPlanChooser");
         try {
-            this.compositeMetadata=cmd;
-            this.qplanIterator=qpitr;
-            this.scorer=scorer;
-            qplan=new QueryPlan(compositeMetadata,scorer,filter);
-            LOGGER.debug("Initial query plan:{}",qplan);
-            
-            this.requestQuery=requestQuery;
-            LOGGER.debug("Request query:{}",this.requestQuery);
-            
+            this.compositeMetadata = cmd;
+            this.qplanIterator = qpitr;
+            this.scorer = scorer;
+            qplan = new QueryPlan(compositeMetadata, scorer, filter);
+            LOGGER.debug("Initial query plan:{}", qplan);
+
+            this.requestQuery = requestQuery;
+            LOGGER.debug("Request query:{}", this.requestQuery);
+
             // Rewrite  request queries  in  conjunctive  normal form  and
             // assign them to nodes/edges
-            if(this.requestQuery!=null) {
-                List<Conjunct> requestQueryClauses=new ArrayList<>();
-                rewriteQuery(this.requestQuery,requestQueryClauses,qplan,null);
-                LOGGER.debug("Request query clauses:{}",requestQueryClauses);
-                assignQueriesToPlanNodesAndEdges(requestQueryClauses,qplan.getUnassignedClauses());
+            if (this.requestQuery != null) {
+                List<Conjunct> requestQueryClauses = new ArrayList<>();
+                rewriteQuery(this.requestQuery, requestQueryClauses, qplan, null);
+                LOGGER.debug("Request query clauses:{}", requestQueryClauses);
+                assignQueriesToPlanNodesAndEdges(requestQueryClauses, qplan.getUnassignedClauses());
                 LOGGER.debug("Completed assigning request query clauses");
             }
-            
+
             // Rewrite association queries in conjunctive normal form, and
             // assign them to nodes/edges
-            iterateReferences(compositeMetadata,qplan.getUnassignedClauses());
-            
+            iterateReferences(compositeMetadata, qplan.getUnassignedClauses());
+
             reset();
 
-            // Check unimplemented features. If there is anything in
-            // unassigned clauses list, we fail
-            if (!qplan.getUnassignedClauses().isEmpty()) {
-                Conjunct x = qplan.getUnassignedClauses().get(0);
-                switch (x.getReferredNodes().size()) {
-                    case 2:
-                        throw Error.get(AssocConstants.ERR_UNRELATED_ENTITY_Q);
-                    default:
-                        throw Error.get(AssocConstants.ERR_MORE_THAN_TWO_Q);
-                }
-            }
-
-        } catch(Error e) {
-            LOGGER.error("During construction:{}",e);
+        } catch (Error e) {
+            LOGGER.error("During construction:{}", e);
             throw e;
-        } catch(RuntimeException re) {
-            LOGGER.error("During construction:{}",re);
-            throw Error.get(AssocConstants.ERR_CANNOT_CREATE_CHOOSER,re.toString());
+        } catch (RuntimeException re) {
+            LOGGER.error("During construction:{}", re);
+            throw Error.get(AssocConstants.ERR_CANNOT_CREATE_CHOOSER, re.toString());
         } finally {
             Error.pop();
         }
     }
 
     /**
-     * Rewrites the query expression in its conjunctive normal form,
-     * and adds clauses to the end of the clause list
+     * Rewrites the query expression in its conjunctive normal form, and adds
+     * clauses to the end of the clause list
      */
     private void rewriteQuery(QueryExpression q,
                               List<Conjunct> clauseList,
                               QueryPlan qplan,
                               ResolvedReferenceField context) {
         Error.push("rewriteQuery");
+        AnalyzeQuery analyzer = new AnalyzeQuery(compositeMetadata, context);
         try {
             QueryExpression cnf = qrewriter.rewrite(q);
             LOGGER.debug("Query in conjunctive normal form:{}", cnf);
-            if (cnf instanceof NaryLogicalExpression &&
-                    ((NaryLogicalExpression) cnf).getOp() == NaryLogicalOperator._and) {
+            if (cnf instanceof NaryLogicalExpression
+                    && ((NaryLogicalExpression) cnf).getOp() == NaryLogicalOperator._and) {
                 for (QueryExpression clause : ((NaryLogicalExpression) cnf).getQueries()) {
-                    clauseList.add(new Conjunct(clause, compositeMetadata, qplan,context));
+                    analyzer.iterate(clause);
+                    clauseList.add(new Conjunct(clause, analyzer.getFieldInfo(), context));
                 }
             } else {
-                clauseList.add(new Conjunct(cnf, compositeMetadata, qplan,context));
+                analyzer.iterate(cnf);
+                clauseList.add(new Conjunct(cnf, analyzer.getFieldInfo(), context));
             }
         } catch (Error e) {
             // rethrow lightblue error
@@ -146,25 +135,39 @@ public class QueryPlanChooser {
     }
 
     /**
-     * Recursively iterate all associations, and assign queries to
-     * nodes and edges.
+     * Recursively iterate all associations, and assign queries to nodes and
+     * edges.
      */
-    private void iterateReferences(CompositeMetadata root,List<Conjunct> unassignedClauses) {
+    private void iterateReferences(CompositeMetadata root, List<Conjunct> unassignedClauses) {
         LOGGER.debug("Iterating references to collect clauses");
         Error.push("iterateReferences");
         try {
             Set<Path> childPaths = root.getChildPaths();
+            LOGGER.debug("childPaths={}",childPaths);
+            QueryPlanNode sourceNode = qplan.getNode(root);
             for (Path childPath : childPaths) {
-                ResolvedReferenceField rrf = root.getChildReference(childPath);
-                ReferenceField ref = rrf.getReferenceField();
-                if (ref.getQuery() != null) {
-                    LOGGER.debug("Association query:{}", ref.getQuery());
-                    List<Conjunct> refQueryClauses = new ArrayList<>();
-                    rewriteQuery(ref.getQuery(), refQueryClauses, qplan,rrf);
-                    LOGGER.debug("Association query clauses:{}", refQueryClauses);
-                    assignQueriesToPlanNodesAndEdges(refQueryClauses, unassignedClauses);
-                }
-                iterateReferences(rrf.getReferencedMetadata(), unassignedClauses);
+                LOGGER.debug("Processing child path={}",childPath);
+                ResolvedReferenceField rrf = root.getDescendantReference(childPath);
+                if(rrf!=null) {
+                    QueryPlanNode destNode = qplan.getNode(rrf.getReferencedMetadata());
+                    if(destNode!=null) {
+                        QueryPlanData qd = qplan.getEdgeData(sourceNode, destNode);
+                        if (qd == null) {
+                            qplan.setEdgeData(sourceNode, destNode, qd = qplan.newData());
+                        }
+                        qd.setReference(rrf);
+                        ReferenceField ref = rrf.getReferenceField();
+                        if (ref.getQuery() != null) {
+                            LOGGER.debug("Association query:{}", ref.getQuery());
+                            List<Conjunct> refQueryClauses = new ArrayList<>();
+                            rewriteQuery(ref.getQuery(), refQueryClauses, qplan, rrf);
+                            LOGGER.debug("Association query clauses:{}", refQueryClauses);
+                            assignQueriesToPlanNodesAndEdges(refQueryClauses, unassignedClauses);
+                        }
+                        iterateReferences(rrf.getReferencedMetadata(), unassignedClauses);
+                    } // else, this destination entity is excluded in query plan
+                } else
+                    throw new RuntimeException("Cannot retrieve descendant reference for "+childPath);
             }
         } catch (Error e) {
             // rethrow lightblue error
@@ -178,51 +181,62 @@ public class QueryPlanChooser {
         }
     }
 
-    
     /**
-     * Assigns queries that refer to only one entity to the query plan
-     * nodes. These are fixed assignments, and don't change from one
-     * query plan to the other
+     * Assigns queries that refer to only one entity to the query plan nodes.
+     * These are fixed assignments, and don't change from one query plan to the
+     * other
      */
-    private void assignQueriesToPlanNodesAndEdges(List<Conjunct> queries,List<Conjunct> unassigned) {
+    private void assignQueriesToPlanNodesAndEdges(List<Conjunct> queries,
+                                                  List<Conjunct> unassigned) {
         Error.push("assignQueriesToPlanNodesAndEdges");
         LOGGER.debug("Assigning queries to query plan nodes and edges");
         try {
-            for(Conjunct c:queries) {
-                Set<QueryPlanNode> nodes=c.getReferredNodes();
-                LOGGER.debug("Conjunct {}",c);
-                switch(nodes.size()) {
-                case 1:
-                    // All query clauses that depend on fields from a single
-                    // entity can be assigned to a query plan node. If clauses
-                    // depend on multiple entities, their assignments may change
-                    // based on the query plan.
-                    LOGGER.debug("Conjunct has one entity");
-                    nodes.iterator().next().getData().getConjuncts().add(c);
-                    break;
-
-                case 2:
-                    // There are two or more entities referred to in the conjunct
-                    // This clause can be associated with an edge
-                    Iterator<QueryPlanNode> itr=nodes.iterator();
-                    QueryPlanNode node1=itr.next();
-                    QueryPlanNode node2=itr.next();
-                    if(qplan.isUndirectedConnected(node1,node2)) {
-                        LOGGER.debug("Conjunct is assigned to an edge");
-                        QueryPlanData qd=qplan.getEdgeData(node1,node2);
-                        if(qd==null)
-                            qplan.setEdgeData(node1,node2,qd=qplan.newData());
-                        qd.getConjuncts().add(c);
+            for (Conjunct c : queries) {
+                Set<CompositeMetadata> entities = c.getEntities();
+                LOGGER.debug("Conjunct {}", c);
+                switch (entities.size()) {
+                    case 1:
+                        // All query clauses that depend on fields from a single
+                        // entity can be assigned to a query plan node. If clauses
+                        // depend on multiple entities, their assignments may change
+                        // based on the query plan.
+                        LOGGER.debug("Conjunct has one entity");
+                        // Rewrite the query for that node
+                        QueryPlanNode node = qplan.getNode(entities.iterator().next());
+                        RewriteQuery rw = new RewriteQuery(compositeMetadata, node.getMetadata());
+                        QueryExpression q = rw.rewriteQuery(c.getClause(), c.getFieldInfo()).query;
+                        AnalyzeQuery analyzer = new AnalyzeQuery(node.getMetadata(), c.getReference());
+                        analyzer.iterate(q);
+                        node.getData().getConjuncts().add(new Conjunct(q,
+                                analyzer.getFieldInfo(),
+                                c.getReference()));
                         break;
-                    }
-                    // No break, falls through to default
-                default:
 
-                    // Query clause cannot be assigned to a node or edge,
-                    // put it into the unassigned list
-                    LOGGER.debug("Conjunct is unassigned");
-                    unassigned.add(c);
-                    break;
+                    case 2:
+                        // There are two entities referred to in the conjunct
+                        // This clause can be associated with the edge between those two entities.
+                        // If the two entities are not associated, then the conjunct goes into the
+                        // unassigned queries list.
+                        Iterator<CompositeMetadata> itr = entities.iterator();
+                        QueryPlanNode node1 = qplan.getNode(itr.next());
+                        QueryPlanNode node2 = qplan.getNode(itr.next());
+                        if (qplan.isUndirectedConnected(node1, node2)) {
+                            LOGGER.debug("Conjunct is assigned to an edge");
+                            QueryPlanData qd = qplan.getEdgeData(node1, node2);
+                            if (qd == null) {
+                                qplan.setEdgeData(node1, node2, qd = qplan.newData());
+                            }
+                            qd.getConjuncts().add(c);
+                            break;
+                        }
+                    // No break, falls through to default
+                    default:
+
+                        // Query clause cannot be assigned to a node or edge,
+                        // put it into the unassigned list
+                        LOGGER.debug("Conjunct is unassigned");
+                        unassigned.add(c);
+                        break;
                 }
             }
         } catch (Error e) {
@@ -249,8 +263,8 @@ public class QueryPlanChooser {
      */
     public QueryExpression getRequestQuery() {
         return requestQuery;
-    }   
-    
+    }
+
     /**
      * Returns the query plan that's currently chosen
      */
@@ -266,33 +280,34 @@ public class QueryPlanChooser {
     }
 
     /**
-     * Resets the query chooser to a state where it can start evaluating the query plans again
+     * Resets the query chooser to a state where it can start evaluating the
+     * query plans again
      */
     public void reset() {
-        bestPlan=null;
-        bestPlanScore=null;
-        
+        bestPlan = null;
+        bestPlanScore = null;
+
         qplanIterator.reset(qplan);
         scorer.reset(this);
 
-        bestPlan=qplan.deepCopy();
-        bestPlanScore=scorer.score(bestPlan);
-        LOGGER.debug("Storing initial plan as the best plan:{}",bestPlan);
-        
+        bestPlan = qplan.deepCopy();
+        bestPlanScore = scorer.score(bestPlan);
+        LOGGER.debug("Storing initial plan as the best plan:{}", bestPlan);
+
     }
 
     /**
      * Chooses the best query play after scoring all possible plans.
      */
     public QueryPlan choose() {
-        while(qplanIterator.next()) {
-            LOGGER.debug("Scoring plan {}",qplan);
-            Comparable score=scorer.score(qplan);
-            if(null!=score&&score.compareTo(bestPlanScore)<0) {
+        while (qplanIterator.next()) {
+            LOGGER.debug("Scoring plan {}", qplan);
+            Comparable score = scorer.score(qplan);
+            if (null != score && score.compareTo(bestPlanScore) < 0) {
                 LOGGER.debug("Score is better, storing this plan");
-                bestPlan=qplan.deepCopy();
-                bestPlanScore=score;
-                LOGGER.debug("Stored plan:{}",bestPlan);
+                bestPlan = qplan.deepCopy();
+                bestPlanScore = score;
+                LOGGER.debug("Stored plan:{}", bestPlan);
             }
         }
 

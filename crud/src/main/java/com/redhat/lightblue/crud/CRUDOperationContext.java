@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import com.redhat.lightblue.DataError;
+import com.redhat.lightblue.ExecutionOptions;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -50,6 +51,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final Map<String, Object> propertyMap = new HashMap<>();
     private final CRUDOperation CRUDOperation;
     private final HookManager hookManager;
+    private final ExecutionOptions executionOptions;
 
     /**
      * This is the constructor used to represent the context of an operation
@@ -57,14 +59,16 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     public CRUDOperationContext(CRUDOperation op,
                                 String entityName,
                                 Factory f,
-                                List<JsonDoc> docs) {
+                                List<JsonDoc> docs,
+                                ExecutionOptions eo) {
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
         // can assume are adding to an empty DocCtx list
         addDocuments(docs);
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
-        this.callerRoles=new HashSet<>();
+        this.callerRoles = new HashSet<>();
+        this.executionOptions = eo;
     }
 
     public CRUDOperationContext(CRUDOperation op,
@@ -72,36 +76,47 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
                                 Factory f,
                                 Set<String> callerRoles,
                                 HookManager hookManager,
-                                List<JsonDoc> docs) {
+                                List<JsonDoc> docs,
+                                ExecutionOptions eo) {
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
         addDocuments(docs);
-        this.callerRoles=callerRoles;
-        this.hookManager=hookManager;
+        this.callerRoles = callerRoles;
+        this.hookManager = hookManager;
+        this.executionOptions = eo;
     }
 
     /**
-     * This constructor is used to construct an operation context that
-     * is derived from another existing context.
+     * This constructor is used to construct an operation context that is
+     * derived from another existing context.
      */
     public CRUDOperationContext(CRUDOperation op,
                                 String entityName,
                                 Factory f,
                                 List<DocCtx> docs,
                                 Set<String> callerRoles,
-                                HookManager hookManager) {
+                                HookManager hookManager,
+                                ExecutionOptions eo) {
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        this.documents =docs;
-        this.callerRoles=callerRoles;
-        this.hookManager=hookManager;
+        this.documents = docs;
+        this.callerRoles = callerRoles;
+        this.hookManager = hookManager;
+        this.executionOptions = eo;
     }
 
     /**
-     * Resets the operation context. Clears errors, sets the given
-     * document list as the new document list.
+     * Returns the execution options
+     */
+    public ExecutionOptions getExecutionOptions() {
+        return executionOptions;
+    }
+
+    /**
+     * Resets the operation context. Clears errors, sets the given document list
+     * as the new document list.
      */
     public void reset(List<DocCtx> docList) {
         errors.clear();
@@ -145,7 +160,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     public void setDocuments(List<DocCtx> docs) {
-        documents=docs;
+        documents = docs;
     }
 
     /**

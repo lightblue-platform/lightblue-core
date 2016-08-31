@@ -55,6 +55,7 @@ import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.EntitySchema;
+import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -101,20 +102,6 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
             @Override
             public String getDefaultName() {
                 return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-        });
-        extensions.registerPropertyParser("rdbms", new PropertyParser<JsonNode>() {
-            @Override
-            public Object parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
-                p.getStringProperty(node, "answer");
-                return 42;
-            }
-
-            @Override
-            public void convert(MetadataParser<JsonNode> p, JsonNode parent, Object object) {
-                JsonNode t = p.newNode();
-                p.putObject(parent, "rdbms", t);
-                p.putString(t, "answer", object.toString());
             }
         });
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
@@ -169,8 +156,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue("More than a single property (it should contain just rdbms)", properties.size() == 1);
         Object rdbms = properties.get("rdbms");
         Assert.assertNotNull(rdbms);
-        Assert.assertEquals(42, rdbms);
-        // TODO There is an error in the conversion that does not make the new JSON object equals to the original one. Maybe it is a default value. I checked that it is not related to RDBMS
+        Assert.assertEquals("42", ((Map<String, Object>) rdbms).get("answer"));
         JsonNode c = parser.convert(em);
         Assert.assertEquals(object.get("schema").get("rdbms"), c.get("schema").get("rdbms"));
     }
@@ -500,13 +486,13 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void testConvertEnums() throws IOException, JSONException{
+    public void testConvertEnums() throws IOException, JSONException {
         String enumName = "FakeEnum";
         String enumValue1 = "FakeEnumValue1";
         String enumValue2 = "FakeEnumValue2";
 
         Enum e = new Enum(enumName);
-        e.setValues(new HashSet<EnumValue>(Arrays.asList(
+        e.setValues(new HashSet<>(Arrays.asList(
                 new EnumValue(enumValue1, null),
                 new EnumValue(enumValue2, null))));
 
@@ -526,7 +512,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void testConvertEnums_WithDescription() throws IOException, JSONException{
+    public void testConvertEnums_WithDescription() throws IOException, JSONException {
         String enumName = "FakeEnum";
         String enumValue1 = "FakeEnumValue1";
         String enumDescription1 = "this is a fake description of enum value 1";
@@ -534,7 +520,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         String enumDescription2 = "this is a fake description of enum value 2";
 
         Enum e = new Enum(enumName);
-        e.setValues(new HashSet<EnumValue>(Arrays.asList(
+        e.setValues(new HashSet<>(Arrays.asList(
                 new EnumValue(enumValue1, enumDescription1),
                 new EnumValue(enumValue2, enumDescription2))));
 
@@ -552,7 +538,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void testParseEnum() throws IOException{
+    public void testParseEnum() throws IOException {
         String enumName = "FakeEnum";
         String enumValue1 = "FakeEnumValue1";
         String enumValue2 = "FakeEnumValue2";
@@ -570,18 +556,18 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void testParseEnum_WithDescriptions() throws IOException{
+    public void testParseEnum_WithDescriptions() throws IOException {
         String enumName = "FakeEnum";
         String enumValue1 = "FakeEnumValue1";
         String enumDescription1 = "this is a fake description of enum value 1";
         String enumValue2 = "FakeEnumValue2";
         String enumDescription2 = "this is a fake description of enum value 2";
 
-        JsonNode enumsNode = json("{\"name\":\"" + enumName + "\", " +
-                "\"annotatedValues\": [" +
-                "{\"name\":\"" + enumValue1 + "\", \"description\":\"" + enumDescription1 + "\"}," +
-                "{\"name\":\"" + enumValue2 + "\", \"description\":\"" + enumDescription2 + "\"}" +
-                "]}");
+        JsonNode enumsNode = json("{\"name\":\"" + enumName + "\", "
+                + "\"annotatedValues\": ["
+                + "{\"name\":\"" + enumValue1 + "\", \"description\":\"" + enumDescription1 + "\"},"
+                + "{\"name\":\"" + enumValue2 + "\", \"description\":\"" + enumDescription2 + "\"}"
+                + "]}");
 
         Enum e = parser.parseEnum(enumsNode);
 
@@ -594,21 +580,30 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void testParseEnum_MissingName() throws IOException{
+    public void testParseFields_WithDescription() throws IOException {
+        JsonNode fieldsNode = json("{\"field\":{\"type\":\"string\",\"description\":\"foo\"}}");
+        Fields fields = new Fields(null);
+        parser.parseFields(fields, fieldsNode);
+        Assert.assertNotNull(fields.getField("field"));
+        Assert.assertEquals("description not parsed", "foo", fields.getField("field").getDescription());
+    }
+
+    @Test
+    public void testParseEnum_MissingName() throws IOException {
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
         expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"parseEnum\",\"errorCode\":\"metadata:ParseMissingElement\",\"msg\":\"name\"}");
         parser.parseEnum(json("{}"));
     }
 
     @Test
-    public void testParseEnum_MissingValues() throws IOException{
+    public void testParseEnum_MissingValues() throws IOException {
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
         expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"parseEnum\",\"errorCode\":\"metadata:ParseMissingElement\",\"msg\":\"values\"}");
         parser.parseEnum(json("{\"name\":\"FakeEnumName\"}"));
     }
 
     @Test
-    public void testParseEnum_EmptyValues() throws IOException{
+    public void testParseEnum_EmptyValues() throws IOException {
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
         expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"parseEnum\",\"errorCode\":\"metadata:ParseMissingElement\",\"msg\":\"values\"}");
         parser.parseEnum(json("{\"name\":\"FakeEnumName\", \"values\":[]}"));
@@ -618,20 +613,43 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     public void testParseConvertValueGenerator() throws IOException {
         JsonNode object = loadJsonNode("JSONMetadataParserTest-valuegenerator.json");
         EntitySchema em = parser.parseEntitySchema(object);
-        SimpleField field=(SimpleField)em.resolve(new Path("name"));
+        SimpleField field = (SimpleField) em.resolve(new Path("name"));
         Assert.assertNotNull(field);
-        ValueGenerator vg=field.getValueGenerator();
+        ValueGenerator vg = field.getValueGenerator();
         Assert.assertNotNull(vg);
-        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence,vg.getValueGeneratorType());
-        Assert.assertEquals("seq",vg.getProperties().get("name"));
-        Assert.assertEquals("1000",vg.getProperties().get("initialValue").toString());
-        ObjectNode obj=JsonNodeFactory.instance.objectNode();
-        parser.convertValueGenerator(vg,obj);
-        obj=(ObjectNode)obj.get("valueGenerator");
+        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence, vg.getValueGeneratorType());
+        Assert.assertEquals("seq", vg.getProperties().get("name"));
+        Assert.assertEquals("1000", vg.getProperties().get("initialValue").toString());
+        ObjectNode obj = JsonNodeFactory.instance.objectNode();
+        parser.convertValueGenerator(vg, obj);
+        obj = (ObjectNode) obj.get("valueGenerator");
         System.out.println(obj);
-        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence.toString(),obj.get("type").asText());
-        ObjectNode props=(ObjectNode)obj.get("configuration");
-        Assert.assertEquals("seq",props.get("name").asText());
-        Assert.assertEquals("1000",props.get("initialValue").asText());
+        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence.toString(), obj.get("type").asText());
+        ObjectNode props = (ObjectNode) obj.get("configuration");
+        Assert.assertEquals("seq", props.get("name").asText());
+        Assert.assertEquals("1000", props.get("initialValue").asText());
+    }
+
+    @Test
+    public void testProperties() throws IOException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-properties.json");
+        EntitySchema em = parser.parseEntitySchema(object);
+        List<Integer> list = (List<Integer>) em.getAccess().getProperties().get("accessProperty");
+        Assert.assertEquals(list.size(), 5);
+        Assert.assertTrue(list.contains(new Integer(1)));
+        Assert.assertTrue(list.contains(new Integer(2)));
+        Assert.assertTrue(list.contains(new Integer(3)));
+        Assert.assertTrue(list.contains(new Integer(4)));
+        Assert.assertTrue(list.contains(new Integer(5)));
+
+        SimpleField field = (SimpleField) em.resolve(new Path("name"));
+        Assert.assertEquals("y", (String) ((Map<String, Object>) field.getProperties().get("nameProperty")).get("x"));
+
+        field = (SimpleField) em.resolve(new Path("customerType"));
+        Assert.assertEquals(new Integer(1), (Integer) ((Map<String, Object>) field.getProperties()).get("customerTypeProperty"));
+
+        Map<String, Object> scp = (Map<String, Object>) em.getProperties().get("schemaProperty");
+        Map<String, Object> scpa = (Map<String, Object>) scp.get("a");
+        Assert.assertEquals("c", (String) scpa.get("b"));
     }
 }

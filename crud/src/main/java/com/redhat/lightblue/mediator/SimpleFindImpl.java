@@ -22,39 +22,71 @@ package com.redhat.lightblue.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.OperationStatus;
 
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.ExplainQuerySupport;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
+
 public class SimpleFindImpl implements Finder {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(SimpleFindImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleFindImpl.class);
 
     private final EntityMetadata md;
     private final CRUDController controller;
 
-
     public SimpleFindImpl(EntityMetadata md,
                           Factory factory) {
-        this.md=md;
+        this.md = md;
         this.controller = factory.getCRUDController(md);
-        LOGGER.debug("Controller for {}:{}", md.getName(),controller.getClass().getName());
+        LOGGER.debug("Controller for {}:{}", md.getName(), controller.getClass().getName());
     }
 
     @Override
     public CRUDFindResponse find(OperationContext ctx,
                                  CRUDFindRequest req) {
         CRUDFindResponse result = controller.find(ctx,
-                                                  req.getQuery(),
-                                                  req.getProjection(),
-                                                  req.getSort(),
-                                                  req.getFrom(),
-                                                  req.getTo());
+                req.getQuery(),
+                req.getProjection(),
+                req.getSort(),
+                req.getFrom(),
+                req.getTo());
         return result;
+    }
+
+    @Override
+    public void explain(OperationContext ctx,
+                        CRUDFindRequest req) {
+        if(controller instanceof ExplainQuerySupport) {
+            JsonDoc doc=new JsonDoc(ctx.getFactory().getNodeFactory().objectNode());
+            if(req.getQuery()!=null)
+                doc.modify(new Path("request.query"),req.getQuery().toJson(),true);
+            if(req.getProjection()!=null) 
+                doc.modify(new Path("request.projection"),req.getProjection().toJson(),true);
+            if(req.getSort()!=null)
+                doc.modify(new Path("request.sort"),req.getSort().toJson(),true);
+            if(req.getFrom()!=null)
+                doc.modify(new Path("request.from"),JsonNodeFactory.instance.numberNode(req.getFrom()),true);
+            if(req.getTo()!=null)
+                doc.modify(new Path("request.to"),JsonNodeFactory.instance.numberNode(req.getTo()),true);
+            ((ExplainQuerySupport)controller).explain(ctx,
+                                                      req.getQuery(),
+                                                      req.getProjection(),
+                                                      req.getSort(),
+                                                      req.getFrom(),
+                                                      req.getTo(),
+                                                      doc);
+            LOGGER.debug("Adding explain doc:{}",doc);
+            ctx.addDocument(doc);
+        }
     }
 }

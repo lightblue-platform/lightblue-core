@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-/*
+ /*
  Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
  This file is part of lightblue.
@@ -40,11 +40,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ContainerNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper class around JSOn documents
@@ -118,17 +121,29 @@ public class JsonDoc implements Serializable {
         }
     }
 
+    private static class NodeAndLevel {
+        final JsonNode node;
+        final int level;
+
+        public NodeAndLevel(JsonNode node, int level) {
+            this.node = node;
+            this.level = level;
+        }
+    }
+
     /**
      * Internal class containing the algorithm for path resolution starting from
      * a node and path level. Handling of '*' is overridable, by default, throws
      * an exception
      */
     private static class Resolver {
-        public JsonNode resolve(Path p, final JsonNode node, int level) {
+        public NodeAndLevel resolve(Path p, final JsonNode root, final JsonNode node, int level) {
             JsonNode output = node;
 
             int n = p.numSegments();
+            int newLevel = level;
             for (int l = level; l < n; l++) {
+                newLevel = l;
                 String name = p.head(l);
                 JsonNode newOutput;
                 if (name.equals(Path.ANY)) {
@@ -136,7 +151,14 @@ public class JsonDoc implements Serializable {
                 } else if (name.equals(Path.THIS)) {
                     continue;
                 } else if (name.equals(Path.PARENT)) {
-                    output = node.findParent(p.head(findNextNonRealtiveSegment(p, l)));
+                    output = findParent(root, output);
+                    if (output instanceof ArrayNode) {
+                        output = findParent(root, output);
+                    }
+                    if (output == null) {
+                        throw new IllegalArgumentException(node.toString());
+                    }
+
                     continue;
                 } else if (output instanceof ArrayNode) {
                     int index = Integer.valueOf(name);
@@ -161,7 +183,7 @@ public class JsonDoc implements Serializable {
                 }
 
             }
-            return output;
+            return new NodeAndLevel(output, newLevel);
         }
 
         protected JsonNode handleNullChild(JsonNode parent, Path p, int level) {
@@ -174,18 +196,29 @@ public class JsonDoc implements Serializable {
 
     }
 
-    private static int findNextNonRealtiveSegment(Path path, int currentPosition) {
-        int indexOfSegment = 0;
-
-        for (int i = currentPosition; i < path.numSegments(); i++) {
-            String segment = path.head(i);
-            if (!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
-                indexOfSegment = i;
-                break;
+    /**
+     * This method here expands our horizons in writing code that sucks.
+     * JsonNodes have no parent pointer, so finding a parent involves iterating
+     * all nodes with the hope of finding the node, and returning the container
+     * that contains it.
+     *
+     * The whole JsonNode thing should be reengineered at some point.
+     */
+    public static JsonNode findParent(final JsonNode root, final JsonNode node) {
+        if (root instanceof ContainerNode) {
+            for (Iterator<JsonNode> itr = root.elements(); itr.hasNext();) {
+                JsonNode child = itr.next();
+                if (child == node) {
+                    return root;
+                } else {
+                    JsonNode found = findParent(child, node);
+                    if (found != null) {
+                        return found;
+                    }
+                }
             }
         }
-
-        return indexOfSegment;
+        return null;
     }
 
     /**
@@ -226,12 +259,10 @@ public class JsonDoc implements Serializable {
                 } else {
                     return arr.addObject();
                 }
+            } else if (childIsArray) {
+                return ((ObjectNode) parent).putArray(p.head(level));
             } else {
-                if (childIsArray) {
-                    return ((ObjectNode) parent).putArray(p.head(level));
-                } else {
-                    return ((ObjectNode) parent).putObject(p.head(level));
-                }
+                return ((ObjectNode) parent).putObject(p.head(level));
             }
         }
     }
@@ -262,6 +293,7 @@ public class JsonDoc implements Serializable {
         private final Path path;
         private final MutablePath mpath;
         private final CursorResolver resolver = new CursorResolver();
+        private final boolean returnMissingNodes;
 
         private JsonNode nextNode;
         private boolean ended = false;
@@ -269,10 +301,12 @@ public class JsonDoc implements Serializable {
         private JsonNode currentNode;
         private Path currentPath;
 
-        public PathCursor(Path p) {
+        public PathCursor(Path p, boolean returnMissingNodes) {
+            this.returnMissingNodes = returnMissingNodes;
             path = p;
-            nextNode = resolver.resolve(path, docRoot, 0);
-            if (nextNode != null) {
+            NodeAndLevel nl = resolver.resolve(path, docRoot, docRoot, 0);
+            nextNode = nl.node;
+            if (nextNode != null || (returnMissingNodes && nl.level == path.numSegments() - 1)) {
                 nextFound = true;
             }
             if (resolver.iterators == null) {
@@ -338,9 +372,15 @@ public class JsonDoc implements Serializable {
                 do {
                     Iteration itr = resolver.iterators[level];
                     if (itr != null && itr.next()) {
-                        node = resolver.resolve(path, itr.getCurrentNode(), level + 1);
+                        NodeAndLevel nl = resolver.resolve(path, docRoot, itr.getCurrentNode(), level + 1);
+                        node = nl.node;
+                        level = nl.level;
                         if (node != null) {
                             nextFound = true;
+                            done = true;
+                        } else if (returnMissingNodes && level == path.numSegments() - 1) {
+                            nextFound = true;
+                            node = null;
                             done = true;
                         } else {
                             continue;
@@ -371,29 +411,29 @@ public class JsonDoc implements Serializable {
     public JsonNode getRoot() {
         return docRoot;
     }
-    
+
     /**
-     * Returns a cursor that iterates all nodes of the document in a depth-first manner
+     * Returns a cursor that iterates all nodes of the document in a depth-first
+     * manner
      */
     public JsonNodeCursor cursor() {
         return cursor(Path.EMPTY);
     }
 
     /**
-     * Returns a cursor that iterates all nodes of the document in a
-     * depth first manner, but uses <code>p</code> as a prefix to all
-     * the paths during iteration. This method is meant to be used for
-     * a JsonDoc rooted at an intermediate node in a Json node tree.
+     * Returns a cursor that iterates all nodes of the document in a depth first
+     * manner, but uses <code>p</code> as a prefix to all the paths during
+     * iteration. This method is meant to be used for a JsonDoc rooted at an
+     * intermediate node in a Json node tree.
      */
     public JsonNodeCursor cursor(Path p) {
         return cursor(docRoot, p);
     }
 
     /**
-     * Returns a cursor that iterates all the nodes under the given
-     * root, where the root is an intermediate node in a Json document
-     * accessed by path 'p'. Path can be empty, meaning the 'root' is
-     * the real document root.
+     * Returns a cursor that iterates all the nodes under the given root, where
+     * the root is an intermediate node in a Json document accessed by path 'p'.
+     * Path can be empty, meaning the 'root' is the real document root.
      */
     public static JsonNodeCursor cursor(JsonNode root, Path p) {
         return new JsonNodeCursor(p, root);
@@ -407,7 +447,11 @@ public class JsonDoc implements Serializable {
      * Returns a cursor iterating through all nodes of arrays, if any
      */
     public KeyValueCursor<Path, JsonNode> getAllNodes(Path p) {
-        return new PathCursor(p);
+        return getAllNodes(p, false);
+    }
+
+    public KeyValueCursor<Path, JsonNode> getAllNodes(Path p, boolean returnMissingNodes) {
+        return new PathCursor(p, returnMissingNodes);
     }
 
     /**
@@ -427,7 +471,7 @@ public class JsonDoc implements Serializable {
      * Static utility to resolve a path relative to a node
      */
     public static JsonNode get(JsonNode root, Path p) {
-        return DEFAULT_RESOLVER.resolve(p, root, 0);
+        return DEFAULT_RESOLVER.resolve(p, root, root, 0).node;
     }
 
     /**
@@ -441,7 +485,33 @@ public class JsonDoc implements Serializable {
      * @return Old value
      */
     public JsonNode modify(Path p, JsonNode newValue, boolean createPath) {
-        return modify(docRoot,p,newValue,createPath);
+        return modify(docRoot, p, newValue, createPath);
+    }
+
+    /**
+     * Recursively remove all null nodes in the given json subtree
+     *
+     * This method operates on the given root node, and returns the same root
+     * instance. It does not create a new copy.
+     */
+    public static JsonNode filterNulls(JsonNode root) {
+        if (root instanceof ArrayNode) {
+            for (JsonNode element : root) {
+                filterNulls(element);
+            }
+        } else if (root instanceof ObjectNode) {
+            ObjectNode o = (ObjectNode) root;
+            for (Iterator<Map.Entry<String, JsonNode>> itr = o.fields(); itr.hasNext();) {
+                Map.Entry<String, JsonNode> entry = itr.next();
+                JsonNode value = entry.getValue();
+                if (value == null || value instanceof NullNode) {
+                    itr.remove();
+                } else {
+                    filterNulls(value);
+                }
+            }
+        }
+        return root;
     }
 
     /**
@@ -455,15 +525,14 @@ public class JsonDoc implements Serializable {
      *
      * @return Old value
      */
-    public static JsonNode modify(JsonNode root,Path p, JsonNode newValue, boolean createPath) {
-        p = p.normalize();
+    public static JsonNode modify(JsonNode root, Path p, JsonNode newValue, boolean createPath) {
         int n = p.numSegments();
         if (n == 0) {
             throw new IllegalArgumentException(UtilConstants.ERR_CANT_SET_EMPTY_PATH_VALUE);
         }
         Path parent = p.prefix(-1);
         // Parent must be a container node
-        JsonNode parentNode = getParentNode(root,parent, createPath, p);
+        JsonNode parentNode = getParentNode(root, parent, createPath, p);
         JsonNode oldValue;
         String last = p.getLast();
         if (parentNode instanceof ObjectNode) {
@@ -533,10 +602,10 @@ public class JsonDoc implements Serializable {
     }
 
     private static JsonNode getParentNode(JsonNode docRoot, Path parent, boolean createPath, Path p) {
-        JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
+        JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0).node;
         if (parentNode == null && createPath) {
-            CREATING_RESOLVER.resolve(p, docRoot, 0);
-            parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
+            CREATING_RESOLVER.resolve(p, docRoot, docRoot, 0);
+            parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0).node;
         }
         if (parentNode != null) {
             if (!parentNode.isContainerNode()) {

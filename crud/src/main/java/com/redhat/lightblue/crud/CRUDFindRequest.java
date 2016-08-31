@@ -21,10 +21,8 @@ package com.redhat.lightblue.crud;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
@@ -32,7 +30,7 @@ import com.redhat.lightblue.query.Sort;
 /**
  * Request to find documents
  */
-public class CRUDFindRequest implements Serializable {
+public class CRUDFindRequest implements Serializable, WithRange {
 
     private static final long serialVersionUID = 1;
 
@@ -88,6 +86,7 @@ public class CRUDFindRequest implements Serializable {
      * Specifies the index in the result set to start returning documents.
      * Meaningful only if sort is given. Starts from 0.
      */
+    @Override
     public Long getFrom() {
         return from;
     }
@@ -104,6 +103,7 @@ public class CRUDFindRequest implements Serializable {
      * Specifies the last index of the document in the result set to be
      * returned. Meaningful only if sort is given. Starts from 0.
      */
+    @Override
     public Long getTo() {
         return to;
     }
@@ -140,12 +140,7 @@ public class CRUDFindRequest implements Serializable {
         if (sort != null) {
             node.set("sort", sort.toJson());
         }
-        if (from != null && to != null) {
-            ArrayNode arr = factory.arrayNode();
-            arr.add(from);
-            arr.add(to);
-            node.set("range", arr);
-        }
+        WithRange.toJson(this, factory, node);
     }
 
     /**
@@ -165,20 +160,9 @@ public class CRUDFindRequest implements Serializable {
         if (x != null) {
             sort = Sort.fromJson(x);
         }
-        x = node.get("range");
-        if (x instanceof ArrayNode && ((ArrayNode) x).size() == 2) {
-            from = ((ArrayNode) x).get(0).asLong();
-            to = ((ArrayNode) x).get(1).asLong();
-        } else {
-            x = node.get("from");
-            if (x != null) {
-                from = x.asLong();
-            }
-            x = node.get("to");
-            if (x != null) {
-                to = x.asLong();
-            }
-        }
+        Range r = WithRange.fromJson(node);
+        setFrom(r.from);
+        setTo(r.to);
     }
 
 }

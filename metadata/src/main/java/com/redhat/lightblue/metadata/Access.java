@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,9 +25,7 @@ import java.util.Set;
 /**
  * Keeps a set of roles that can perform a certain operation
  */
-public class Access implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+public class Access extends MetadataObject {
 
     private final HashSet<String> values = new HashSet<>();
 

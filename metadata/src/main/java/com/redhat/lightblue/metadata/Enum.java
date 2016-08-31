@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,9 +25,7 @@ import java.util.Set;
 /**
  * Specifies a named enumeration with values in metadata (entity info).
  */
-public class Enum implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+public class Enum extends MetadataObject {
 
     private final String name;
     private final Set<EnumValue> values = new HashSet<>();
@@ -54,9 +51,9 @@ public class Enum implements Serializable {
         }
     }
 
-    public void setValues(Collection<String> values){
-        Set<EnumValue> evSet = new HashSet<EnumValue>();
-        for(String string : values){
+    public void setValues(Collection<String> values) {
+        Set<EnumValue> evSet = new HashSet<>();
+        for (String string : values) {
             evSet.add(new EnumValue(string, null));
         }
         setValues(evSet);
@@ -66,15 +63,15 @@ public class Enum implements Serializable {
      * The {@link EnumValue}s allowed in this enumeration.
      */
     public Set<EnumValue> getEnumValues() {
-        return new HashSet<EnumValue>(values);
+        return new HashSet<>(values);
     }
 
     /**
      * The values allowed in this enumeration.
      */
-    public Set<String> getValues(){
-        Set<String> strings = new HashSet<String>();
-        for(EnumValue v : values){
+    public Set<String> getValues() {
+        Set<String> strings = new HashSet<>();
+        for (EnumValue v : values) {
             strings.add(v.getName());
         }
         return strings;

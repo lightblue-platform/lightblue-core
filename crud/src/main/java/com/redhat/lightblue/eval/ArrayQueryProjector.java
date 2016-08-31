@@ -35,7 +35,7 @@ import com.redhat.lightblue.query.ArrayQueryMatchProjection;
  */
 public class ArrayQueryProjector extends ArrayProjector {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(ArrayQueryProjector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayQueryProjector.class);
 
     private final QueryEvaluator query;
 
@@ -55,14 +55,14 @@ public class ArrayQueryProjector extends ArrayProjector {
 
     @Override
     protected Projection.Inclusion projectArray(Path p, QueryEvaluationContext ctx) {
-        LOGGER.debug("Evaluating array query projection for {}",p);
+        LOGGER.debug("Evaluating array query projection for {}", p);
         Path contextRoot = ctx.getPath();
         QueryEvaluationContext nestedContext = ctx.getNestedContext(contextRoot.isEmpty() ? p
                 : p.suffix(-contextRoot.numSegments()));
         if (query.evaluate(nestedContext)) {
             LOGGER.debug("query evaluates to true");
-            return isIncluded() ? Projection.Inclusion.explicit_inclusion:Projection.Inclusion.explicit_exclusion;
+            return isIncluded() ? Projection.Inclusion.explicit_inclusion : Projection.Inclusion.explicit_exclusion;
         }
-        return Projection.Inclusion.explicit_exclusion;
+        return isIncluded() ? Projection.Inclusion.explicit_exclusion : Projection.Inclusion.explicit_inclusion;
     }
 }

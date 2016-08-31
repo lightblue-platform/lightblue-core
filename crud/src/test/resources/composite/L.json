@@ -5,7 +5,14 @@
             "datasource": "mongodata",
             "collection": "L",
             "backend": "mongo"
-        }
+        },
+        "indexes": [
+            {
+                "fields":[
+                    { "field":"_id","dir":"$asc" }                        
+                  ]
+            }
+        ]
     },
     "schema": {
         "name": "L",
@@ -42,6 +49,25 @@
             },
             "name": {
                 "type": "string"
+            },
+            "arr": {
+                "type":"array",
+                "items": {
+                    "type":"string"
+                }
+            },
+            "us": {
+                "type":"reference",
+                "entity":"U",
+                "versionValue":"0.0.1",
+                "query":{
+                    "array":"legalEntities",
+                    "elemMatch": {
+                        "field":"legalEntityId",
+                        "op":"=",
+                        "rfield":"$parent.$parent.$parent._id"
+                    }
+                }
             }
         }
     }

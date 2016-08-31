@@ -117,7 +117,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals(4, newDoc.get(new Path("field6.nf3")).asInt());
         Assert.assertEquals(false, newDoc.get(new Path("field6.nf4")).asBoolean());
         Assert.assertEquals(5, newDoc.get(new Path("field6.nf5.0")).asInt());
-        Assert.assertEquals(10, newDoc.get(new Path("field6.nf5.1")).asInt());
+        Assert.assertEquals(JSON_NODE_FACTORY.nullNode(), newDoc.get(new Path("field6.nf5.1")));
         Assert.assertEquals(15, newDoc.get(new Path("field6.nf5.2")).asInt());
         Assert.assertEquals(20, newDoc.get(new Path("field6.nf5.3")).asInt());
         Assert.assertEquals("one", newDoc.get(new Path("field6.nf6.0")).asText());
@@ -153,7 +153,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals(4, newDoc.get(new Path("field6.nf3")).asInt());
         Assert.assertEquals(false, newDoc.get(new Path("field6.nf4")).asBoolean());
         Assert.assertEquals(5, newDoc.get(new Path("field6.nf5.0")).asInt());
-        Assert.assertEquals(10, newDoc.get(new Path("field6.nf5.1")).asInt());
+        Assert.assertEquals(JSON_NODE_FACTORY.nullNode(), newDoc.get(new Path("field6.nf5.1")));
         Assert.assertEquals(15, newDoc.get(new Path("field6.nf5.2")).asInt());
         Assert.assertEquals(20, newDoc.get(new Path("field6.nf5.3")).asInt());
         Assert.assertEquals("one", newDoc.get(new Path("field6.nf6.0")).asText());
@@ -217,7 +217,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("field6.nf7")));
         Assert.assertNull(newDoc.get(new Path("field7")));
     }
-    
+
     @Test
     public void arrayRangeTest_Projection() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
@@ -246,6 +246,43 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("field7")));
     }
 
+    @Test
+    public void arrayRangeTestForZeroUpperBound() throws Exception {
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
+        String pr = "{'field':'field6.nf6','range':[1,0],'projection':{'field':'*'}}";
+        Projector projector = projector(pr, md);
+        System.out.println(projector.toString());
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNull(newDoc.get(new Path("field6")));
+    }
+
+    @Test
+    public void arrayRangeTestForNegativeUpperBound() throws Exception {
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
+        String pr = "{'field':'field6.nf6','range':[1,-8],'projection':{'field':'*'}}";
+        Projector projector = projector(pr, md);
+        System.out.println(projector.toString());
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNull(newDoc.get(new Path("field6")));
+    }
+
+    @Test
+    public void arrayRangeTestForZeroZeroBounds() throws Exception {
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
+        String pr = "{'field':'field6.nf6','range':[0,0],'projection':{'field':'*'}}";
+        Projector projector = projector(pr, md);
+        System.out.println(projector.toString());
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNotNull(newDoc.get(new Path("field6")));
+        Assert.assertEquals("one", newDoc.get(new Path("field6.nf6.0")).asText());
+        Assert.assertEquals(1, newDoc.get(new Path("field6.nf6")).size());
+    }
 
     @Test
     public void arrayNestedQTest() throws Exception {
@@ -268,28 +305,28 @@ public class ProjectionTest extends AbstractJsonNodeTest {
     }
 
     private class SimpleGMD implements CompositeMetadata.GetMetadata {
-        public EntityMetadata getMetadata(Path injectionField,
-                                          String entityName,
-                                          String version) {
+        public EntityMetadata getMetadata(Path injectionField, String entityName, String version) {
             try {
-                return getMd("composite/"+entityName+".json");
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
-    // Composite metadata construction interprets the projections, and constructs
-    // the tree excluding unprojected entities. 
+    // This test is no longer valid. Projection evaluation don't care entity
+    // boundaries.
+    // Composite metadata construction interprets the projections, and
+    // constructs
+    // the tree excluding unprojected entities.
     @Test
     @Ignore
     public void recursiveInclusionsDontCrossEntityBoundaries() throws Exception {
-        EntityMetadata md=getMd("./composite/A.json");
-        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
-        JsonDoc doc=getDoc("./composite/doc1.json");
+        EntityMetadata md = getMd("./composite/A.json");
+        CompositeMetadata cmd = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+        JsonDoc doc = getDoc("./composite/doc1.json");
 
-        String pr="{'field':'obj1','include':1,'recursive':1}";
+        String pr = "{'field':'obj1','include':1,'recursive':1}";
         Projector projector = projector(pr, cmd);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
@@ -304,17 +341,19 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("obj1.c")));
     }
 
-    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
-    // Composite metadata construction interprets the projections, and constructs
-    // the tree excluding unprojected entities. 
+    // This test is no longer valid. Projection evaluation don't care entity
+    // boundaries.
+    // Composite metadata construction interprets the projections, and
+    // constructs
+    // the tree excluding unprojected entities.
     @Test
     @Ignore
     public void explicitInclusionByPatternCrossesEntityBoundaries() throws Exception {
-        EntityMetadata md=getMd("./composite/A.json");
-        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
-        JsonDoc doc=getDoc("./composite/doc1.json");
+        EntityMetadata md = getMd("./composite/A.json");
+        CompositeMetadata cmd = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+        JsonDoc doc = getDoc("./composite/doc1.json");
 
-        String pr="{'field':'obj1.*','include':1,'recursive':1}";
+        String pr = "{'field':'obj1.*','include':1,'recursive':1}";
         Projector projector = projector(pr, cmd);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
@@ -326,20 +365,22 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(newDoc.get(new Path("obj1.field1")));
         Assert.assertNotNull(newDoc.get(new Path("obj1.c_ref")));
         Assert.assertNotNull(newDoc.get(new Path("obj1.c")));
-        Assert.assertEquals(2,newDoc.get(new Path("obj1.c")).size());
-   }
+        Assert.assertEquals(2, newDoc.get(new Path("obj1.c")).size());
+    }
 
-    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
-    // Composite metadata construction interprets the projections, and constructs
-    // the tree excluding unprojected entities. 
+    // This test is no longer valid. Projection evaluation don't care entity
+    // boundaries.
+    // Composite metadata construction interprets the projections, and
+    // constructs
+    // the tree excluding unprojected entities.
     @Test
     @Ignore
     public void explicitInclusionCrossesEntityBoundaries() throws Exception {
-        EntityMetadata md=getMd("./composite/A.json");
-        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
-        JsonDoc doc=getDoc("./composite/doc1.json");
+        EntityMetadata md = getMd("./composite/A.json");
+        CompositeMetadata cmd = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+        JsonDoc doc = getDoc("./composite/doc1.json");
 
-        String pr="{'field':'obj1.c','include':1,'recursive':1}";
+        String pr = "{'field':'obj1.c','include':1,'recursive':1}";
         Projector projector = projector(pr, cmd);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
@@ -351,39 +392,41 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("obj1.field1")));
         Assert.assertNull(newDoc.get(new Path("obj1.c_ref")));
         Assert.assertNotNull(newDoc.get(new Path("obj1.c")));
-        Assert.assertEquals(2,newDoc.get(new Path("obj1.c")).size());
-        Assert.assertNotNull(newDoc.get(new Path("obj1.c.0._id")));
-        Assert.assertNotNull(newDoc.get(new Path("obj1.c.1._id")));
-        Assert.assertNull(newDoc.get(new Path("obj1.c.0.obj1.d")));
-        Assert.assertNull(newDoc.get(new Path("obj1.c.1.obj1.d")));
-   }
-
-    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
-    // Composite metadata construction interprets the projections, and constructs
-    // the tree excluding unprojected entities. 
-    @Test
-    @Ignore
-    public void arrayInclusionIncludesEntity() throws Exception {
-        EntityMetadata md=getMd("./composite/A.json");
-        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
-        JsonDoc doc=getDoc("./composite/doc1.json");
-
-        String pr="{'field':'obj1.c','range':[0,1],'project':{'field':'*','include':1,'recursive':1}}";
-        Projector projector = projector(pr, cmd);
-        JsonDoc newDoc = projector.project(doc, factory);
-        System.out.println(pr + ":" + newDoc.getRoot());
-        Assert.assertNull(newDoc.get(new Path("objectType")));
-        Assert.assertNull(newDoc.get(new Path("field1")));
-        Assert.assertNull(newDoc.get(new Path("b")));
-        Assert.assertNull(newDoc.get(new Path("b_ref")));
-        Assert.assertNotNull(newDoc.get(new Path("obj1")));
-        Assert.assertNull(newDoc.get(new Path("obj1.field1")));
-        Assert.assertNull(newDoc.get(new Path("obj1.c_ref")));
-        Assert.assertNotNull(newDoc.get(new Path("obj1.c")));
-        Assert.assertEquals(2,newDoc.get(new Path("obj1.c")).size());
+        Assert.assertEquals(2, newDoc.get(new Path("obj1.c")).size());
         Assert.assertNotNull(newDoc.get(new Path("obj1.c.0._id")));
         Assert.assertNotNull(newDoc.get(new Path("obj1.c.1._id")));
         Assert.assertNull(newDoc.get(new Path("obj1.c.0.obj1.d")));
         Assert.assertNull(newDoc.get(new Path("obj1.c.1.obj1.d")));
     }
- }
+
+    // This test is no longer valid. Projection evaluation don't care entity
+    // boundaries.
+    // Composite metadata construction interprets the projections, and
+    // constructs
+    // the tree excluding unprojected entities.
+    @Test
+    @Ignore
+    public void arrayInclusionIncludesEntity() throws Exception {
+        EntityMetadata md = getMd("./composite/A.json");
+        CompositeMetadata cmd = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+        JsonDoc doc = getDoc("./composite/doc1.json");
+
+        String pr = "{'field':'obj1.c','range':[0,1],'project':{'field':'*','include':1,'recursive':1}}";
+        Projector projector = projector(pr, cmd);
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNull(newDoc.get(new Path("objectType")));
+        Assert.assertNull(newDoc.get(new Path("field1")));
+        Assert.assertNull(newDoc.get(new Path("b")));
+        Assert.assertNull(newDoc.get(new Path("b_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1")));
+        Assert.assertNull(newDoc.get(new Path("obj1.field1")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c")));
+        Assert.assertEquals(2, newDoc.get(new Path("obj1.c")).size());
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c.0._id")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c.1._id")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c.0.obj1.d")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c.1.obj1.d")));
+    }
+}

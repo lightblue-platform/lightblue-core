@@ -60,6 +60,7 @@ public class Factory implements Serializable {
     private final GeneratorsRegistry generators = new GeneratorsRegistry();
 
     private JsonNodeFactory nodeFactory;
+    private int bulkParallelExecutions = 3;
 
     /**
      * Adds a field constraint validator
@@ -101,6 +102,14 @@ public class Factory implements Serializable {
         entityConstraintValidatorRegistry.add(r);
     }
 
+    public void setBulkParallelExecutions(int i) {
+        bulkParallelExecutions = i;
+    }
+
+    public int getBulkParallelExecutions() {
+        return bulkParallelExecutions;
+    }
+
     /**
      * Returns a constraint validator containing field and entity constraint
      * validators for the given entity
@@ -120,11 +129,11 @@ public class Factory implements Serializable {
      */
     public synchronized void addCRUDController(String backendType, CRUDController controller) {
         crudControllers.put(backendType, controller);
-        registerValueGenerators(backendType,controller);
+        registerValueGenerators(backendType, controller);
     }
 
     public CRUDController[] getCRUDControllers() {
-        Collection<CRUDController> c=crudControllers.values();
+        Collection<CRUDController> c = crudControllers.values();
         return c.toArray(new CRUDController[c.size()]);
     }
 
@@ -191,23 +200,22 @@ public class Factory implements Serializable {
         }
     }
 
-    public void registerValueGenerators(String backend,CRUDController controller) {
-        if(controller instanceof ExtensionSupport) {
-            ValueGeneratorSupport support=(ValueGeneratorSupport)
-                ((ExtensionSupport)controller).getExtensionInstance(ValueGeneratorSupport.class);
-            if(support!=null) {
-                registerValueGenerator(backend,support);
+    public void registerValueGenerators(String backend, CRUDController controller) {
+        if (controller instanceof ExtensionSupport) {
+            ValueGeneratorSupport support = (ValueGeneratorSupport) ((ExtensionSupport) controller).getExtensionInstance(ValueGeneratorSupport.class);
+            if (support != null) {
+                registerValueGenerator(backend, support);
             }
         }
     }
 
-    public void registerValueGenerator(String backend,ValueGeneratorSupport support) {
-        for(ValueGenerator.ValueGeneratorType t:support.getSupportedGeneratorTypes()) {
-            generators.register(t,backend,support);
+    public void registerValueGenerator(String backend, ValueGeneratorSupport support) {
+        for (ValueGenerator.ValueGeneratorType t : support.getSupportedGeneratorTypes()) {
+            generators.register(t, backend, support);
         }
     }
 
-    public ValueGeneratorSupport getValueGenerator(ValueGenerator generatorMd,String backend) {
-        return generators.getValueGenerator(generatorMd,backend);
+    public ValueGeneratorSupport getValueGenerator(ValueGenerator generatorMd, String backend) {
+        return generators.getValueGenerator(generatorMd, backend);
     }
 }

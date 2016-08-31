@@ -35,7 +35,7 @@ import com.redhat.lightblue.util.Error;
 public class ArraySizeCheckerTest {
 
     @Test
-    public void testCheckConstraint_TooLarge(){
+    public void testCheckConstraint_TooLarge() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         ArraySizeConstraint constraint = new ArraySizeConstraint("Fake Type");
@@ -50,7 +50,7 @@ public class ArraySizeCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_NotMin_NoErrors(){
+    public void testCheckConstraint_NotMin_NoErrors() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         ArraySizeConstraint constraint = new ArraySizeConstraint("Fake Type");
@@ -65,7 +65,7 @@ public class ArraySizeCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_Min_TooSmall(){
+    public void testCheckConstraint_Min_TooSmall() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         ArraySizeConstraint constraint = new ArraySizeConstraint(ArraySizeConstraint.MIN);
@@ -80,7 +80,7 @@ public class ArraySizeCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_Min_NoErrors(){
+    public void testCheckConstraint_Min_NoErrors() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         ArraySizeConstraint constraint = new ArraySizeConstraint(ArraySizeConstraint.MIN);

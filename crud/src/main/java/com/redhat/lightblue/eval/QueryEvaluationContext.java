@@ -32,23 +32,30 @@ import com.redhat.lightblue.util.Path;
  */
 public class QueryEvaluationContext {
 
+    private JsonNode root;
     private JsonNode contextRoot;
     private final MutablePath contextPath;
     private boolean result;
 
     public QueryEvaluationContext(JsonNode root) {
-        this(root, Path.EMPTY);
+        this(root, root, Path.EMPTY);
     }
 
-    public QueryEvaluationContext(JsonNode root, Path p) {
-        this.contextRoot = root;
+    public QueryEvaluationContext(JsonNode root, JsonNode contextRoot, Path p) {
+        this.root = root;
+        this.contextRoot = contextRoot;
         this.contextPath = p.mutableCopy();
     }
 
     private QueryEvaluationContext(QueryEvaluationContext ctx, JsonNode root, Path relativePath) {
+        this.root = ctx.root;
         this.contextRoot = root;
         this.contextPath = new MutablePath(ctx.contextPath);
         this.contextPath.push(relativePath);
+    }
+
+    public JsonNode getRoot() {
+        return root;
     }
 
     public JsonNode getNode() {
@@ -60,7 +67,11 @@ public class QueryEvaluationContext {
     }
 
     public KeyValueCursor<Path, JsonNode> getNodes(Path relativePath) {
-        return new JsonDoc(contextRoot).getAllNodes(new Path(relativePath));
+        return new JsonDoc(root).getAllNodes(contextPath.isEmpty() ? relativePath : new Path(contextPath, relativePath));
+    }
+
+    public KeyValueCursor<Path, JsonNode> getNodes(Path relativePath, boolean returnMissingNodes) {
+        return new JsonDoc(root).getAllNodes(contextPath.isEmpty() ? relativePath : new Path(contextPath, relativePath), returnMissingNodes);
     }
 
     public Path getPath() {

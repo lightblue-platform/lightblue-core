@@ -21,10 +21,9 @@ package com.redhat.lightblue.metadata;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonCompare;
 
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -33,9 +32,7 @@ import java.util.List;
  *
  * @author nmalik
  */
-public class EntityMetadata implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+public class EntityMetadata extends MetadataObject {
 
     private final EntityInfo info;
     private final EntitySchema schema;
@@ -195,11 +192,11 @@ public class EntityMetadata implements Serializable {
      */
     public void validate() {
         // Check enum in schema against entity info
-        FieldCursor cursor=getEntitySchema().getFieldCursor();
-        while(cursor.next()) {
-            FieldTreeNode node=cursor.getCurrentNode();
-            if(node instanceof Field) {
-                Field field=(Field)node;
+        FieldCursor cursor = getEntitySchema().getFieldCursor();
+        while (cursor.next()) {
+            FieldTreeNode node = cursor.getCurrentNode();
+            if (node instanceof Field) {
+                Field field = (Field) node;
                 for (FieldConstraint fc : field.getConstraints()) {
                     if (fc instanceof EnumConstraint) {
                         // check that this field's enum name is valid
@@ -211,5 +208,14 @@ public class EntityMetadata implements Serializable {
                 }
             }
         }
+    }
+
+    /**
+     * Builds a document comparator for comparing documents of this type. That
+     * involves registering all array element identities with the comparator so
+     * array comparisons can be done corectly and efficiently.
+     */
+    public JsonCompare getDocComparator() {
+        return schema.getDocComparator();
     }
 }

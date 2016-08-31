@@ -7,7 +7,6 @@
   "authentications": [
     {
       "principal": "LOGIN1",
-      "uid": "7fde2145-5739-46f8-8f6c-058fbc7a1093",
       "providerName": "Red Hat"
     }
   ],
@@ -26,6 +25,27 @@
           "accessLevel": "admin"
         }
       ],
+                   "emails": [
+                        {
+                            "address": "email1@redhat.com",
+                            "status": "enabled",
+                            "uid": null,
+                            "validation": {
+                                "attempts": 1,
+                                "creationDate": "20151001T00:00:00.000+0200",
+                                "expirationDate": "20251001T00:00:00.000+0200",
+                                "key": "f23scddasf4211",
+                                "status": "enabled",
+                                "validationDate": null
+                            }
+                        },
+                        {
+                            "address": "email1@redhat.com",
+                            "status": "enabled",
+                            "uid": null,
+                            "validation": null
+                        }
+                    ],
       "startDate": "20150929T14:08:44.831-0400"
     }
   ],

@@ -39,7 +39,7 @@ import com.redhat.lightblue.util.Path;
 
 public class RequiredChecker implements FieldConstraintDocChecker {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(RequiredChecker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequiredChecker.class);
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
@@ -65,16 +65,16 @@ public class RequiredChecker implements FieldConstraintDocChecker {
      */
     public static List<Path> getMissingFields(Path fieldMetadataPath,
                                               JsonDoc doc) {
-        LOGGER.debug("Checking {}",fieldMetadataPath);
+        LOGGER.debug("Checking {}", fieldMetadataPath);
         int nAnys = fieldMetadataPath.nAnys();
-        List<Path> errors = new ArrayList<Path>();
+        List<Path> errors = new ArrayList<>();
         if (nAnys == 0) {
-            JsonNode fieldNode=doc.get(fieldMetadataPath);
+            JsonNode fieldNode = doc.get(fieldMetadataPath);
             if (fieldNode == null) {
                 // Field does not exist. If the parent object does not exist either, constraint is ok
-                if(fieldMetadataPath.numSegments()>1) {
-                    JsonNode parent=doc.get(fieldMetadataPath.prefix(-1));
-                    if(parent==null||parent instanceof NullNode) {
+                if (fieldMetadataPath.numSegments() > 1) {
+                    JsonNode parent = doc.get(fieldMetadataPath.prefix(-1));
+                    if (parent == null || parent instanceof NullNode) {
                         // Parent does not exist as well. Let it pass
                         ;
                     } else {
@@ -83,7 +83,7 @@ public class RequiredChecker implements FieldConstraintDocChecker {
                 } else {
                     errors.add(fieldMetadataPath);
                 }
-            } else if(fieldNode instanceof NullNode) {
+            } else if (fieldNode instanceof NullNode) {
                 errors.add(fieldMetadataPath);
             }
         } else {
@@ -91,21 +91,21 @@ public class RequiredChecker implements FieldConstraintDocChecker {
             // If the array element exists, then the member must exist in that object
             Path parent = fieldMetadataPath.prefix(-1);
             String fieldName = fieldMetadataPath.tail(0);
-            LOGGER.debug("Checking {} under {}",fieldName,parent);
+            LOGGER.debug("Checking {} under {}", fieldName, parent);
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(parent);
             while (cursor.hasNext()) {
                 cursor.next();
                 JsonNode parentObject = cursor.getCurrentValue();
-                if(!(parentObject instanceof NullNode)) {
-                    LOGGER.debug("Checking {}",cursor.getCurrentKey());
-                    JsonNode fieldNode=parentObject.get(fieldName);
+                if (!(parentObject instanceof NullNode)) {
+                    LOGGER.debug("Checking {}", cursor.getCurrentKey());
+                    JsonNode fieldNode = parentObject.get(fieldName);
                     if (fieldNode == null || fieldNode instanceof NullNode) {
                         errors.add(new Path(cursor.getCurrentKey() + "." + fieldName));
                     }
                 }
             }
         }
-        LOGGER.debug("Errors:{}",errors);
+        LOGGER.debug("Errors:{}", errors);
         return errors;
     }
 }

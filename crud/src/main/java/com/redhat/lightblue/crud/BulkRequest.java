@@ -27,14 +27,13 @@ import java.util.Comparator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.util.JsonObject;
 import com.redhat.lightblue.Request;
+import static com.redhat.lightblue.util.JsonUtils.json;
+import java.math.BigDecimal;
 
 /**
- * Contains a list of requests. Each request has a sequence number
- * that can be used to match the corresponding response.
+ * Contains a list of requests. Each request has a sequence number that can be
+ * used to match the corresponding response.
  * <pre>
  *   {
  *     "requests": [
@@ -45,54 +44,66 @@ import com.redhat.lightblue.Request;
  *         }
  *     ]
  *   }
- * </pre> 
+ * </pre>
  */
 public class BulkRequest extends AbstractBulkJsonObject<Request> {
 
+    @Override
     public JsonNode toJson() {
-        throw new UnsupportedOperationException();
+        ObjectNode rootJson = getFactory().objectNode();
+        ArrayNode requestsJson = getFactory().arrayNode();
+        rootJson.set("requests", requestsJson);
+        int seq = 0;
+        for (Request request : getEntries()) {
+            ObjectNode requestJson = (ObjectNode) request.toJson();
+            requestJson.put("seq", seq++);
+            requestsJson.add(requestJson);
+        }
+        return rootJson;
     }
-    
+
     public static BulkRequest fromJson(ObjectNode node) {
-        BulkRequest req=new BulkRequest();
-        req.parse((ArrayNode)node.get("requests"));
+        BulkRequest req = new BulkRequest();
+        req.parse((ArrayNode) node.get("requests"));
         return req;
     }
-    
 
     protected Request parseEntry(ObjectNode node) {
-        JsonNode opNode=node.get("op");
-        if(opNode!=null) {
+        JsonNode opNode = node.get("op");
+        if (opNode != null) {
             Request req;
-            String opstr=opNode.asText();
-            JsonNode val=node.get("request");
-            if(val instanceof ObjectNode) {
-                if(opstr.equalsIgnoreCase(CRUDOperation.FIND.toString()))
-                    req=FindRequest.fromJson((ObjectNode)val);
-                else if(opstr.equalsIgnoreCase(CRUDOperation.INSERT.toString()))
-                    req=InsertionRequest.fromJson((ObjectNode)val);
-                else if(opstr.equalsIgnoreCase(CRUDOperation.SAVE.toString()))
-                    req=SaveRequest.fromJson((ObjectNode)val);
-                else if(opstr.equalsIgnoreCase(CRUDOperation.UPDATE.toString()))
-                    req=UpdateRequest.fromJson((ObjectNode)val);
-                else if(opstr.equalsIgnoreCase(CRUDOperation.DELETE.toString()))
-                    req=DeleteRequest.fromJson((ObjectNode)val);
-                else
+            String opstr = opNode.asText();
+            JsonNode val = node.get("request");
+            if (val instanceof ObjectNode) {
+                if (opstr.equalsIgnoreCase(CRUDOperation.FIND.toString())) {
+                    req = FindRequest.fromJson((ObjectNode) val);
+                } else if (opstr.equalsIgnoreCase(CRUDOperation.INSERT.toString())) {
+                    req = InsertionRequest.fromJson((ObjectNode) val);
+                } else if (opstr.equalsIgnoreCase(CRUDOperation.SAVE.toString())) {
+                    req = SaveRequest.fromJson((ObjectNode) val);
+                } else if (opstr.equalsIgnoreCase(CRUDOperation.UPDATE.toString())) {
+                    req = UpdateRequest.fromJson((ObjectNode) val);
+                } else if (opstr.equalsIgnoreCase(CRUDOperation.DELETE.toString())) {
+                    req = DeleteRequest.fromJson((ObjectNode) val);
+                } else {
                     throw new IllegalArgumentException(opstr);
+                }
                 return req;
-            } else
+            } else {
                 throw new IllegalArgumentException(opstr);
-        } else
+            }
+        } else {
             throw new IllegalArgumentException("op");
-    }    
+        }
+    }
 
     private static class SReq {
         private final int seq;
         private final Request entry;
 
-        public SReq(int seq,Request entry) {
-            this.seq=seq;
-            this.entry=entry;
+        public SReq(int seq, Request entry) {
+            this.seq = seq;
+            this.entry = entry;
         }
     }
 
@@ -104,34 +115,37 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
         // Fill the entries into an array list, assuming for most
         // cases the array list will be ordered by the sequence
         // number. If there are out-of-sequence entries, then sort it
-        List<SReq> list=new ArrayList<>(entriesArray.size());
-        int lastSeq=0;
-        boolean first=true;
-        boolean ooo=false;
-        for(Iterator<JsonNode> itr=entriesArray.elements();itr.hasNext();) {
-            JsonNode x=itr.next();
-            JsonNode val=x.get("seq");
-            if(val!=null) {
-                int seq=val.asInt();
-                if(first)
-                    lastSeq=seq;
-                else {
-                    if(seq<lastSeq)
-                        ooo=true;
-                    else
-                        lastSeq=seq;
+        List<SReq> list = new ArrayList<>(entriesArray.size());
+        int lastSeq = 0;
+        boolean first = true;
+        boolean ooo = false;
+        for (Iterator<JsonNode> itr = entriesArray.elements(); itr.hasNext();) {
+            JsonNode x = itr.next();
+            JsonNode val = x.get("seq");
+            if (val != null) {
+                int seq = val.asInt();
+                if (first) {
+                    lastSeq = seq;
+                    first = false;
+                } else if (seq < lastSeq) {
+                    ooo = true;
+                } else {
+                    lastSeq = seq;
                 }
-                Request entry=parseEntry((ObjectNode)x);
-                list.add(new SReq(seq,entry));
+                Request entry = parseEntry((ObjectNode) x);
+                list.add(new SReq(seq, entry));
             }
         }
-        if(ooo)
-            Collections.sort(list,new Comparator<SReq>() {
-                    public int compare(SReq r1,SReq r2) {
-                        return r1.seq-r2.seq;
-                    }
-                });
-        for(SReq r:list)
+        if (ooo) {
+            Collections.sort(list, new Comparator<SReq>() {
+                @Override
+                public int compare(SReq r1, SReq r2) {
+                    return r1.seq - r2.seq;
+                }
+            });
+        }
+        for (SReq r : list) {
             entries.add(r.entry);
+        }
     }
 }

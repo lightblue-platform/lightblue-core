@@ -448,4 +448,13 @@
     "d_ref":"D50"
     },
   "b_ref":"B50"
+  },{
+  "_id":"CDEEP2",
+  "objectType":"C",
+  "field1":"-zcfIobvXmCmii5u8GdKaVAv3o7ax",
+  "obj1":{
+    "field1":"7w.ldg",
+    "d_ref":"D50"
+    },
+  "b_ref":"B50"
   }]

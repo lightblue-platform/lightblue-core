@@ -56,7 +56,7 @@ public final class BooleanType implements Type, Serializable {
 
     @Override
     public Object fromJson(JsonNode node) {
-        if (node instanceof NullNode) {
+        if (node == null || node instanceof NullNode) {
             return null;
         } else if (node.isValueNode()) {
             return node.asBoolean();
@@ -70,7 +70,7 @@ public final class BooleanType implements Type, Serializable {
         Boolean value = null;
         if (obj != null) {
             if (obj instanceof Boolean) {
-                value = ((Boolean) obj);
+                value = (Boolean) obj;
             } else if (obj instanceof Number) {
                 value = ((Number) obj).intValue() != 0;
             } else if (obj instanceof String) {

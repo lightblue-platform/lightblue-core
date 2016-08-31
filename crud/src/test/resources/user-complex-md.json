@@ -215,7 +215,7 @@
                         "uid": {
                             "type": "string",
                             "constraints": {
-                                "required": true
+                                "element-identity": true
                             },
                             "valueGenerator": {
                                 "type": "UUID"
@@ -462,6 +462,15 @@
                                                     "required": true
                                                 }
                                             },
+                                            "creationDate": {
+                                               "constraints": {
+                                                  "required": true
+                                               },
+                                              "type": "date",
+                                            "valueGenerator": {
+                                                "type": "CurrentTime"
+                                             }
+                                            },
                                             "validationDate": {
                                                 "type": "date"
                                             },
@@ -620,9 +629,7 @@
                 },
                 "valueGenerator": {
                     "type": "CurrentTime",
-                    "configuration": {
-                        "overwrite": true
-                    }
+                    "overwrite": true
                 }
             },
             "lastUpdatedBy": {

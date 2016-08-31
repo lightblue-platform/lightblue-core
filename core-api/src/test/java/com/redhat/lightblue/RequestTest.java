@@ -21,18 +21,29 @@ package com.redhat.lightblue;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.node.*;
+
 import com.redhat.lightblue.crud.CRUDOperation;
 
 /**
  * Created by nmalik on 11/24/14.
  */
 public class RequestTest {
-    private class TestRequest extends Request {
+    private static class TestRequest extends Request {
         public TestRequest() {
 
         }
 
-        public CRUDOperation getOperation() {return null;}
+        @Override
+        public CRUDOperation getOperation() {
+            return null;
+        }
+
+        public static TestRequest fromJson(ObjectNode node) {
+            TestRequest req = new TestRequest();
+            req.parse(node);
+            return req;
+        }
     }
 
     @Test
@@ -62,5 +73,14 @@ public class RequestTest {
         Assert.assertEquals(entityVersion, copy.getEntityVersion());
         Assert.assertEquals(client, copy.getClientId());
         Assert.assertEquals(execution, copy.getExecution());
+    }
+
+    @Test
+    public void toJsonFromJsonNullv() {
+        Request request = new TestRequest();
+        request.setEntityVersion(new EntityVersion("e", null));
+        Request parsed = TestRequest.fromJson((ObjectNode) request.toJson());
+        Assert.assertEquals(request.getEntityVersion().getEntity(), parsed.getEntityVersion().getEntity());
+        Assert.assertEquals(request.getEntityVersion().getVersion(), parsed.getEntityVersion().getVersion());
     }
 }

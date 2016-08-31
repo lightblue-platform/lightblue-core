@@ -10,7 +10,7 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.extensions.Extension;
 import com.redhat.lightblue.extensions.ExtensionSupport;
 import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
-import com.redhat.lightblue.mediator.MediatorTest.MockValueGeneratorSupport;
+import com.redhat.lightblue.mediator.AbstractMediatorTest.MockValueGeneratorSupport;
 import com.redhat.lightblue.metadata.MetadataListener;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
@@ -29,7 +29,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
     @Override
     public CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                         Projection projection) {
-        this.ctx=ctx;
+        this.ctx = ctx;
         return insertResponse;
     }
 
@@ -37,7 +37,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
     public CRUDSaveResponse save(CRUDOperationContext ctx,
                                  boolean upsert,
                                  Projection projection) {
-        this.ctx=ctx;
+        this.ctx = ctx;
         return saveResponse;
     }
 
@@ -46,7 +46,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
                                      QueryExpression query,
                                      UpdateExpression update,
                                      Projection projection) {
-        this.ctx=ctx;
+        this.ctx = ctx;
         return updateResponse;
     }
 
@@ -72,14 +72,16 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
     }
 
     @Override
-    public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
+    public void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc) {
+    }
 
     @Override
-    public <E extends Extension> E  getExtensionInstance(Class<? extends Extension> extensionClass) {
-        if(extensionClass.equals(ValueGeneratorSupport.class)) {
-            return (E)new MockValueGeneratorSupport();
-        } else
+    public <E extends Extension> E getExtensionInstance(Class<? extends Extension> extensionClass) {
+        if (extensionClass.equals(ValueGeneratorSupport.class)) {
+            return (E) new MockValueGeneratorSupport();
+        } else {
             return null;
+        }
     }
 
 }

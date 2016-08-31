@@ -41,9 +41,9 @@ import com.redhat.lightblue.util.Error;
 
 public class EnumCheckerTest {
 
-    protected ConstraintValidator mockEnum(ConstraintValidator validator, Enum e){
+    protected ConstraintValidator mockEnum(ConstraintValidator validator, Enum e) {
         EntityInfo entityInfo = new EntityInfo("fake name");
-        if(e != null){
+        if (e != null) {
             entityInfo.getEnums().addEnum(e);
         }
 
@@ -56,15 +56,15 @@ public class EnumCheckerTest {
     }
 
     /**
-     * If the fieldValue's text value is in the returned Enum's values, then an error should
-     * not be created.
+     * If the fieldValue's text value is in the returned Enum's values, then an
+     * error should not be created.
      */
     @Test
-    public void testCheckConstraint_WithEnum_FieldValueIsInSet(){
+    public void testCheckConstraint_WithEnum_FieldValueIsInSet() {
         final String name = "Fake Name";
 
         Enum e = new Enum(name);
-        e.setValues(new HashSet<EnumValue>(Arrays.asList(new EnumValue(name, null))));
+        e.setValues(new HashSet<>(Arrays.asList(new EnumValue(name, null))));
 
         ConstraintValidator validator = mock(ConstraintValidator.class);
         mockEnum(validator, e);
@@ -81,11 +81,11 @@ public class EnumCheckerTest {
     }
 
     /**
-     * If the fieldValue's text value is not in the returned Enum's values, then an error should
-     * be created.
+     * If the fieldValue's text value is not in the returned Enum's values, then
+     * an error should be created.
      */
     @Test
-    public void testCheckConstraint_WithEnum_ButFieldValueNotInSet(){
+    public void testCheckConstraint_WithEnum_ButFieldValueNotInSet() {
         final String name = "Fake Name";
 
         Enum e = new Enum("Fake Enum");
@@ -108,7 +108,7 @@ public class EnumCheckerTest {
      * If the returned Enum is null, then an error should be created.
      */
     @Test
-    public void testCheckConstraint_NullEnum(){
+    public void testCheckConstraint_NullEnum() {
         String name = "Fake Name";
 
         ConstraintValidator validator = mock(ConstraintValidator.class);
@@ -128,7 +128,7 @@ public class EnumCheckerTest {
      * If the name on the Constraint is null, then an error should be created.
      */
     @Test
-    public void testCheckConstraint_NullName(){
+    public void testCheckConstraint_NullName() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         EnumConstraint constraint = new EnumConstraint();

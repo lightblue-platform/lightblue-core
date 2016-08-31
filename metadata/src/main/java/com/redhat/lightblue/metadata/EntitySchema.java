@@ -19,13 +19,14 @@
 package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
+import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonCompare;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -33,10 +34,8 @@ import java.util.*;
  *
  * @author nmalik
  */
-public class EntitySchema implements Serializable {
+public class EntitySchema extends MetadataObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntitySchema.class);
-
-    private static final long serialVersionUID = 1l;
 
     private final String name;
     private Version version;
@@ -47,9 +46,8 @@ public class EntitySchema implements Serializable {
     private final ArrayList<EntityConstraint> constraints;
     private Fields fields;
     private FieldTreeNode fieldRoot;
-    private final Map<String, Object> properties;
 
-    protected class RootNode implements FieldTreeNode, Serializable {
+    protected class RootNode implements FieldTreeNode {
 
         private static final long serialVersionUID = 1L;
 
@@ -106,7 +104,6 @@ public class EntitySchema implements Serializable {
         this.statusChangeLog = new ArrayList<>();
         this.access = new EntityAccess();
         this.constraints = new ArrayList<>();
-        this.properties = new HashMap<>();
     }
 
     /**
@@ -121,7 +118,7 @@ public class EntitySchema implements Serializable {
         this.constraints = source.constraints;
         this.fields = source.fields;
         this.fieldRoot = source.fieldRoot;
-        this.properties = source.properties;
+        super.shallowCopyFrom(source);
     }
 
     /**
@@ -264,17 +261,70 @@ public class EntitySchema implements Serializable {
         }
     }
 
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
-
     /**
      * Returns the full field name relative to the current entity
      */
     public Path getEntityRelativeFieldName(FieldTreeNode field) {
         return field.getFullPath();
     }
-    
+
+    /**
+     * Returns a map where the key is the array field name, and value is a
+     * List<Path> listing the identity fields for that array
+     */
+    public Map<Path, List<Path>> getArrayIdentities() {
+        FieldCursor cursor = getFieldCursor();
+        Map<Path, List<Path>> idMap = new HashMap<>();
+        while (cursor.next()) {
+            FieldTreeNode fn = cursor.getCurrentNode();
+            if (fn instanceof SimpleField) {
+                for (FieldConstraint fc : ((SimpleField) fn).getConstraints()) {
+                    if (fc instanceof ArrayElementIdConstraint) {
+                        Path fieldName = cursor.getCurrentPath();
+                        int lastAny = findLastAnyIndex(fieldName);
+                        if (lastAny != -1) {
+                            Path arrayName = fieldName.prefix(lastAny);
+                            Path idName = fieldName.suffix(-(lastAny + 1));
+                            List<Path> ids = idMap.get(arrayName);
+                            if (ids == null) {
+                                idMap.put(arrayName, ids = new ArrayList<>());
+                            }
+                            ids.add(idName);
+                        }
+                    }
+                }
+            }
+        }
+        return idMap;
+    }
+
+    /**
+     * Builds a document comparator for comparing documents of this type. That
+     * involves registering all array element identities with the comparator so
+     * array comparisons can be done corectly and efficiently.
+     */
+    public JsonCompare getDocComparator() {
+        Map<Path, List<Path>> idMap = getArrayIdentities();
+        JsonCompare cmp = new JsonCompare();
+        for (Map.Entry<Path, List<Path>> entry : idMap.entrySet()) {
+            cmp.addArrayIdentity(entry.getKey(), entry.getValue().toArray(new Path[entry.getValue().size()]));
+        }
+        return cmp;
+    }
+
+    private int findLastAnyIndex(Path p) {
+        for (int i = p.numSegments() - 1; i >= 0; i--) {
+            if (p.head(i).equals(Path.ANY)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the identity fields for this entity. It does not descend down the
+     * relations.
+     */
     public Field[] getIdentityFields() {
         FieldCursor cursor = getFieldCursor();
         TreeMap<Path, Field> fieldMap = new TreeMap<>();

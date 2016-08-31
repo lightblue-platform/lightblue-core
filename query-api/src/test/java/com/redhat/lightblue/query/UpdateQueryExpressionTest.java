@@ -41,9 +41,9 @@ public class UpdateQueryExpressionTest {
      */
     @Test
     public void testFromJson() throws IOException {
-        JsonNode node = null;
-        QueryExpression expResult = null;
-        QueryExpression result = null;
+        JsonNode node;
+        QueryExpression expResult;
+        QueryExpression result;
 
         node = JsonUtils.json("\"$all\"");
 

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.ValueComparisonExpression;
@@ -58,25 +59,44 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        Object value=rvalue.getValue();
+        ctx.setResult(false);
+        Object value = rvalue.getValue();
         LOGGER.debug("evaluate {} {} {}", field, operator, value);
         KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);
+        boolean fieldValueExists = false;
         while (cursor.hasNext()) {
+            fieldValueExists = true;
             cursor.next();
             JsonNode valueNode = cursor.getCurrentValue();
-            Object docValue;
-            if (valueNode != null) {
-                docValue = fieldMd.getType().fromJson(valueNode);
+            int result;
+            if (value == null) {
+                // Comparing to null, we don't need the docValue, all we need is if docValue is null or not
+                boolean docValueNull = valueNode == null || valueNode instanceof NullNode;
+                if (docValueNull) {
+                    result = 0;
+                } else {
+                    result = -1;
+                }
+
             } else {
-                docValue = null;
+                Object docValue;
+                if (valueNode != null) {
+                    docValue = fieldMd.getType().fromJson(valueNode);
+                } else {
+                    docValue = null;
+                }
+                LOGGER.debug(" fieldvalue={} value={} type={}", docValue, value, fieldMd.getType().getName());
+                result = fieldMd.getType().compare(docValue, value);
             }
-            LOGGER.debug(" fieldvalue={} value={} type={}", docValue,value,fieldMd.getType().getName());
-            int result = fieldMd.getType().compare(docValue, value);
             LOGGER.debug(" result={}", result);
             ctx.setResult(operator.apply(result));
             if (ctx.getResult()) {
                 break;
             }
+        }
+        // If we're comparing equivalence to null, nonexistance of a field matches
+        if (value == null && !fieldValueExists && operator == BinaryComparisonOperator._eq) {
+            ctx.setResult(true);
         }
         return ctx.getResult();
     }

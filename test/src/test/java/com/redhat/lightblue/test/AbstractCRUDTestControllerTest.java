@@ -17,9 +17,9 @@ public class AbstractCRUDTestControllerTest {
     @Test
     public void testStripHooks_All() throws Exception {
         JsonNode node = loadJsonNode("./metadata/hooks.json");
-        AbstractCRUDTestController.stripHooks(node,
-                new HashSet<String>(Arrays.asList(
-                        AbstractCRUDTestController.REMOVE_ALL_HOOKS)));
+        LightblueTestHarness.stripHooks(node,
+                new HashSet<>(Arrays.asList(
+                        LightblueTestHarness.REMOVE_ALL_HOOKS)));
 
         assertNull(node.get("entityInfo").get("hooks"));
     }
@@ -27,8 +27,8 @@ public class AbstractCRUDTestControllerTest {
     @Test
     public void testStripHooks_Selective() throws Exception {
         JsonNode node = loadJsonNode("./metadata/hooks.json");
-        AbstractCRUDTestController.stripHooks(node,
-                new HashSet<String>(Arrays.asList("someHook")));
+        LightblueTestHarness.stripHooks(node,
+                new HashSet<>(Arrays.asList("someHook")));
 
         JsonNode hooksNode = node.get("entityInfo").get("hooks");
         assertNotNull(hooksNode);
@@ -38,7 +38,7 @@ public class AbstractCRUDTestControllerTest {
     @Test
     public void testEnsureDatasource() throws Exception {
         JsonNode node = loadJsonNode("./metadata/datasource.json");
-        AbstractCRUDTestController.ensureDatasource(node, "anotherdatasource");
+        LightblueTestHarness.ensureDatasource(node, "anotherdatasource");
 
         assertEquals("anotherdatasource", node.get("entityInfo").get(
                 "datastore").get("datasource").asText());
@@ -47,7 +47,7 @@ public class AbstractCRUDTestControllerTest {
     @Test
     public void testGrantAnyoneAccess() throws Exception {
         JsonNode node = loadJsonNode("./metadata/access.json");
-        AbstractCRUDTestController.grantAnyoneAccess(node);
+        LightblueTestHarness.grantAnyoneAccess(node);
 
         assertEquals("anyone",
                 node.get("schema").get("access").get("insert").get(0).textValue());

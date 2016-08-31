@@ -5,7 +5,15 @@
            "datasource":"mongodata",
            "collection":"U",
            "backend":"mongo"
-               }
+        },
+        "indexes":[
+            {
+                "fields":[{"field":"authentications.*.principal","dir":"$asc"}]
+            },
+            {
+                "fields":[{"field":"legalEntities.*.legalEntityId","dir":"$asc"}]
+            }
+            ]
     },
          
     "schema": {
@@ -68,6 +76,15 @@
                                 "field": "_id",
                                 "op": "$eq",
                                 "rfield": "$parent.legalEntityId"
+                            }
+                        },
+                        "emails": {
+                            "type":"array",
+                            "items":{
+                                "type":"object",
+                                "fields":{
+                                    "address":{"type":"string"}
+                                }
                             }
                         }
                     }

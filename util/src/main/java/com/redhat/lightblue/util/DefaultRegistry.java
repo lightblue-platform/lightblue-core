@@ -44,17 +44,17 @@ public class DefaultRegistry<K, V> implements Registry<K, V>, Serializable {
     }
 
     public void mergeWith(DefaultRegistry parser) {
-        for (Object o : parser.resolvers){
+        for (Object o : parser.resolvers) {
             Resolver<K, V> r = (Resolver<K, V>) o;
-            if(!this.resolvers.contains(r)){
+            if (!this.resolvers.contains(r)) {
                 this.resolvers.add(r);
             }
         }
         Iterator it = parser.items.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            if(!items.containsKey(pair.getKey())){
-                items.put(((K)pair.getKey()),((V)pair.getValue()));
+            Map.Entry pair = (Map.Entry) it.next();
+            if (!items.containsKey(pair.getKey())) {
+                items.put((K) pair.getKey(), (V) pair.getValue());
             }
         }
     }

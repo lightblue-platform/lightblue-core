@@ -36,9 +36,7 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.query.ArrayProjection;
 import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.CompositeSortKey;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
@@ -47,7 +45,7 @@ import com.redhat.lightblue.util.JsonDoc;
  */
 public abstract class ArrayProjector extends Projector {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(ArrayProjector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayProjector.class);
 
     private final Path arrayFieldPattern;
     private final boolean include;
@@ -55,82 +53,6 @@ public abstract class ArrayProjector extends Projector {
     private final Sort sort;
     private boolean lastMatch;
     private final SortFieldInfo[] sortFields;
-
-    private final static class SortFieldInfo {
-        final SimpleField field;
-        final Path name;
-        final boolean descending;
-
-        SortFieldInfo(SimpleField field,Path name,boolean descending) {
-            this.field=field;
-            this.name=name;
-            this.descending=descending;
-        }
-    }
-
-    private final static class SortableElement implements Comparable<SortableElement> {
-        final Object[] keyValues;
-        final JsonNode node;
-        final SortFieldInfo[] sortFields;
-
-        public SortableElement(JsonNode node,SortFieldInfo[] sortFields) {
-            this.node=node;
-            this.sortFields=sortFields;
-            keyValues=new Object[sortFields.length];
-            for(int i=0;i<sortFields.length;i++) {
-                JsonNode valueNode=JsonDoc.get(node,sortFields[i].name);
-                keyValues[i]=sortFields[i].field.getType().fromJson(valueNode);
-            }
-        }
-
-        @Override
-        public boolean equals(Object x) {
-            if(x instanceof SortableElement)
-                return compareTo((SortableElement)x)==0;
-            else
-                return false;
-        }
-
-        @Override
-        public int hashCode() {
-            StringBuilder buff = new StringBuilder();
-
-            for(int i=0;i<keyValues.length;i++) {
-                buff.append(sortFields[i].descending?"-":"+");
-                if(keyValues[i]!=null) {
-                    buff.append("_");
-                } else {
-                    buff.append(sortFields[i].field.getType());
-                }
-            }
-
-            return buff.toString().hashCode();
-        }
-
-        @Override
-        public int compareTo(SortableElement el) {
-            for(int i=0;i<keyValues.length;i++) {
-                int dir=sortFields[i].descending?-1:1;
-                if(keyValues[i]==null) {
-                    if(el.keyValues[i]==null) {
-                        ;
-                    } else {
-                        return -1*dir;
-                    }
-                } else {
-                    if(el.keyValues[i]==null) {
-                        return 1*dir;
-                    } else {
-                        int result=sortFields[i].field.getType().compare(keyValues[i],el.keyValues[i]);
-                        if(result!=0)
-                            return result*dir;
-                    }
-                }
-            }
-            return 0;
-        }
-    }
-        
 
     protected boolean isIncluded() {
         return include;
@@ -145,42 +67,20 @@ public abstract class ArrayProjector extends Projector {
      */
     public ArrayProjector(ArrayProjection p, Path ctxPath, FieldTreeNode context) {
         super(ctxPath, context);
-        sort=p.getSort();
+        sort = p.getSort();
         arrayFieldPattern = new Path(ctxPath, p.getField());
         include = p.isInclude();
         FieldTreeNode nestedCtx = context.resolve(p.getField());
         if (nestedCtx instanceof ArrayField) {
             nestedProjector = Projector.getInstance(p.getProject(), new Path(arrayFieldPattern, Path.ANYPATH), ((ArrayField) nestedCtx).getElement());
-            if(sort!=null) {
-                sortFields=buildSortFields(sort,((ArrayField)nestedCtx).getElement());
+            if (sort != null) {
+                sortFields = SortFieldInfo.buildSortFields(sort, ((ArrayField) nestedCtx).getElement());
             } else {
-                sortFields=null;
+                sortFields = null;
             }
         } else {
             throw new EvaluationError(CrudConstants.ERR_EXPECTED_ARRAY_ELEMENT + arrayFieldPattern);
         }
-    }
-
-    private SortFieldInfo[] buildSortFields(Sort sort,FieldTreeNode context) {
-        if(sort instanceof SortKey) {
-            return new SortFieldInfo[] {getSortField(((SortKey)sort).getField(),context,((SortKey)sort).isDesc())};
-        } else {
-            List<SortKey> keys=((CompositeSortKey)sort).getKeys();
-            SortFieldInfo[] arr=new SortFieldInfo[ keys.size() ];
-            int i=0;
-            for(SortKey key:keys) {
-                arr[i]=getSortField(key.getField(),context,key.isDesc());
-            }
-            return arr;
-        }
-    }
-
-    private SortFieldInfo getSortField(Path field,FieldTreeNode context,boolean descending) {
-        FieldTreeNode fieldMd=context.resolve(field);
-        if(! (fieldMd instanceof SimpleField) ) {
-            throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE+":"+field);
-        }
-        return new SortFieldInfo((SimpleField)fieldMd,field,descending);
     }
 
     public Sort getSort() {
@@ -188,53 +88,55 @@ public abstract class ArrayProjector extends Projector {
     }
 
     /**
-     * Returns the nested projector 
+     * Returns the nested projector
      */
     @Override
     public Projector getNestedProjector() {
-        return lastMatch?nestedProjector:null;
+        return lastMatch ? nestedProjector : null;
     }
 
     @Override
     public Projection.Inclusion project(Path p, QueryEvaluationContext ctx) {
-        lastMatch=false;
-        LOGGER.debug("Evaluating array projection for {}, arrayField={}",p,arrayFieldPattern);
+        lastMatch = false;
+        LOGGER.debug("Evaluating array projection for {}, arrayField={}", p, arrayFieldPattern);
         // Is this field pointing to an element of the array
         // It is so if 'p' has one more element than 'arrayFieldPattern', and
         // if it is a matching descendant
         if (p.numSegments() == arrayFieldPattern.numSegments() + 1 && p.matchingDescendant(arrayFieldPattern)) {
-            Projection.Inclusion ret=projectArray(p, ctx);
-            LOGGER.debug("Projecting array element {}:{}",p,ret);
-            lastMatch=ret==Projection.Inclusion.implicit_inclusion||ret==Projection.Inclusion.explicit_inclusion;
+            Projection.Inclusion ret = projectArray(p, ctx);
+            LOGGER.debug("Projecting array element {}:{}", p, ret);
+            lastMatch = ret == Projection.Inclusion.implicit_inclusion || ret == Projection.Inclusion.explicit_inclusion;
             return ret;
         }
         return Projection.Inclusion.undecided;
     }
 
     /**
-     * Sorts the given array node using the sort criteria given in this ArrayProjector
+     * Sorts the given array node using the sort criteria given in this
+     * ArrayProjector
      *
      * @param array The array node to sort
      * @param factory Json node factory
      *
-     * If there is a sort criteria defined in <code>this</code>, the array elements are
-     * sorted using that.
+     * If there is a sort criteria defined in <code>this</code>, the array
+     * elements are sorted using that.
      *
-     * @return A new ArrayNode containing the sorted elements, or if
-     * there is no sort defined, the <code>array</code> itself
+     * @return A new ArrayNode containing the sorted elements, or if there is no
+     * sort defined, the <code>array</code> itself
      */
-    public ArrayNode sortArray(ArrayNode array,JsonNodeFactory factory) {
-        if(sort==null) {
+    public ArrayNode sortArray(ArrayNode array, JsonNodeFactory factory) {
+        if (sort == null) {
             return array;
         } else {
-            List<SortableElement> list=new ArrayList<>(array.size());
-            for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
-                list.add(new SortableElement(itr.next(),sortFields));
+            List<SortableItem> list = new ArrayList<>(array.size());
+            for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
+                list.add(new SortableItem(itr.next(), sortFields));
             }
             Collections.sort(list);
-            ArrayNode newNode=factory.arrayNode();
-            for(SortableElement x:list)
-                newNode.add(x.node);
+            ArrayNode newNode = factory.arrayNode();
+            for (SortableItem x : list) {
+                newNode.add(x.getNode());
+            }
             return newNode;
         }
     }
