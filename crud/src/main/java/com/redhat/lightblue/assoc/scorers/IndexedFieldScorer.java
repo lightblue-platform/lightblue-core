@@ -78,19 +78,55 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
         QueryPlanNode[] nodes = qp.getAllNodes();
         QueryPlanNode[] sources = qp.getSources();
+        
         QueryPlanNode root = null;
+        int numNodeQueries=0;
         for (QueryPlanNode node : nodes) {
             if (node.getMetadata().getParent() == null) {
                 root = node;
-                break;
             }
+            if(getData(node).hasQueries())
+                numNodeQueries++;
         }
 
         if (null == root) {
             // a never happen scenario, but CYA...
             throw new IllegalStateException("Unable to find root metadata");
         }
+        if(numNodeQueries==0) {
+            // No queries assigned to nodes
 
+            // If the plan matches metadata, return low cost, otherwise, return very high cost
+            // This forces the use of the plan that matches metadata if there are no queries
+            if(qp.isPlanMatchesMetadata())
+                return BigInteger.ZERO;
+            else
+                return new BigInteger("999999999");
+        }
+        // Here, we know that there are some queries assigned to query plan nodes
+
+        BigInteger penalty=BigInteger.ONE;
+
+        // Query plans that have query-free nodes in front of queried nodes are bad
+        // Query plans with multiple root nodes are bad
+        if(sources.length>1)
+            penalty=BigInteger.TEN;
+        for(QueryPlanNode node:sources)
+            if(!getData(node).hasQueries())
+                penalty=penalty.multiply(new BigInteger("100"));
+        // Any intermediate node with no queries that is above the data root node is troble
+        for(QueryPlanNode node:nodes) {
+            if(!getData(node).hasQueries()) {
+                if(aboveRoot(node,root)) {
+                    QueryPlanNode[] s=node.getSources();
+                    if(s!=null&&s.length>0) {
+                        penalty=penalty.multiply(new BigInteger("5"));
+                    }
+                }
+            }            
+        }
+        LOGGER.debug("penalty={}",penalty);
+        
         BigInteger finalCost;
         // If the root entity node is the root node, then there is only the cost of retrieval
         // Otherwise, the cost of retrieval and cost of query must be considered
@@ -109,8 +145,21 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             // Have to retrieve for every result in query
             finalCost = cs.cost.add(cs.size);
         }
+        LOGGER.debug("Final cost w/o penalty:{}", finalCost);
+        finalCost=finalCost.multiply(penalty);
         LOGGER.debug("Final cost:{}", finalCost);
         return finalCost;
+    }
+
+    private boolean aboveRoot(QueryPlanNode node,QueryPlanNode root) {
+        QueryPlanNode[] sources=root.getSources();
+        if(sources!=null) {
+            for(QueryPlanNode source:sources)
+                if(source==node||aboveRoot(node,source)) {
+                    return true;
+                }
+        }
+        return false;
     }
 
     private BigInteger computeRetrievalCost(QueryPlanNode root) {
@@ -158,8 +207,6 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
     @Override
     public void reset(QueryPlanChooser c) {
         LOGGER.debug("reset");
-        // Conjuncts associated with nodes will not move from one node to another
-        // So we can measure the cost associated with them from the start
         for (QueryPlanNode node : c.getQueryPlan().getAllNodes()) {
             if (!(node.getData() instanceof IndexedFieldScorerData)) {
                 throw new IllegalStateException("Expected instance of " + IndexedFieldScorerData.class.getName() + " but got: " + node.getData().getClass().getName());

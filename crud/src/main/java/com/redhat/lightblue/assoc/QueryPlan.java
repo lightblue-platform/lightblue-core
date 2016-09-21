@@ -100,6 +100,10 @@ public class QueryPlan implements Serializable {
             return name;
         }
 
+        public QueryPlan getQueryPlan() {
+            return QueryPlan.this;
+        }
+
         public String toString() {
             return getName();
         }
@@ -305,6 +309,47 @@ public class QueryPlan implements Serializable {
     }
 
     /**
+     * Returns true if node from is connected to node to in the query
+     * plan, as well as the metadata. Returns false otherwise
+     */
+    public boolean isRelationshipMatchesMetadata(QueryPlanNode from,QueryPlanNode to) {
+        if(isOwned(from)&&isOwned(to)) {
+            if(mx.isDirectedConnected( ((QueryPlanNodeImpl)from).nodeIndex,((QueryPlanNodeImpl)to).nodeIndex)) {
+                if(to.getMetadata().getParent()==from.getMetadata())
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if all the edges are oriented the same way as metadata
+     */
+    public boolean isPlanMatchesMetadata() {
+        QueryPlanNode[] sources=getSources();
+        if(sources!=null&&sources.length==1) {
+            QueryPlanNode root=sources[0];
+            if(root.getMetadata().getParent()==null) {
+                return subtreeMatchesMetadata(root);
+            }
+        }
+        return false;
+    }
+
+    private boolean subtreeMatchesMetadata(QueryPlanNode root) {
+        QueryPlanNode[] dests=root.getDestinations();
+        if(dests!=null&&dests.length>0) {
+            for(QueryPlanNode dest:dests) {
+                if(dest.getMetadata().getParent()!=root.getMetadata())
+                    return false;
+            }
+        }
+        return true;
+    }
+    
+    
+
+    /**
      * Connects two nodes
      */
     public void connect(QueryPlanNode from,
@@ -431,12 +476,11 @@ public class QueryPlan implements Serializable {
     }
 
     private boolean isOwned(QueryPlanNode node) {
-        for (QueryPlanNodeImpl x : nodes) {
-            if (node == x) {
-                return true;
-            }
+        try {
+            return ((QueryPlanNodeImpl)node).getQueryPlan()==this;
+        } catch (ClassCastException e) {
+            return false;
         }
-        return false;
     }
 
     private QueryPlanNode[] map(int[] nodeIx) {

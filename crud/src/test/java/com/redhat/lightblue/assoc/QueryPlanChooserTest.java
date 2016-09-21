@@ -241,4 +241,21 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         Assert.assertEquals("U", chooser.getBestPlan().getSources()[0].getMetadata().getName());
         Assert.assertEquals(1, chooser.getBestPlan().getSources()[0].getData().getConjuncts().size());
     }
+
+    @Test
+    public void three_level_search() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'obj1.c.*.b'}"),null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                                                        new BruteForceQueryPlanIterator(),
+                                                        new IndexedFieldScorer(),
+                                                        query("{'array':'obj1.c','elemMatch':{'field':'b.*.field1','op':'=','rvalue':'F, BLYO4OjLMAT aG.4qJ'}}"),
+                                                        null);
+        chooser.choose();
+        System.out.println("Best plan:" + chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
+        System.out.println("Conjunct:" + chooser.getBestPlan().getSources()[0].getData().getConjuncts());
+        Assert.assertEquals("B", chooser.getBestPlan().getSources()[0].getMetadata().getName());
+        Assert.assertEquals(1, chooser.getBestPlan().getSources()[0].getData().getConjuncts().size());
+    }
 }
