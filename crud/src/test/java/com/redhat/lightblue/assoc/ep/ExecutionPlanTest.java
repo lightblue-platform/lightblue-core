@@ -137,7 +137,9 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
         System.out.println("minimal tree:" + minimalTree);
 
         JsonNode source = j.get("source");
-        JsonNode assemble1 = source.get("assemble");
+        JsonNode filter1=source.get("filter");
+        JsonNode source2=source.get("source");
+        JsonNode assemble1 = source2.get("assemble");
         Assert.assertEquals("A", assemble1.get("entity").asText());
         JsonNode left1 = assemble1.get("left");
         Assert.assertNotNull(left1.get("copy"));

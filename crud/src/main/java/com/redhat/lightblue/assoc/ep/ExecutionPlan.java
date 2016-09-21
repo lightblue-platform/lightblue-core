@@ -105,6 +105,12 @@ public class ExecutionPlan {
                          QueryPlan searchQueryPlan,
                          QueryPlan retrievalQueryPlan) {
 
+        // Specifies if a filtering layer is needed at the end of the
+        // pipeline.  This is needed if searchplan returns more than
+        // what's necessary (e.g. if there are query clauses that are
+        // not assigned to query plan nodes or edges)
+        boolean needsFinalFiltering=false;
+
         // First, create execution blocks for every node in the search and
         // retrieval plans. We keep a map of query plan nodes to execution
         // blocks to keep query plan immutable.
@@ -137,9 +143,16 @@ public class ExecutionPlan {
             }
         }
 
+        
         if (searchQueryPlan != null) {
             LOGGER.debug("Building execution plan from search query plan:{}", searchQueryPlan);
             List<Conjunct> unassigned = searchQueryPlan.getUnassignedClauses();
+            
+            // If query root has destinations in the search query plan, then
+            // those destinations are inaccessible, becase we evaluate the search plan
+            // up to root. That means, we'll need to filter
+            if(queryRoot.getQueryPlanNode().getDestinations().length>0)
+            	needsFinalFiltering=true;
 
             List<QueryFieldInfo> qfi = getAllQueryFieldInfo(searchQueryPlan);
             // Lets see if the root entity is the only source of this plan
@@ -231,6 +244,9 @@ public class ExecutionPlan {
         // Done with the search plan. Now we build the execution plan for retrieval
         LOGGER.debug("Building execution plan from retrieval query plan:{}", retrievalQueryPlan);
         List<Conjunct> unassigned = retrievalQueryPlan.getUnassignedClauses();
+
+        // This is set if there are queries associated with the nodes
+        // that are not the root node of the retrieval plan
         boolean queries_in_non_root_nodes=false;
         for(QueryPlanNode node:retrievalQueryPlan.getAllNodes()) {
             if(node.getSources().length!=0&& // non-root
@@ -252,7 +268,6 @@ public class ExecutionPlan {
                 // If there is a search plan, then we already have the root documents, so simply stream
                 // those docs from the search plan. If there is not a search plan, we search the documents
                 // here
-                boolean needsFilter=false;
                 Source<ResultDocument> last;
                 AbstractSearchStep search;
                 if (queryRoot != null) {
@@ -271,18 +286,20 @@ public class ExecutionPlan {
                     } else {
                         // There are unassigned clauses. We can sort during search, but we have to filter and limit
                         search.setSort(requestSort);
-                        needsFilter=true;
+                        needsFinalFiltering=true;
                     }
                 }
-                search.recordResultSetSize(true);
+                if(!needsFinalFiltering)
+                	search.recordResultSetSize(true);
 
                 Set<Path> fields = getIncludedFieldsOfEntityForSearch(block, qfi);
                 fields.addAll(getIncludedFieldsOfEntityForProjection(block, rootMd, requestProjection));
                 search.setProjection(writeProjection(fields));
                 search.setQueries(node.getData().getConjuncts());
                 resultStep = new Assemble(block, last, destinationBlocks);
-                if(needsFilter) {
+                if(needsFinalFiltering) {
                     resultStep = new Filter(block, new Source<>(resultStep), requestQuery);
+                    ((Filter)resultStep).setRecordResultSetSize(true);
                     if (from != null) {
                         resultStep = new Skip(block, from.intValue(), new Source<>(resultStep));
                     }
