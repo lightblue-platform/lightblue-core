@@ -35,6 +35,7 @@ public class Filter extends Step<ResultDocument> {
     private final QueryEvaluator qe;
     private final QueryExpression q;
     private final Source<ResultDocument> source;
+    private boolean recordResultSetSize=false;
 
     public Filter(ExecutionBlock block, Source<ResultDocument> source, QueryExpression q) {
         super(block);
@@ -48,9 +49,18 @@ public class Filter extends Step<ResultDocument> {
         return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<ResultDocument> stream() {
-                return super.stream().filter(doc -> qe.evaluate(doc.getDoc()).getResult());
+                return super.stream().filter(doc -> {
+                	boolean ret=qe.evaluate(doc.getDoc()).getResult();
+                	if(ret&&recordResultSetSize)
+                        ctx.setMatchCount(ctx.getMatchCount()+1);		
+                	return ret;
+                });
             }
         };
+    }
+    
+    public void setRecordResultSetSize(boolean b) {
+    	recordResultSetSize=b;
     }
 
     @Override

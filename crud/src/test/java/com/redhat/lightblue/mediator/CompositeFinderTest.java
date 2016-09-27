@@ -769,4 +769,15 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertNull(response.getEntityData().get(0).get("ref"));
     }
 
+
+    @Test
+    public void three_level_search() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'array':'obj1.c','elemMatch':{'field':'b.*.field1','op':'=','rvalue':'F, BLYO4OjLMAT aG.4qJ'}}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+    }
 }
