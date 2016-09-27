@@ -101,7 +101,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             if(qp.isPlanMatchesMetadata())
                 return BigInteger.ZERO;
             else
-                return new BigInteger("999999999");
+                return new BigInteger(Integer.toString(Integer.MAX_VALUE));
         }
         // Here, we know that there are some queries assigned to query plan nodes
 
