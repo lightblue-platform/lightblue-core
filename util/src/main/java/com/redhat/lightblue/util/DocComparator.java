@@ -77,18 +77,30 @@ public abstract class DocComparator<BaseType, ValueType, ObjectType, ArrayType> 
      * least one element identity cannot be retrieved
      */
     public static final class InvalidArrayIdentity extends Exception {
+        private Path path;
         public InvalidArrayIdentity(Path p) {
             super(p.toString());
+            this.path=p;
         }
-    }
+        
+        public Path getPath() {
+            return path;
+        }
+     }
 
     /**
      * Thrown if there is an array whose elements contain identities, but they
      * are not unique
      */
     public static final class DuplicateArrayIdentity extends Exception {
+        private Path path;
         public DuplicateArrayIdentity(Path p) {
             super(p.toString());
+            this.path=p;
+        }
+
+        public Path getPath() {
+            return path;
         }
     }
 
@@ -876,10 +888,10 @@ public abstract class DocComparator<BaseType, ValueType, ObjectType, ArrayType> 
         for (int i = 0; i < size; i++) {
             Object id = idex.getIdentity(getElement(array, i));
             if (id == null) {
-                throw new InvalidArrayIdentity(new Path(field, i));
+                throw new InvalidArrayIdentity(new Path(field,new Path(Integer.toString(i))));
             }
             if (identities.put(id, i) != null) {
-                throw new DuplicateArrayIdentity(new Path(field, i));
+                throw new DuplicateArrayIdentity(new Path(field,new Path(Integer.toString(i))));
             }
         }
         return identities;
