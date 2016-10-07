@@ -20,6 +20,7 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -39,18 +40,22 @@ public class Copy extends AbstractSearchStep {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
-            @Override
-            public Stream<ResultDocument> stream() {
-                // Create new documents for each document in the source. This will
-                // create the correct slots based on this execution block
-                return super.stream().map(d -> {
-                        if(recordResultSetSize)
-                            ctx.incMatchCount();
-                        return new ResultDocument(block, d.getDoc());
-                    });
-            }
-        };
+        StepResult<ResultDocument> result=new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
+                @Override
+                public Stream<ResultDocument> stream() {
+                    // Create new documents for each document in the source. This will
+                    // create the correct slots based on this execution block
+                    return super.stream().map(d -> {
+                            return new ResultDocument(block, d.getDoc());
+                        });
+                }
+            };
+        if(recordResultSetSize) {
+            List<ResultDocument> list=result.stream().collect(Collectors.toList());
+            result=new ListStepResult<ResultDocument>(list);
+            ctx.setMatchCount(list.size());
+        }
+        return result;
     }
 
     @Override
