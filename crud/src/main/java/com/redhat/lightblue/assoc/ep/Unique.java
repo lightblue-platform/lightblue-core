@@ -63,7 +63,6 @@ public class Unique extends Step<ResultDocument> {
                             
                             @Override
                             public boolean test(ResultDocument doc) {
-                        	System.out.println("Unique: docid:"+doc.getDocId());
                                 return uniqueIds.add(doc.getDocId());
                             }
                         });
