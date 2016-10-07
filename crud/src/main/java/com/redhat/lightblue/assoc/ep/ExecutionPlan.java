@@ -146,7 +146,7 @@ public class ExecutionPlan {
             }
         }
 
-        
+        List<QueryFieldInfo> qfi=null;
         if (searchQueryPlan != null) {
             LOGGER.debug("Building execution plan from search query plan:{}", searchQueryPlan);
             List<Conjunct> unassigned = searchQueryPlan.getUnassignedClauses();
@@ -157,7 +157,7 @@ public class ExecutionPlan {
             if(rootEntityInQueryPlan.getQueryPlanNode().getDestinations().length>0)
             	needsFinalFiltering=true;
 
-            List<QueryFieldInfo> qfi = getAllQueryFieldInfo(searchQueryPlan);
+            qfi = getAllQueryFieldInfo(searchQueryPlan);
             // Lets see if the root entity is the only source of this plan
             QueryPlanNode[] qpSources = searchQueryPlan.getSources();
             boolean rootIsTheOnlySource = qpSources.length == 1 && qpSources[0].getMetadata().getParent() == null;
@@ -267,7 +267,11 @@ public class ExecutionPlan {
                 break;
             }
         }
-        List<QueryFieldInfo> qfi = getAllQueryFieldInfo(retrievalQueryPlan);
+        if(qfi==null) {
+            qfi = getAllQueryFieldInfo(retrievalQueryPlan);
+        } else {
+            qfi.addAll(getAllQueryFieldInfo(retrievalQueryPlan));
+        }
         for (QueryPlanNode node : retrievalQueryPlan.getAllNodes()) {
             ExecutionBlock block = qp2BlockMap.get(node);
             QueryPlanNode[] destinationNodes = node.getDestinations();
