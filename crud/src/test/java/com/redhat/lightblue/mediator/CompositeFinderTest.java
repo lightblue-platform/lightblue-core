@@ -680,8 +680,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setFrom(0l);
         fr.setTo(-1l);
         Response response = mediator.find(fr);
-        Assert.assertEquals(0, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
+        Assert.assertEquals(0, response.getEntityData().size());
     }
     
     @Test

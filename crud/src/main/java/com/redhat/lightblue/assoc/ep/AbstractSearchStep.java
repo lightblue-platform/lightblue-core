@@ -130,7 +130,7 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
         return searchCtx;
     }
 
-    public void recordResultSetSize(boolean b) {
+    public void setRecordResultSetSize(boolean b) {
         recordResultSetSize = b;
     }
 

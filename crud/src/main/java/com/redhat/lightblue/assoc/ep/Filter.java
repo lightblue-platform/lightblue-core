@@ -19,6 +19,9 @@
 package com.redhat.lightblue.assoc.ep;
 
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
+
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -46,17 +49,23 @@ public class Filter extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
-            @Override
-            public Stream<ResultDocument> stream() {
-                return super.stream().filter(doc -> {
-                	boolean ret=qe.evaluate(doc.getDoc()).getResult();
-                	if(ret&&recordResultSetSize)
-                        ctx.setMatchCount(ctx.getMatchCount()+1);		
-                	return ret;
-                });
-            }
-        };
+        StepResult<ResultDocument> result=new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
+                @Override
+                public Stream<ResultDocument> stream() {
+                    return super.stream().filter(doc -> {
+                            boolean ret=qe.evaluate(doc.getDoc()).getResult();
+                            if(ret&&recordResultSetSize)
+                                ctx.setMatchCount(ctx.getMatchCount()+1);		
+                            return ret;
+                        });
+                }
+            };
+        if(recordResultSetSize) {
+            List<ResultDocument> list=result.stream().collect(Collectors.toList());
+            result=new ListStepResult<ResultDocument>(list);
+            ctx.setMatchCount(list.size());
+        }
+        return result;
     }
     
     public void setRecordResultSetSize(boolean b) {
