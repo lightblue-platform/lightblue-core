@@ -913,5 +913,6 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("root_loop","1.0.0."));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
+        Assert.assertEquals(5,response.getMatchCount());
     }
 }
