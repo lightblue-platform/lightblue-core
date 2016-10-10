@@ -27,6 +27,16 @@
             "objectType": {"type": "string"},
             "field1": { "type": "boolean" },
             "field2": { "type":"boolean" },
+            "array":{
+                "type":"array",
+                "items":{
+                    "type":"object",
+                    "fields":{
+                        "field1":{"type":"string"},
+                        "field2":{"type":"string"}
+                    }
+                }
+            },
             "refvalue":{"type":"string"},
             "refparent": {
                 "type":"reference",

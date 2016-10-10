@@ -890,6 +890,28 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("root_loop","1.0.0."));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        
+        Assert.assertEquals(4,response.getMatchCount());
+    }
+
+    @Test
+    public void query_processing_error_707() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'$and':["+
+                          "          {'$or':["+
+                          "             {'field':'field1','op':'=','rvalue':'f1value'},"+
+                          "             {'array':'refchild.*.array','elemMatch':{"+
+                          "                       '$and':["+
+                          "                                 {'field':'field1','op':'=','rvalue':'value1'},"+
+                          "                                 {'field':'field2','regex':'value2'}"+
+                          "                              ]"+
+                          "                   }"+
+                          "             }"+
+                          "          ]},"+
+                          "          {'field':'refchild.*.refparent.*.field2','op':'=','rvalue':true}"+
+                          "]}"));
+        fr.setProjection(projection("[{'field':'*'},{'field':'refchild'}]"));
+        fr.setEntityVersion(new EntityVersion("root_loop","1.0.0."));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
     }
 }
