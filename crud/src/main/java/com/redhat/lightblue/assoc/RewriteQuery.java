@@ -402,7 +402,6 @@ public class RewriteQuery extends QueryIterator {
             } else {
                 ret=nq;
             }
-            System.out.println("Input:"+q+" output:"+ret);
             return ret;
         }
 

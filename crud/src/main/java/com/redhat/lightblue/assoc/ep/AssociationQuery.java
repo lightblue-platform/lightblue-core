@@ -34,7 +34,6 @@ public class AssociationQuery {
         int numFalse=0;
         for (Conjunct c : conjuncts) {
             RewriteQuery.RewriteQueryResult result = rewriter.rewriteQuery(c.getClause(), c.getFieldInfo());
-            System.out.println("Conjunct:"+c+" query:"+result.query);
             if(result.query instanceof RewriteQuery.TruePH) {
                 // Don't add this into the query
                 numTrue++;
