@@ -102,8 +102,10 @@ public class Assemble extends Step<ResultDocument> {
             BatchAssembler batchAssembler = new BatchAssembler(256, aq, destination.getValue(), ctx);
             assemblers.add(ctx.getExecutor().submit(() -> {
                 if (aq.getQuery() == null) {
-                    results.stream().forEach(batchAssembler::addDoc);
-                    batchAssembler.endDoc();
+                    if(aq.isAlwaysTrue()) {
+                        results.stream().forEach(batchAssembler::addDoc);
+                        batchAssembler.endDoc();
+                    }
                 } else {
                     results.stream().forEach(doc -> {
                         batchAssembler.addDoc(doc);

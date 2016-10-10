@@ -389,18 +389,20 @@ public class RewriteQuery extends QueryIterator {
                     itr.remove();
                 }
             }
+            QueryExpression ret;
             if (itr.isCopied()) {
                 List<QueryExpression> newList = itr.getCopiedList();
                 if (newList.size() == 0) {
-                    return new TruePH();
+                    ret=new TruePH();
                 } else if (newList.size() == 1) {
-                    return newList.get(0);
+                    ret=newList.get(0);
                 } else {
-                    return new NaryLogicalExpression(q.getOp(), newList);
+                    ret=new NaryLogicalExpression(q.getOp(), newList);
                 }
             } else {
-                return nq;
+                ret=nq;
             }
+            return ret;
         }
 
         /**
