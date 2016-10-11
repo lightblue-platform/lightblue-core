@@ -50,7 +50,7 @@ public class Conjunct implements Serializable {
     /**
      * Type of the conjunct. Value means the conjunct compares a field
      * to a value. relation means conjunct compares fields of an
-     * entity to the fields of another entity. Comples means either
+     * entity to the fields of another entity. Complex means either
      * more than two entities are involved, or the comparison is an OR
      * comparison can cannot be evaluated as an association query
      */
