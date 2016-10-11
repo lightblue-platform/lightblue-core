@@ -178,6 +178,23 @@ public class Conjunct implements Serializable {
             return iterate(q.getElemMatch(),context);
         }
 
+        private void processRelation(ItrState ret, ItrState qstate, NaryLogicalOperator op) {
+            if(ret.numEntities==2) {
+                if( (ret.e1==qstate.e1||ret.e1==qstate.e2) &&
+                    (ret.e2==qstate.e1||ret.e2==qstate.e2) ) {
+                    if(op==NaryLogicalOperator._or) {
+                        // An OR comparison makes this a complex conjunct
+                        ret.type=ConjunctType.complex;
+                    }
+                } else {
+                    // Incompatioble expressions
+                    ret.type=ConjunctType.complex;
+                }
+            } else {
+                ret.type=ConjunctType.complex;
+            }
+        }
+
         @Override
         protected ItrState itrNaryLogicalExpression(NaryLogicalExpression q, Path context) {
             ItrState ret=null;
@@ -194,31 +211,14 @@ public class Conjunct implements Serializable {
                         if(ret.type==ConjunctType.value) {
                             // Comparing value expression to another value expression
                             // At most one entity can be present
-                            if(ret.numEntities==0||ret.e1==qstate.e1) {
-                                ; // No changes, compatible expressions
-                            } else {
+                            if(!(ret.numEntities==0||ret.e1==qstate.e1))  {
                                 // Two expressions are comparing values at different entities
                                 ret.add(qstate.e1);
                                 ret.type=ConjunctType.complex;
                             }
                         } else {
                             // Then type=relation
-                            if(ret.numEntities==2) {
-                                if( (ret.e1==qstate.e1||ret.e1==qstate.e2) &&
-                                    (ret.e2==qstate.e1||ret.e2==qstate.e2) ) {
-                                    if(q.getOp()==NaryLogicalOperator._and) {
-                                        ; // Compatible expressions, no change
-                                    } else {
-                                        // An OR comparison makes this a complex conjunct
-                                        ret.type=ConjunctType.complex;
-                                    }
-                                } else {
-                                    // Incompatioble expressions
-                                    ret.type=ConjunctType.complex;
-                                }
-                            } else {
-                                ret.type=ConjunctType.complex;
-                            }
+                            processRelation(ret,qstate,q.getOp());
                         }
                         break;
                             
@@ -230,21 +230,7 @@ public class Conjunct implements Serializable {
                                 ret.type=ConjunctType.complex;
                             }                            
                         } else {
-                            if(ret.numEntities==2) {
-                                if( (ret.e1==qstate.e1||ret.e1==qstate.e2) &&
-                                    (ret.e2==qstate.e1||ret.e2==qstate.e2) ) {
-                                    if(q.getOp()==NaryLogicalOperator._and) {
-                                        ; // Compatible expressions, no change
-                                    } else {
-                                        // An OR comparison makes this a complex conjunct
-                                        ret.type=ConjunctType.complex;
-                                    }                                    
-                                } else {
-                                    ret.type=ConjunctType.complex;
-                                }
-                            } else {                                
-                                ret.type=ConjunctType.complex;
-                            }
+                            processRelation(ret,qstate,q.getOp());
                         }
                         break;
                         
