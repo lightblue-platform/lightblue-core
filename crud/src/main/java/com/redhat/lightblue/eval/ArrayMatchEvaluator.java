@@ -29,6 +29,7 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.query.ArrayMatchExpression;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 public class ArrayMatchEvaluator extends QueryEvaluator {
     private final Path field;
@@ -59,22 +60,26 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret = false;
-        JsonNode node = ctx.getNode(field);
-        if (node instanceof ArrayNode) {
-            ArrayNode array = (ArrayNode) node;
-            int index = 0;
-            QueryEvaluationContext nestedCtx = null;
-            for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
-                JsonNode arrayElem = itr.next();
-                if (index == 0) {
-                    nestedCtx = ctx.firstElementNestedContext(arrayElem, field);
-                } else {
-                    nestedCtx.elementNestedContext(arrayElem, index);
+        KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);
+        while(cursor.hasNext()&&!ret) {
+            cursor.next();
+            JsonNode node=cursor.getCurrentValue();
+            if (node instanceof ArrayNode) {
+                ArrayNode array = (ArrayNode) node;
+                int index = 0;
+                QueryEvaluationContext nestedCtx = null;
+                for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
+                    JsonNode arrayElem = itr.next();
+                    if (index == 0) {
+                        nestedCtx = ctx.firstElementNestedContext(arrayElem, field);
+                    } else {
+                        nestedCtx.elementNestedContext(arrayElem, index);
+                    }
+                    if (ev.evaluate(nestedCtx)) {
+                        ret = true;
+                    }
+                    index++;
                 }
-                if (ev.evaluate(nestedCtx)) {
-                    ret = true;
-                }
-                index++;
             }
         }
         ctx.setResult(ret);

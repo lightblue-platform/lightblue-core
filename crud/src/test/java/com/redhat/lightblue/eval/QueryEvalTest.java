@@ -121,6 +121,15 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void q_nested_array_elemmatch() throws Exception {
+        QueryExpression q=EvalTestContext.queryExpressionFromJson("{'array':'field12.nf1.nnf1.*.nnnf1.arr','elemMatch':{'field':'id','op':'=','rvalue':1}}");
+        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+        
+    }
+    
+    @Test
     public void q_compare_nonexistant_field_returns_false() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [{'field':'field1','regex':'Val.*','caseInsensitive':1},{'field':'field7.5.elemf1','op':'$eq','rvalue':'x'}]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
