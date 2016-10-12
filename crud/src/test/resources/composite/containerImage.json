@@ -1,0 +1,52 @@
+{
+  "entityInfo" : {
+    "name": "containerImage",
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "containerImage"
+    }
+  },
+  "schema" : {
+    "name" : "containerImage",
+      "version": {
+          "value": "1.0.0",
+          "changelog": "Test"
+      },
+    "status": {
+        "value": "active"
+    },
+      "access" : {
+          "insert": ["anyone"],
+          "find":["anyone"],
+          "update":["anyone"],
+          "delete":["anyone"]
+      },
+      "fields": {
+          "_id": {"type": "string", "constraints":{ "identity":1 } },
+          "objectType": {"type": "string"},
+          "certified":{"type":"boolean"},
+          "repositories": {
+              "type": "array",
+              "items": {
+                  "type":"object",
+                  "fields":{
+                      "repository":{"type":"string"},
+                      "registry":{"type":"string"},
+                      "published":{"type":"boolean"},
+                      "repositories":{
+                          "type":"reference",
+                          "entity":"containerRepository",
+                          "versionValue":"1.0.0",
+                          "query":{"$and":[
+                              {"field":"registry","op":"=","rfield":"$parent.registry"},
+                              {"field":"repository","op":"=","rfield":"$parent.repository"}
+                          ]
+                                  }
+                      }
+                  }
+              }
+          }
+      }
+  }
+}

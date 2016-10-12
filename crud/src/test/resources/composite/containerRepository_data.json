@@ -1,0 +1,7 @@
+[
+    {"_id":"1","objectType":"containerRepository","repository":"repo1","registry":"registry1","vendorLabel":"Red Hat"},
+    {"_id":"2","objectType":"containerRepository","repository":"repo2","registry":"registry2","vendorLabel":"Red Hat"},
+    {"_id":"3","objectType":"containerRepository","repository":"repo3","registry":"registry3","vendorLabel":"Not Red Hat"},
+    {"_id":"4","objectType":"containerRepository","repository":"repo4","registry":"registry4","vendorLabel":"Not Red Hat"},
+    {"_id":"5","objectType":"containerRepository","repository":"repo5","registry":"registry5","vendorLabel":"Not Red Hat"}
+]

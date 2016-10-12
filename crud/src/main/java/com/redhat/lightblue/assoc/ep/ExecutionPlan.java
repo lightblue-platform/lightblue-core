@@ -154,7 +154,7 @@ public class ExecutionPlan {
             // If query root has destinations in the search query plan, then
             // those destinations are inaccessible, becase we evaluate the search plan
             // up to root. That means, we'll need to filter
-            if(rootEntityInQueryPlan.getQueryPlanNode().getDestinations().length>0)
+            if(!unassigned.isEmpty()||rootEntityInQueryPlan.getQueryPlanNode().getDestinations().length>0)
             	needsFinalFiltering=true;
 
             qfi = getAllQueryFieldInfo(searchQueryPlan);
