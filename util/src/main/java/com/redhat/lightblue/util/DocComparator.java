@@ -731,7 +731,7 @@ public abstract class DocComparator<BaseType, ValueType, ObjectType, ArrayType> 
         }
         // Look at associations for moved nodes
         for (Map.Entry<Integer, Integer> entry : assoc.assoc.entrySet()) {
-            if (entry.getKey() != entry.getValue()) {
+            if (entry.getKey().intValue() != entry.getValue().intValue()) {
                 field1.push(entry.getKey());
                 field2.push(entry.getValue());
                 BaseType node = getElement(node1, entry.getKey());
