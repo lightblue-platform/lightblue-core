@@ -225,11 +225,13 @@ public class ExecutionPlan {
                         if (requestSort != null) {
                             last = new Source<>(new SortResults(block, last, requestSort));
                         }
-                        if (from != null) {
-                            last = new Source<>(new Skip(block, from.intValue(), last));
-                        }
-                        if (to != null) {
-                            last = new Source<>(new Limit(block, to.intValue() - from.intValue() + 1, last));
+                        if(!needsFinalFiltering) {
+                        	if (from != null) {
+                        		last = new Source<>(new Skip(block, from.intValue(), last));
+                        	}
+                        	if (to != null) {
+                        		last = new Source<>(new Limit(block, to.intValue() - from.intValue() + 1, last));
+                        	}
                         }
                         block.setResultStep(last);
                     }
