@@ -1,0 +1,22 @@
+{
+        "datastore": {
+            "backend": "empty"
+        },
+        "indexes": [
+            {
+                "fields": [
+                    {
+                        "caseInsensitive": true,
+                        "dir": "$asc",
+                        "field": "personalInformation.lastNames"
+                    }
+                ],
+                "name": "index_with_options",
+                "options": {
+			"option1": "value1",
+			"option2": "value2"
+                }
+            }
+        ],
+        "name": "test"
+    }

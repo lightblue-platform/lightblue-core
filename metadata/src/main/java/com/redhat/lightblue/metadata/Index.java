@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import com.redhat.lightblue.util.Path;
@@ -34,6 +35,7 @@ public class Index extends MetadataObject {
     private String name;
     private boolean unique = false;
     private final ArrayList<IndexSortKey> fields = new ArrayList<>();
+    private final Properties options = new Properties();
 
     /**
      * Default ctor
@@ -135,4 +137,13 @@ public class Index extends MetadataObject {
                 .filter(IndexSortKey::isCaseInsensitive)
                 .anyMatch(i -> i.getField().equals(path));
     }
+
+    /**
+     *
+     * @return arbitrary index options, can be backend specific
+     */
+    public Properties getOptions() {
+        return options;
+    }
+
 }

@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -47,15 +48,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.EnumValue;
 import com.redhat.lightblue.metadata.Enums;
+import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.ValueGenerator;
-import com.redhat.lightblue.metadata.EntitySchema;
-import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -651,5 +653,18 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Map<String, Object> scp = (Map<String, Object>) em.getProperties().get("schemaProperty");
         Map<String, Object> scpa = (Map<String, Object>) scp.get("a");
         Assert.assertEquals("c", (String) scpa.get("b"));
+    }
+
+    @Test
+    public void testIndexOptions() throws IOException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-index-options.json");
+
+        EntityInfo ei = parser.parseEntityInfo(object);
+
+        Properties options = ei.getIndexes().getIndexes().get(0).getOptions();
+
+        Assert.assertEquals(2,  options.size());
+        Assert.assertEquals("value1",  options.getProperty("option1"));
+        Assert.assertEquals("value2",  options.getProperty("option2"));
     }
 }
