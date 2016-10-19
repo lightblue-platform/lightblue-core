@@ -936,4 +936,28 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         System.out.println(response.getEntityData());
         Assert.assertEquals(3,response.getMatchCount());
     }
+
+    @Test
+    public void looping_entities_with_or_query_709_w_n_to_n_refs_max() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'$and':["+
+                          "           {'field':'repository','regex':'repo.*'},"+
+                          "           {'field':'images.*.repositories.*.published','op':'=','rvalue':true},"+
+                          "           {'$or':["+
+                          "                     {'$and':["+
+                          "                                {'field':'vendorLabel','op':'!=','rvalue':'Red Hat'},"+
+                          "                                {'field':'images.*.certified','op':'=','rvalue':true}"+
+                          "                             ]},"+
+                          "                     {'field':'vendorLabel','op':'=','rvalue':'Red Hat'}"+
+                          "                  ]}"+
+                          "]}"));
+        fr.setProjection(projection("[{'field':'*'},{'field':'refchild'}]"));
+        fr.setEntityVersion(new EntityVersion("containerRepository","1.0.0."));
+        fr.setFrom(0l);
+        fr.setTo(1l);
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(3,response.getMatchCount());
+        Assert.assertEquals(2,response.getEntityData().size());
+    }
 }
