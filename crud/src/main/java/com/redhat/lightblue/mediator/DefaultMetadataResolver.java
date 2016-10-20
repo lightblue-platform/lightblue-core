@@ -184,7 +184,13 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
                                        String version) {
         EntityMetadata emd = metadataMap.get(entityName);
         if (emd != null) {
-            if (!emd.getVersion().getValue().equals(version)) {
+            String defaultVersion = emd.getEntityInfo().getDefaultVersion();
+            String parentVersion = emd.getVersion().getValue();
+            // if version of metadata is the default version, and there is a cycle back using a version that is not default, fail
+            // or
+            // if version of metadata is not the default version, and requested version is not default version, but metadata version and requested version don't match, fail
+            if((parentVersion.equals(defaultVersion) && !parentVersion.equals(version))
+                    || (!parentVersion.equals(defaultVersion) && !version.equals(defaultVersion) && !parentVersion.equals(version))){
                 throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, entityName + ":" + version
                         + " and " + emd.getVersion().getValue());
             }
