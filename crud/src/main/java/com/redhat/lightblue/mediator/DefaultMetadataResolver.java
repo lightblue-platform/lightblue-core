@@ -37,6 +37,7 @@ import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
@@ -221,10 +222,9 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
                 }
                 String defaultVer = refMd.getEntityInfo().getDefaultVersion();
                 EntityMetadata found = metadataMap.get(name);
-
                 if(found != null){
                     String foundVer = found.getVersion().getValue();
-                    if(isValidReference(ver, foundVer, defaultVer)){
+                    if(isValidReference(foundVer, rootRequestVersion, defaultVer)){
                         if (ver != defaultVer) {
                             metadataMap.put(name, refMd);
                         } else {
@@ -250,7 +250,21 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         });
     }
 
+    /**
+     *
+     * @param version The version of a referenced entity
+     * @param requestVersion The version of the root entity that has been requested
+     * @param defaultVersion The default version of the root entity
+     * @return
+     */
     private boolean isValidReference(String version, String requestVersion, String defaultVersion) {
+        if (requestVersion == null && defaultVersion == null) {
+            throw new IllegalArgumentException(MetadataConstants.ERR_UNKNOWN_VERSION);
+        } else if (requestVersion == null) {
+            // default version is requested
+            requestVersion = defaultVersion;
+        }
+
         // TODO: if defaultVersion is requested, then requestVersion will be null, if the entity doesn't have a default version, 'defaultVersion' will be null
         // if req version of metadata is the default version, and there is a cycle back using a version that is not default, fail
         // or

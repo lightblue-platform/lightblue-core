@@ -61,6 +61,7 @@ public final class MetadataConstants {
     public static final String ERR_FROM_JSON_NOT_SUPPORTED = "metadata:FromJsonNotSupported";
 
     public static final String ERR_INVALID_VERSION = "metadata:InvalidVersion";
+    public static final String ERR_UNKNOWN_VERSION = "metadata:UnknownVersion";
     public static final String ERR_INVALID_VERSION_NUMBER = "metadata:InvalidVersionNumber";
     public static final String ERR_EMPTY_METADATA_NAME = "metadata:EmptyMetadataName";
     public static final String ERR_METADATA_WITH_NO_FIELDS = "metadata:MetadataWithNoFields";

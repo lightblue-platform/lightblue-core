@@ -19,14 +19,15 @@
 package com.redhat.lightblue.mediator;
 
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,6 @@ import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
@@ -86,6 +86,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     private QueryExpression updateQuery;
 
     private class TestMetadata extends DatabaseMetadata {
+        @Override
         public EntityMetadata getEntityMetadata(String entityName, String version) {
             return getMd("composite/" + entityName + ".json");
         }
@@ -230,6 +231,15 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void findSelfReference() throws Exception{
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
+        fr.setEntityVersion(new EntityVersion("self_ref", "1.0.0"));
+        Response response = mediator.find(fr);
+        assertTrue(response.getErrors().isEmpty());
+    }
+
+    @Test
     public void retrieveAandBonly() throws Exception {
         FindRequest fr = new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
@@ -255,7 +265,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals("ADEEP2", response.getEntityData().get(0).get("_id").asText());
     }
 
-    
+
     public void retrieveAandBonly_defaultVersion() throws Exception {
         FindRequest fr = new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
@@ -653,7 +663,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getMatchCount());
     }
-    
+
     @Test
     public void elem_match_forward() throws Exception {
         FindRequest fr = new FindRequest();
