@@ -52,9 +52,8 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
 /**
- * This implementation combines the implementations for GetMetadata interface
- * used by CompositeMetadata, and MetadataResolver interface used by the CRUD
- * subsystem to access metadata by name.
+ * This implementation combines the implementations for GetMetadata interface used by CompositeMetadata, and MetadataResolver interface used by the CRUD subsystem to access
+ * metadata by name.
  */
 public class DefaultMetadataResolver implements MetadataResolver, Serializable {
 
@@ -72,16 +71,13 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         // the metadata version of the initial request
         private final String requestVersion;
 
-        public Gmd(Projection projection,
-                   QueryExpression query, String requestVersion) {
+        public Gmd(Projection projection, QueryExpression query, String requestVersion) {
             super(projection, query);
             this.requestVersion = requestVersion;
         }
 
         @Override
-        protected EntityMetadata retrieveMetadata(Path injectionPath,
-                                                  String entityName,
-                                                  String entityVersion) {
+        protected EntityMetadata retrieveMetadata(Path injectionPath, String entityName, String entityVersion) {
             EntityMetadata emd = metadataMap.get(entityName);
             if (emd != null) {
                 String defaultVersion = emd.getEntityInfo().getDefaultVersion();
@@ -101,13 +97,9 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
     }
 
     /**
-     * This method builds the composite metadata for the given top level entity
-     * name and entity version, for the given query and projections
+     * This method builds the composite metadata for the given top level entity name and entity version, for the given query and projections
      */
-    public void initialize(String entityName,
-                           String entityVersion,
-                           final QueryExpression query,
-                           final Projection projection) {
+    public void initialize(String entityName, String entityVersion, final QueryExpression query, final Projection projection) {
         if (cmd != null) {
             throw new IllegalStateException("Metadata resolver was already initialized");
         }
@@ -115,6 +107,11 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         LOGGER.debug("Initializing with {}:{}", entityName, entityVersion);
         // first call to getMetadata will preload metadataMap
         EntityMetadata emd = md.getEntityMetadata(entityName, entityVersion);
+        if (emd == null || emd.getEntitySchema() == null) {
+            throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, entityName + ":" + entityVersion);
+        } else if (emd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
+            throw Error.get(CrudConstants.ERR_DISABLED_METADATA, entityName + ":" + entityVersion);
+        }
         initMetadataMap(emd, entityName, entityVersion);
         cmd = CompositeMetadata.buildCompositeMetadata(emd, new Gmd(projection, query, entityVersion));
         LOGGER.debug("Composite metadata:{}", cmd);
@@ -155,8 +152,7 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
     }
 
     /**
-     * Returns the version of the entity metadata relevant in the current
-     * operation
+     * Returns the version of the entity metadata relevant in the current operation
      */
     @Override
     public EntityMetadata getEntityMetadata(String entityName) {
@@ -196,35 +192,32 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
     }
 
     private void initMetadataMap(EntityMetadata emd, String entityName, String rootRequestVersion) {
-        if (emd == null || emd.getEntitySchema() == null) {
-            throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, entityName + ":" + rootRequestVersion);
-        }
-        else if (emd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-            throw Error.get(CrudConstants.ERR_DISABLED_METADATA, entityName + ":" + rootRequestVersion);
-        }
-
         // store root entity metadata
         metadataMap.put(entityName, emd);
         Set<String> deferred = new HashSet<>();
         FieldCursor cursor = emd.getFieldCursor();
-        do {
+        while (cursor.next()) {
             FieldTreeNode node = cursor.getCurrentNode();
             if (node instanceof ReferenceField) {
                 ReferenceField ref = (ReferenceField) node;
                 String name = ref.getEntityName();
                 String ver = ref.getVersionValue();
-                EntityMetadata refMd = md.getEntityMetadata(name, ver);
+                EntityMetadata refMd;
+                if (ver == emd.getEntityInfo().getDefaultVersion()) {
+                    refMd = metadataMap.get(entityName);
+                } else {
+                    refMd = md.getEntityMetadata(name, ver);
+                }
                 if (refMd == null || refMd.getEntitySchema() == null) {
                     throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
-                }
-                else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
+                } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
                     throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
                 }
                 String defaultVer = refMd.getEntityInfo().getDefaultVersion();
                 EntityMetadata found = metadataMap.get(name);
-                if(found != null){
+                if (found != null) {
                     String foundVer = found.getVersion().getValue();
-                    if(isValidReference(foundVer, rootRequestVersion, defaultVer)){
+                    if (isValidReference(foundVer, rootRequestVersion, defaultVer)) {
                         if (ver != defaultVer) {
                             metadataMap.put(name, refMd);
                         } else {
@@ -241,7 +234,7 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
                     }
                 }
             }
-        } while (cursor.next());
+        }
 
         // we didn't find specific versions for these entities, so use default
         deferred.forEach(n -> {
@@ -252,24 +245,27 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
 
     /**
      *
-     * @param version The version of a referenced entity
-     * @param requestVersion The version of the root entity that has been requested
-     * @param defaultVersion The default version of the root entity
+     * @param version
+     *            The version of a referenced entity
+     * @param requestVersion
+     *            The version of the root entity that has been requested
+     * @param defaultVersion
+     *            The default version of the root entity
      * @return
      */
     private boolean isValidReference(String version, String requestVersion, String defaultVersion) {
-        if (requestVersion == null && defaultVersion == null) {
-            throw new IllegalArgumentException(MetadataConstants.ERR_UNKNOWN_VERSION);
-        } else if (requestVersion == null) {
-            // default version is requested
-            requestVersion = defaultVersion;
+        if (requestVersion == null) {
+            if (defaultVersion == null) {
+                throw new IllegalArgumentException(MetadataConstants.ERR_UNKNOWN_VERSION);
+            } else {
+                // default version is requested
+                requestVersion = defaultVersion;
+            }
         }
-
-        // TODO: if defaultVersion is requested, then requestVersion will be null, if the entity doesn't have a default version, 'defaultVersion' will be null
         // if req version of metadata is the default version, and there is a cycle back using a version that is not default, fail
         // or
         // if req version of metadata is not the default version, and cyclic version is not default version, but req version and cyclic version don't match, fail
-        return !((requestVersion.equals(defaultVersion) && !requestVersion.equals(version))
+        return !((requestVersion.equals(defaultVersion) && !version.equals(defaultVersion))
                 || (!requestVersion.equals(defaultVersion) && !version.equals(defaultVersion) && !requestVersion.equals(version)));
     }
 }
