@@ -32,12 +32,13 @@ import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.crud.CrudConstants;
 
 import com.redhat.lightblue.metadata.AbstractGetMetadata;
+import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
@@ -78,13 +79,6 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
 
         @Override
         protected EntityMetadata retrieveMetadata(Path injectionPath, String entityName, String entityVersion) {
-            EntityMetadata emd = metadataMap.get(entityName);
-            if (emd != null) {
-                String defaultVersion = emd.getEntityInfo().getDefaultVersion();
-                if (!isValidReference(entityVersion, requestVersion, defaultVersion)) {
-                    throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, entityName + ":" + entityVersion + " and " + requestVersion);
-                }
-            }
             return metadataMap.get(entityName);
         }
     }
@@ -198,42 +192,7 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         FieldCursor cursor = emd.getFieldCursor();
         while (cursor.next()) {
             FieldTreeNode node = cursor.getCurrentNode();
-            if (node instanceof ReferenceField) {
-                ReferenceField ref = (ReferenceField) node;
-                String name = ref.getEntityName();
-                String ver = ref.getVersionValue();
-                EntityMetadata refMd;
-                if (ver == emd.getEntityInfo().getDefaultVersion()) {
-                    refMd = metadataMap.get(entityName);
-                } else {
-                    refMd = md.getEntityMetadata(name, ver);
-                }
-                if (refMd == null || refMd.getEntitySchema() == null) {
-                    throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
-                } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-                    throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
-                }
-                String defaultVer = refMd.getEntityInfo().getDefaultVersion();
-                EntityMetadata found = metadataMap.get(name);
-                if (found != null) {
-                    String foundVer = found.getVersion().getValue();
-                    if (isValidReference(foundVer, rootRequestVersion, defaultVer)) {
-                        if (ver != defaultVer) {
-                            metadataMap.put(name, refMd);
-                        } else {
-                            deferred.add(name);
-                        }
-                    } else {
-                        throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, name + ":" + ver + " and " + foundVer);
-                    }
-                } else {
-                    if (ver != defaultVer) {
-                        metadataMap.put(name, refMd);
-                    } else {
-                        deferred.add(name);
-                    }
-                }
-            }
+            validateNode(emd, entityName, rootRequestVersion, deferred, node);
         }
 
         // we didn't find specific versions for these entities, so use default
@@ -243,29 +202,37 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         });
     }
 
-    /**
-     *
-     * @param version
-     *            The version of a referenced entity
-     * @param requestVersion
-     *            The version of the root entity that has been requested
-     * @param defaultVersion
-     *            The default version of the root entity
-     * @return
-     */
-    private boolean isValidReference(String version, String requestVersion, String defaultVersion) {
-        if (requestVersion == null) {
-            if (defaultVersion == null) {
-                throw new IllegalArgumentException(MetadataConstants.ERR_UNKNOWN_VERSION);
-            } else {
-                // default version is requested
-                requestVersion = defaultVersion;
+    private void validateNode(EntityMetadata emd, String entityName, String rootRequestVersion, Set<String> deferred, FieldTreeNode node) {
+        if (node instanceof ObjectField) {
+            ((ObjectField) node).getFields().getFields().forEachRemaining(n -> {
+                validateNode(emd, entityName, rootRequestVersion, deferred, n);
+            });
+        } else if (node instanceof ArrayField) {
+            ((ArrayField) node).getChildren().forEachRemaining(n -> {
+                validateNode(emd, entityName, rootRequestVersion, deferred, n);
+            });
+        } else if (node instanceof ReferenceField) {
+            ReferenceField ref = (ReferenceField) node;
+            String name = ref.getEntityName();
+            String ver = ref.getVersionValue();
+            EntityMetadata refMd = null;
+            if (ver == null) { // if null, default version
+                deferred.add(name);
+            } else { // else, explicit version
+                refMd = metadataMap.get(name);
+                if (!refMd.getVersion().getValue().equals(ver)) { // if we already have a different version loaded
+                    throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, name + ":" + ver + " and " + refMd.getVersion().getValue());
+                } else if (deferred.contains(name)) { // already used with a default version, so use the explicit version
+                    refMd = md.getEntityMetadata(name, ver);
+                    metadataMap.put(name, refMd);
+                    deferred.remove(name);
+                }
+            }
+            if (refMd == null || refMd.getEntitySchema() == null) {
+                throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
+            } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
+                throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
             }
         }
-        // if req version of metadata is the default version, and there is a cycle back using a version that is not default, fail
-        // or
-        // if req version of metadata is not the default version, and cyclic version is not default version, but req version and cyclic version don't match, fail
-        return !((requestVersion.equals(defaultVersion) && !version.equals(defaultVersion))
-                || (!requestVersion.equals(defaultVersion) && !version.equals(defaultVersion) && !requestVersion.equals(version)));
     }
 }
