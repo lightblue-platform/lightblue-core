@@ -1,0 +1,8 @@
+[
+    { "_id":"1","objectType":"root_loop","field1":"f1value","field2":true,"field3":"f3value","refvalue":"1"},
+    { "_id":"2","objectType":"root_loop","field1":"f1value","field2":true,"field3":"f3value","refvalue":"2"},
+    { "_id":"3","objectType":"root_loop","field1":"f1value","field2":true,"field3":"f3value","refvalue":"3"},
+    { "_id":"4","objectType":"root_loop","field1":"f1value","field2":true,"field3":"f3valueOther","refvalue":"4"},
+    { "_id":"5","objectType":"root_loop","field1":"f1value","field2":true,"field3":"f3valueOther","refvalue":"5"},
+    { "_id":"6","objectType":"root_loop","field1":"f1value","field2":false,"field3":"f3valueOther","refvalue":"6"}
+]

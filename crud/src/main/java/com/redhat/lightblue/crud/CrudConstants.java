@@ -56,6 +56,8 @@ public final class CrudConstants {
     public static final String ERR_EXPECTED_ARRAY = "crud:ExpectedArray";
     public static final String ERR_EXPECTED_ARRAY_ELEMENT = "crud:ExpectedArrayElement";
 
+    public static final String ERR_DUPLICATE_ARRAY_ELEMENT_ID = "crud:DuplicateArrayElementId";
+
     public static final String ERR_FIELD_NOT_ARRAY = "crud:FieldNotArray";
     public static final String ERR_FIELD_NOT_THERE = "crud:FieldNotThere";
 

@@ -20,9 +20,11 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
 
 import java.util.stream.Stream;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -41,6 +43,7 @@ public class Unique extends Step<ResultDocument> {
 
     private final DocIdExtractor idx;
     private final Source<ResultDocument> source;
+    private boolean recordResultSetSize=false;
 
     public Unique(ExecutionBlock block, Source<ResultDocument> source) {
         super(block);
@@ -50,19 +53,31 @@ public class Unique extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
-            @Override
-            public Stream<ResultDocument> stream() {
-                return super.stream().filter(new Predicate<ResultDocument>() {
-                    private final Set<DocId> uniqueIds = new HashSet<>();
+        // If we need to count the result set size, then we have to store and forward, we can't stream
+        // Because any limit() added to the stream will prevent iteration through the resultset.
+        StepResult<ResultDocument> result=new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
+                @Override
+                public Stream<ResultDocument> stream() {
+                    return super.stream().filter(new Predicate<ResultDocument>() {
+                            private final Set<DocId> uniqueIds = new HashSet<>();
+                            
+                            @Override
+                            public boolean test(ResultDocument doc) {
+                                return uniqueIds.add(doc.getDocId());
+                            }
+                        });
+                }
+            };
+        if(recordResultSetSize) {
+            List<ResultDocument> list=result.stream().collect(Collectors.toList());
+            result=new ListStepResult<ResultDocument>(list);
+            ctx.setMatchCount(list.size());
+        }
+        return result;
+    }
 
-                    @Override
-                    public boolean test(ResultDocument doc) {
-                        return uniqueIds.add(doc.getDocId());
-                    }
-                });
-            }
-        };
+    public void setRecordResultSetSize(boolean b) {
+        recordResultSetSize = b;
     }
 
     private JsonNode toJson(ToJsonCb<Step> cb) {

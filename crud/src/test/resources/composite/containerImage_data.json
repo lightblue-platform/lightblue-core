@@ -1,0 +1,12 @@
+[
+    {"_id":"img1","objectType":"containerImage","certified":"true","repositories":[{"repository":"repo1","registry":"registry1","published":true}]},
+    {"_id":"img2","objectType":"containerImage","certified":"true","repositories":[{"repository":"repo2","registry":"registry2","published":true}]},
+    {"_id":"img3","objectType":"containerImage","certified":"true","repositories":[{"repository":"repo3","registry":"registry3","published":true}]},
+    {"_id":"img4","objectType":"containerImage","certified":"true","repositories":[{"repository":"repo4","registry":"registry4","published":false}]},
+    {"_id":"img5","objectType":"containerImage","certified":"true","repositories":[{"repository":"repo4","registry":"registry4","published":false}]},
+    {"_id":"img6","objectType":"containerImage","certified":"true","repositories":[{"repository":"repo4","registry":"registry4","published":false}]},
+    {"_id":"img7","objectType":"containerImage","certified":"true","repositories":[{"repository":"repo4","registry":"registry4","published":false}]},
+    {"_id":"img8","objectType":"containerImage","certified":"false","repositories":[{"repository":"repo5","registry":"registry5","published":true}]},
+    {"_id":"img9","objectType":"containerImage","certified":"false","repositories":[{"repository":"repo5","registry":"registry5","published":true}]}
+
+]

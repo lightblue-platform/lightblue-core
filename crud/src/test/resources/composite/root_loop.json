@@ -1,0 +1,40 @@
+{
+  "entityInfo" : {
+    "name": "root_loop",
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "root_loop"
+    }
+  },
+  "schema" : {
+    "name" : "root_loop",
+      "version": {
+          "value": "1.0.0",
+          "changelog": "Test"
+      },
+    "status": {
+        "value": "active"
+    },
+      "access" : {
+          "insert": ["anyone"],
+          "find":["anyone"],
+          "update":["anyone"],
+          "delete":["anyone"]
+      },
+      "fields": {
+          "_id": {"type": "string", "constraints":{ "identity":1 } },
+          "objectType": {"type": "string"},
+          "field1": { "type": "string" },
+          "field2": { "type":"boolean" },
+          "field3": { "type":"string" },
+          "refvalue":{"type":"string"},
+          "refchild": {
+              "type":"reference",
+              "entity":"child_loop",
+              "versionValue":"1.0.0",
+              "query":{"field":"_id","op":"$eq","rfield":"$parent.refvalue"}
+          }
+      }
+  }
+}

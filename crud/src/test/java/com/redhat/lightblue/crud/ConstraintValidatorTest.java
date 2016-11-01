@@ -142,6 +142,27 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
         assertFalse(validator.hasErrors());
     }
 
+    @Test
+    public void testValidate_elementIdentityUniqueness() throws Exception {
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-element-identity.json");
+        EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, null);
+        ConstraintValidator validator = createConstraintValidator(entityMetadata);
+        JsonDoc doc=new JsonDoc(JsonNodeFactory.instance.objectNode());
+        // There should be two errors: duplicated identity and missing identity
+        doc.modify(new Path("field1.0.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.0.id"),JsonNodeFactory.instance.textNode("1"),true);
+        doc.modify(new Path("field1.1.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.1.id"),JsonNodeFactory.instance.textNode("2"),true);
+        doc.modify(new Path("field1.2.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.2.id"),JsonNodeFactory.instance.textNode("2"),true);
+        doc.modify(new Path("field1.3.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        validator.validateDocs(Arrays.asList(doc));
+        Assert.assertTrue(validator.hasErrors());
+        Assert.assertEquals(1,validator.getDocErrors().size());
+        List<Error> errors=validator.getDocErrors().get(doc);
+        Assert.assertEquals(2,errors.size());
+    }
+
     /**
      * A {@link EntityConstraint} that does not exist is requested. A
      * {@link Error} is expected.
