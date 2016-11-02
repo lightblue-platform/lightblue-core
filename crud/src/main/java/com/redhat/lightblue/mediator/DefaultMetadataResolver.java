@@ -32,10 +32,8 @@ import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.crud.CrudConstants;
 
 import com.redhat.lightblue.metadata.AbstractGetMetadata;
-import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.Metadata;
@@ -192,47 +190,42 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         FieldCursor cursor = emd.getFieldCursor();
         while (cursor.next()) {
             FieldTreeNode node = cursor.getCurrentNode();
-            validateNode(emd, entityName, rootRequestVersion, deferred, node);
+            if (node instanceof ReferenceField)
+                validateRefField(emd, entityName, rootRequestVersion, deferred, (ReferenceField) node);
         }
 
         // we didn't find specific versions for these entities, so use default
         deferred.forEach(n -> {
             String def = md.getEntityInfo(n).getDefaultVersion();
+            if (def == null) {
+                throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, n + ":default");
+            }
             metadataMap.put(n, md.getEntityMetadata(n, def));
         });
     }
 
-    private void validateNode(EntityMetadata emd, String entityName, String rootRequestVersion, Set<String> deferred, FieldTreeNode node) {
-        if (node instanceof ObjectField) {
-            ((ObjectField) node).getFields().getFields().forEachRemaining(n -> {
-                validateNode(emd, entityName, rootRequestVersion, deferred, n);
-            });
-        } else if (node instanceof ArrayField) {
-            ((ArrayField) node).getChildren().forEachRemaining(n -> {
-                validateNode(emd, entityName, rootRequestVersion, deferred, n);
-            });
-        } else if (node instanceof ReferenceField) {
-            ReferenceField ref = (ReferenceField) node;
-            String name = ref.getEntityName();
-            String ver = ref.getVersionValue();
-            EntityMetadata refMd = null;
-            if (ver == null) { // if null, default version
-                deferred.add(name);
-            } else { // else, explicit version
-                refMd = metadataMap.get(name);
-                if (!refMd.getVersion().getValue().equals(ver)) { // if we already have a different version loaded
-                    throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, name + ":" + ver + " and " + refMd.getVersion().getValue());
-                } else if (deferred.contains(name)) { // already used with a default version, so use the explicit version
-                    refMd = md.getEntityMetadata(name, ver);
-                    metadataMap.put(name, refMd);
+    private void validateRefField(EntityMetadata emd, String entityName, String rootRequestVersion, Set<String> deferred, ReferenceField ref) {
+        String name = ref.getEntityName();
+        String ver = ref.getVersionValue();
+        EntityMetadata refMd = null;
+        if (ver == null) { // if null, default version
+            deferred.add(name);
+        } else { // else, explicit version
+            refMd = metadataMap.get(name);
+            if (refMd != null && !refMd.getVersion().getValue().equals(ver)) { // if we already have a different version loaded
+                throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, name + ":" + ver + " and " + refMd.getVersion().getValue());
+            } else {
+                if (deferred.contains(name)) { // already used with a default version, so use the explicit version
                     deferred.remove(name);
                 }
+                refMd = md.getEntityMetadata(name, ver);
+                metadataMap.put(name, refMd);
             }
-            if (refMd == null || refMd.getEntitySchema() == null) {
-                throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
-            } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-                throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
-            }
+        }
+        if (refMd == null || refMd.getEntitySchema() == null) {
+            throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
+        } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
+            throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
         }
     }
 }

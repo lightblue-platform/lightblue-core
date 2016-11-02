@@ -46,6 +46,7 @@ import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.DeleteRequest;
@@ -228,6 +229,15 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
+    }
+
+    @Test
+    public void findSelfReference_Invalid() throws Exception{
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
+        fr.setEntityVersion(new EntityVersion("self_ref_err", "1.0.0"));
+        Response response = mediator.find(fr);
+        assertTrue(response.getErrors().get(0).getErrorCode().equals(CrudConstants.ERR_METADATA_APPEARS_TWICE));
     }
 
     @Test
@@ -680,7 +690,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
     }
-    
+
    @Test
     public void rev_search_with_arraycond_matchcount_0range() throws Exception {
         FindRequest fr = new FindRequest();
@@ -693,7 +703,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1, response.getMatchCount());
         Assert.assertEquals(0, response.getEntityData().size());
     }
-    
+
     @Test
     public void elem_match_forward() throws Exception {
         FindRequest fr = new FindRequest();
