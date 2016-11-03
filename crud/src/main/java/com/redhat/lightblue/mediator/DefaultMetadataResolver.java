@@ -196,11 +196,11 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
 
         // we didn't find specific versions for these entities, so use default
         deferred.forEach(n -> {
-            String def = md.getEntityInfo(n).getDefaultVersion();
-            if (def == null) {
+            EntityMetadata defEmd = md.getEntityMetadata(n, null);
+            if (defEmd == null) {
                 throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, n + ":default");
             }
-            metadataMap.put(n, md.getEntityMetadata(n, def));
+            metadataMap.put(n, defEmd);
         });
     }
 
@@ -221,11 +221,11 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
                 refMd = md.getEntityMetadata(name, ver);
                 metadataMap.put(name, refMd);
             }
-        }
-        if (refMd == null || refMd.getEntitySchema() == null) {
-            throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
-        } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-            throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
+            if (refMd == null || refMd.getEntitySchema() == null) {
+                throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
+            } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
+                throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
+            }
         }
     }
 }
