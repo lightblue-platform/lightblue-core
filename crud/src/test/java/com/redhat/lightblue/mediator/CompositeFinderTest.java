@@ -247,6 +247,12 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("self_ref", "1.0.0"));
         Response response = mediator.find(fr);
         assertTrue(response.getErrors().isEmpty());
+
+        fr = new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
+        fr.setEntityVersion(new EntityVersion("self_ref_default", "1.0.0"));
+        response = mediator.find(fr);
+        assertTrue(response.getErrors().isEmpty());
     }
 
     @Test

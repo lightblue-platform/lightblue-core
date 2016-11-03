@@ -221,11 +221,11 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
                 refMd = md.getEntityMetadata(name, ver);
                 metadataMap.put(name, refMd);
             }
-        }
-        if (refMd == null || refMd.getEntitySchema() == null) {
-            throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
-        } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-            throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
+            if (refMd == null || refMd.getEntitySchema() == null) {
+                throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);
+            } else if (refMd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
+                throw Error.get(CrudConstants.ERR_DISABLED_METADATA, name + ":" + ver);
+            }
         }
     }
 }

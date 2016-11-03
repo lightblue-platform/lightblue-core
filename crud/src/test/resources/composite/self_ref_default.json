@@ -1,0 +1,51 @@
+{
+  "entityInfo" : {
+    "name": "self_ref",
+    "defaultVersion": "1.0.0",
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "self_ref_default"
+    }
+  },
+  "schema" : {
+    "name" : "self_ref_default",
+    "version": {
+        "value": "1.0.0",
+        "changelog": "Test"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access" : {
+        "insert": ["anyone"],
+        "find":["anyone"],
+        "update":["anyone"],
+        "delete":["anyone"]
+    },
+    "fields": {
+        "_id": {"type": "string", "constraints":{ "identity":1 } },
+        "objectType": {"type": "string"},
+        "name":{"type":"string"},
+        "base_images": {
+	        "type": "reference",
+	        "entity": "self_ref_default",
+	        "query": {
+	          "$and": [
+	            {
+	              "field": "_id",
+	              "op": "$eq",
+	              "rfield": "$parent._id"
+	            },
+	            {
+	              "field": "name",
+	              "op": "$eq",
+	              "rfield": "$parent.name"
+	            }
+	          ]
+	        }
+      }
+    }
+  }
+}
+
