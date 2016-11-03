@@ -196,11 +196,11 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
 
         // we didn't find specific versions for these entities, so use default
         deferred.forEach(n -> {
-            String def = md.getEntityInfo(n).getDefaultVersion();
-            if (def == null) {
+            EntityMetadata defEmd = md.getEntityMetadata(n, null);
+            if (defEmd == null) {
                 throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, n + ":default");
             }
-            metadataMap.put(n, md.getEntityMetadata(n, def));
+            metadataMap.put(n, defEmd);
         });
     }
 
