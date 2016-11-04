@@ -15,12 +15,14 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "additionalProperties": true,
+    "required": ["requests"],
     "properties": {
         "requests": {
             "type":"array",
             "items": {
                 "type" : "object",
                 "additionalProperties": true,
+                "required": [ "seq", "op", "request" ],
                 "properties": {
                     "seq": {
                         "type":"integer",
@@ -29,6 +31,10 @@
                     "op": {
                         "type":"string",
                         "description" : "one of find, update, insert, delete, save"
+                    },
+                    "ordered": {
+                        "type":"boolean",
+                        "description" : "When true, requests are processed in order. True is the default."
                     },
                     "request": {
                         "type":"object",

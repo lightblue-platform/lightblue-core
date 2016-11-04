@@ -580,11 +580,24 @@ public class Mediator {
         }
     }
 
-    protected Callable<Response> getAsyncFind(final FindRequest req) {
+    protected Callable<Response> getFutureRequest(final Request req) {
         return new Callable<Response>() {
             @Override
             public Response call() {
-                return find((FindRequest) req);
+                switch (req.getOperation()) {
+                    case FIND:
+                        return find((FindRequest) req);
+                    case INSERT:
+                        return insert((InsertionRequest) req);
+                    case DELETE:
+                        return delete((DeleteRequest) req);
+                    case UPDATE:
+                        return update((UpdateRequest) req);
+                    case SAVE:
+                        return save((SaveRequest) req);
+                    default:
+                        throw new UnsupportedOperationException("CRUD operation '"+req.getOperation()+"' is not supported!");
+                }
             }
         };
     }
@@ -594,33 +607,40 @@ public class Mediator {
         Error.push("bulk operation");
         ExecutorService executor = Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
         try {
-            LOGGER.debug("Executing {} find requests in parallel", factory.getBulkParallelExecutions());
+            LOGGER.debug("Executing up to {} requests in parallel, ordered = {}", factory.getBulkParallelExecutions(), requests.isOrdered());
             List<Request> requestList = requests.getEntries();
             int n = requestList.size();
             BulkExecutionContext ctx = new BulkExecutionContext(n);
 
             for (int i = 0; i < n; i++) {
                 Request req = requestList.get(i);
-                if (req.getOperation() == CRUDOperation.FIND) {
-                    ctx.futures[i] = executor.submit(getAsyncFind((FindRequest) req));
-                } else {
-                    wait(ctx);
-                    switch (req.getOperation()) {
-                        case INSERT:
-                            ctx.responses[i] = insert((InsertionRequest) req);
-                            break;
-                        case DELETE:
-                            ctx.responses[i] = delete((DeleteRequest) req);
-                            break;
-                        case UPDATE:
-                            ctx.responses[i] = update((UpdateRequest) req);
-                            break;
-                        case SAVE:
-                            ctx.responses[i] = save((SaveRequest) req);
-                            break;
+                if (requests.isOrdered()) {
+                    // ordered - only consecutive finds in parallel
+                    if (req.getOperation() == CRUDOperation.FIND) {
+                        ctx.futures[i] = executor.submit(getFutureRequest(req));
+                    } else {
+                        wait(ctx);
+                        switch (req.getOperation()) {
+                            case INSERT:
+                                ctx.responses[i] = insert((InsertionRequest) req);
+                                break;
+                            case DELETE:
+                                ctx.responses[i] = delete((DeleteRequest) req);
+                                break;
+                            case UPDATE:
+                                ctx.responses[i] = update((UpdateRequest) req);
+                                break;
+                            case SAVE:
+                                ctx.responses[i] = save((SaveRequest) req);
+                                break;
+                        }
                     }
+                } else {
+                    // unordered - do them all in parallel
+                    ctx.futures[i] = executor.submit(getFutureRequest(req));
                 }
             }
+
             wait(ctx);
             LOGGER.debug("Bulk execution completed");
             BulkResponse response = new BulkResponse();
