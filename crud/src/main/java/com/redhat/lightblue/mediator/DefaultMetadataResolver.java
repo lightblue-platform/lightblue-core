@@ -104,6 +104,7 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         } else if (emd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
             throw Error.get(CrudConstants.ERR_DISABLED_METADATA, entityName + ":" + entityVersion);
         }
+        metadataMap.put(emd.getName(),emd);
         initMetadataMap(emd, entityName, entityVersion);
         cmd = CompositeMetadata.buildCompositeMetadata(emd, new Gmd(projection, query, entityVersion));
         LOGGER.debug("Composite metadata:{}", cmd);
