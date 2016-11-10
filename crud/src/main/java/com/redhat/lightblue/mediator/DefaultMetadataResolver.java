@@ -104,7 +104,6 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         } else if (emd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
             throw Error.get(CrudConstants.ERR_DISABLED_METADATA, entityName + ":" + entityVersion);
         }
-        metadataMap.put(emd.getName(),emd);
         initMetadataMap(emd, entityName, entityVersion);
         cmd = CompositeMetadata.buildCompositeMetadata(emd, new Gmd(projection, query, entityVersion));
         LOGGER.debug("Composite metadata:{}", cmd);
@@ -195,16 +194,16 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
                 validateRefField(emd, entityName, rootRequestVersion, deferred, (ReferenceField) node);
         }
 
-        // we didn't find specific versions for these entities, so use default
-        deferred.forEach(n -> {
-            EntityMetadata defEmd = md.getEntityMetadata(n, null);
-            if (defEmd == null) {
-                throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, n + ":default");
-            }
-            metadataMap.put(n, defEmd);
-        });
+        // If there are entitis for which didn't find specific versions, use default
+        deferred.stream().filter(n->!metadataMap.containsKey(n)).forEach(n -> {
+                EntityMetadata defEmd = md.getEntityMetadata(n, null);
+                if (defEmd == null) {
+                    throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, n + ":default");
+                }
+                metadataMap.put(n, defEmd);
+            });
     }
-
+    
     private void validateRefField(EntityMetadata emd, String entityName, String rootRequestVersion, Set<String> deferred, ReferenceField ref) {
         String name = ref.getEntityName();
         String ver = ref.getVersionValue();
