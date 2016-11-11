@@ -122,7 +122,20 @@ public abstract class LightblueTestHarness {
                     if (isGrantAnyoneAccess()) {
                         grantAnyoneAccess(metadataJson);
                     }
-                    metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
+
+                    EntityMetadata entityMetadata = tx.parse(EntityMetadata.class, metadataJson);
+
+                    //TODO: Handle versions and the latest's entityInfo winning. Versions are a string and do not have to follow a format.
+                    /*
+                     * If entityInfo already exists, lightblue will throw a duplicate exception.
+                     * No need to handle here.
+                     */
+                    if (metadata.getEntityInfo(entityMetadata.getName()) == null) {
+                        metadata.createNewMetadata(entityMetadata);
+                    }
+                    else {
+                        metadata.createNewSchema(entityMetadata);
+                    }
                 }
             }
         }
