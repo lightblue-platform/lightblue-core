@@ -882,6 +882,37 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
+    }
+
+    @Test
+    public void two_level_search_three_level_fetch() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'array':'obj1.c','elemMatch':{'field':'_id','op':'=','rvalue':'C50'}}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c.*.b'}]"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertEquals(1, response.getMatchCount());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
+    }
+
+    @Test
+    public void two_level_search_three_level_fetch_nested_projection() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'array':'obj1.c','elemMatch':{'field':'_id','op':'=','rvalue':'C50'}}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c', 'match':{'field':'_id','op':'!=','rvalue':''},'projection':{'field':'b','match':{'field':'_id','op':'!=','rvalue':''},'projection':{'field':'field1'}}}]"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertEquals(1, response.getMatchCount());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
+        Assert.assertNotNull(response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").get(0).get("field1"));
     }
 
     @Test
