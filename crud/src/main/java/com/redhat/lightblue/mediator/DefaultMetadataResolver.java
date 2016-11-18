@@ -186,7 +186,9 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
     }
 
     private void initMetadataMap(EntityMetadata emd, String rootEntityName, String rootRequestVersion) {
-        // store root entity metadata
+        // We keep two lists:
+        //   toProcess: When metadata is loaded, it is put into this list to be processed later
+        //   deferred: When metadata cannot be loaded because its version is not known, ifs name is added here
         ArrayDeque<EntityMetadata> toProcess=new ArrayDeque<>();
         Set<String> deferred = new HashSet<>();
 
