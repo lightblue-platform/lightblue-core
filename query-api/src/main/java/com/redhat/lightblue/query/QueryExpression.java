@@ -66,7 +66,9 @@ public abstract class QueryExpression extends JsonObject {
      */
     public boolean isRequired(Path field) {
         LOGGER.debug("Checking if {} is queried", field);
-        return isRequired(field, Path.EMPTY);
+        boolean ret=isRequired(field, Path.EMPTY);
+        LOGGER.debug("{} queried:{}",field,ret);
+        return ret;
     }
 
     /**

@@ -1,6 +1,6 @@
 {
   "entityInfo" : {
-    "name": "self_ref",
+    "name": "self_ref_default",
     "defaultVersion": "1.0.0",
     "datastore": {
         "backend":"mongo",

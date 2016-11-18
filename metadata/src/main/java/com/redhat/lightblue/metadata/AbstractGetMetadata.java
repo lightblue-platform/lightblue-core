@@ -90,10 +90,13 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
                                       String entityName,
                                       String version) {
         // See if injectionField is projected or used in a query
+        LOGGER.debug("Check if {} is needed based on field {}",entityName,injectionField);
         if (isProjected(injectionField)
                 || isQueried(injectionField)) {
+            LOGGER.debug("{} is needed based on field {}",entityName,injectionField);
             return retrieveMetadata(injectionField, entityName, version);
         }
+        LOGGER.debug("{} is not needed based on field {}",entityName,injectionField);
         return null;
     }
 
@@ -118,6 +121,8 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
             if (inc == Projection.Inclusion.explicit_inclusion) {
                 LOGGER.debug("{} is explicitly projected by {}", field, p);
                 return true;
+            } else {
+                LOGGER.debug("{} is not projected by {}", field,p);
             }
         }
         return false;
@@ -129,7 +134,9 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
             if (q.isRequired(field)) {
                 LOGGER.debug("{} is queried by {}", field, q);
                 return true;
-            }
+            } else {
+                LOGGER.debug("{} is not queried by {}", field,q);
+            }                
         }
         return false;
     }

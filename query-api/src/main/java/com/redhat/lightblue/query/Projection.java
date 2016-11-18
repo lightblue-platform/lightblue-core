@@ -219,7 +219,9 @@ public abstract class Projection extends JsonObject {
      */
     public Inclusion getFieldInclusion(Path field) {
         LOGGER.debug("Checking if {} is projected", field);
-        return getFieldInclusion(field, Path.EMPTY);
+        Inclusion ret=getFieldInclusion(field, Path.EMPTY);
+        LOGGER.debug("Inclusion {}={}",field,ret);
+        return ret;
     }
 
     /**
