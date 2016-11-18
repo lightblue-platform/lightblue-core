@@ -39,29 +39,6 @@ public abstract class QueryExpression extends JsonObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryExpression.class);
 
     /**
-     * Returns field information about the query
-     */
-    public List<FieldInfo> getQueryFields() {
-        return GetQueryFields.getQueryFields(this);
-    }
-
-    /**
-     * Returns field information about the query
-     *
-     * @param fields The call adds the field information to this list
-     */
-    public void getQueryFields(List<FieldInfo> fields) {
-        GetQueryFields.getQueryFields(fields, this);
-    }
-
-    /**
-     * The implementation should populate the list with the field information
-     */
-    public void getQueryFields(List<FieldInfo> fields, Path ctx) {
-        GetQueryFields.getQueryFields(fields, this, ctx);
-    }
-
-    /**
      * Parses a query expression from the given json node
      */
     public static QueryExpression fromJson(JsonNode node) {
@@ -89,7 +66,9 @@ public abstract class QueryExpression extends JsonObject {
      */
     public boolean isRequired(Path field) {
         LOGGER.debug("Checking if {} is queried", field);
-        return isRequired(field, Path.EMPTY);
+        boolean ret=isRequired(field, Path.EMPTY);
+        LOGGER.debug("{} queried:{}",field,ret);
+        return ret;
     }
 
     /**

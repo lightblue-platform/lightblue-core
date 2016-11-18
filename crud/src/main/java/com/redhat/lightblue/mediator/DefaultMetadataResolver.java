@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Deque;
+import java.util.ArrayDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,43 +185,60 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         }
     }
 
-    private void initMetadataMap(EntityMetadata emd, String entityName, String rootRequestVersion) {
-        // store root entity metadata
-        metadataMap.put(entityName, emd);
+    private void initMetadataMap(EntityMetadata emd, String rootEntityName, String rootRequestVersion) {
+        // We keep two lists:
+        //   toProcess: When metadata is loaded, it is put into this list to be processed later
+        //   deferred: When metadata cannot be loaded because its version is not known, ifs name is added here
+        ArrayDeque<EntityMetadata> toProcess=new ArrayDeque<>();
         Set<String> deferred = new HashSet<>();
+
+        toProcess.addLast(emd);
+        while(!toProcess.isEmpty()||!deferred.isEmpty()) {
+            EntityMetadata metadata=toProcess.pollFirst();
+            if(metadata!=null) {
+                processMd(metadata,toProcess,deferred);
+                deferred.remove(metadata.getName());
+                metadataMap.put(metadata.getName(),metadata);
+            }
+            while(!deferred.isEmpty()) {
+                String e=deferred.iterator().next();
+                deferred.remove(e);
+                if(!metadataMap.containsKey(e)) {
+                    EntityMetadata defEmd = md.getEntityMetadata(e, null);
+                    if (defEmd == null) {
+                        throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, e + ":default");
+                    }
+                    toProcess.addLast(defEmd);
+                }
+            }
+        }
+    }
+
+    private void processMd(EntityMetadata emd,Deque<EntityMetadata> toProcess,Set<String> deferred) {
         FieldCursor cursor = emd.getFieldCursor();
         while (cursor.next()) {
             FieldTreeNode node = cursor.getCurrentNode();
             if (node instanceof ReferenceField)
-                validateRefField(emd, entityName, rootRequestVersion, deferred, (ReferenceField) node);
+                validateRefField(emd, toProcess, deferred, (ReferenceField) node);
         }
-
-        // If there are entitis for which didn't find specific versions, use default
-        deferred.stream().filter(n->!metadataMap.containsKey(n)).forEach(n -> {
-                EntityMetadata defEmd = md.getEntityMetadata(n, null);
-                if (defEmd == null) {
-                    throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, n + ":default");
-                }
-                metadataMap.put(n, defEmd);
-            });
     }
     
-    private void validateRefField(EntityMetadata emd, String entityName, String rootRequestVersion, Set<String> deferred, ReferenceField ref) {
+    private void validateRefField(EntityMetadata emd, Deque<EntityMetadata> toProcess, Set<String> deferred, ReferenceField ref) {
         String name = ref.getEntityName();
         String ver = ref.getVersionValue();
-        EntityMetadata refMd = null;
+        EntityMetadata refMd = metadataMap.get(name);
         if (ver == null) { // if null, default version
-            deferred.add(name);
+            if(refMd==null)
+                deferred.add(name);
         } else { // else, explicit version
-            refMd = metadataMap.get(name);
             if (refMd != null && !refMd.getVersion().getValue().equals(ver)) { // if we already have a different version loaded
                 throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, name + ":" + ver + " and " + refMd.getVersion().getValue());
-            } else {
+            } else  if(refMd==null) {
                 if (deferred.contains(name)) { // already used with a default version, so use the explicit version
                     deferred.remove(name);
                 }
                 refMd = md.getEntityMetadata(name, ver);
-                metadataMap.put(name, refMd);
+                toProcess.addLast(refMd);
             }
             if (refMd == null || refMd.getEntitySchema() == null) {
                 throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, name + ":" + ver);

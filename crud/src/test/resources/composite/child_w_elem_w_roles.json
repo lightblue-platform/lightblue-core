@@ -5,7 +5,7 @@
       "collection" : "child",
       "datasource" : "mongodata"
     },
-    "name" : "child_w_elem"
+    "name" : "child_w_elem_w_roles"
   },
   "schema": {
     "access": {

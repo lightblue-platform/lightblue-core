@@ -52,6 +52,8 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.WithQuery;
 import com.redhat.lightblue.crud.WithRange;
+import com.redhat.lightblue.assoc.AnalyzeQuery;
+import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.metadata.CompositeMetadata;
@@ -61,7 +63,6 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.query.FieldInfo;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
@@ -702,15 +703,17 @@ public class Mediator {
         if (query != null) {
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             FieldAccessRoleEvaluator eval = new FieldAccessRoleEvaluator(md, ctx.getCallerRoles());
-            List<FieldInfo> fields = query.getQueryFields();
+            AnalyzeQuery analyzer=new AnalyzeQuery(md,null);
+            analyzer.iterate(query,Path.EMPTY);
+            List<QueryFieldInfo> fields=analyzer.getFieldInfo();
             LOGGER.debug("Checking access for query fields {}", fields);
-            for (FieldInfo field : fields) {
-                LOGGER.debug("Access checking field {}", field.getFieldName());
-                if (eval.hasAccess(field.getFieldName(), FieldAccessRoleEvaluator.Operation.find)) {
-                    LOGGER.debug("Field {} is readable", field.getFieldName());
+            for (QueryFieldInfo field : fields) {
+                LOGGER.debug("Access checking field {}", field.getFullFieldName());
+                if (eval.hasAccess(field.getFullFieldName(), FieldAccessRoleEvaluator.Operation.find)) {
+                    LOGGER.debug("Field {} is readable", field.getFullFieldName());
                 } else {
-                    LOGGER.debug("Field {} is not readable", field.getFieldName());
-                    ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, field.getFieldName().toString()));
+                    LOGGER.debug("Field {} is not readable", field.getFullFieldName());
+                    ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, field.getFullFieldName().toString()));
                     ctx.setStatus(OperationStatus.ERROR);
                     ret = false;
                 }
