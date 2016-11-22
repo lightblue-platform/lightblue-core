@@ -1049,4 +1049,31 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
             }
         }
     }
+
+    @Test
+    public void test_self_ref_array_not_contains() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'!=','rvalue':''}"));
+        fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'test_reference'}]"));
+        fr.setEntityVersion(new EntityVersion("self_ref_array_not_contains","0.0.1-SNAPSHOT"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        for(JsonNode doc:response.getEntityData()) {
+            String id=doc.get("_id").asText();
+            if("Q".equals(id)) {
+                Assert.assertEquals(2,doc.get("test_reference").size());
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(0).get("_id").asText())!=-1);
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(1).get("_id").asText())!=-1);
+            } else if("R".equals(id)) {
+                Assert.assertEquals(2,doc.get("test_reference").size());
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(0).get("_id").asText())!=-1);
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(1).get("_id").asText())!=-1);
+            } else if("S".equals(id)) {
+                Assert.assertEquals(1,doc.get("test_reference").size());
+                Assert.assertEquals("T",doc.get("test_reference").get(0).get("_id").asText());
+            } else {
+                Assert.assertNull(doc.get("test_reference"));
+            }
+        }
+    }
 }

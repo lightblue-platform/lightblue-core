@@ -1,0 +1,74 @@
+{
+    "entityInfo": {
+        "datastore": {
+            "backend": "mongo",
+            "collection": "self_ref_array_not_contains",
+            "datasource": "mongodata"
+        },
+        "defaultVersion": "0.0.1-SNAPSHOT",
+        "name": "self_ref_array_not_contains"
+    },
+    "schema": {
+        "access": {
+            "delete": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": {
+                "type": "string",
+                "constraints": {
+                    "identity": true
+                }
+            },
+            "a": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "expectation": {
+                "type": "string"
+            },
+            "test_reference": {
+                "entity": "self_ref_array_not_contains",
+                "query": {
+                    "$and": [
+                        {
+                            "field": "_id",
+                            "op": "$neq",
+                            "rfield": "$parent._id"
+                        },
+                        { "$not": {
+                            "array": "a",
+                            "elemMatch": {
+                                "field": "$this",
+                                "op": "$nin",
+                                "rfield": "$parent.$parent.a"
+                            }
+                        }
+                        }
+                    ]
+                },
+                "type": "reference"
+            }
+        },
+        "name": "self_ref_array_not_contains",
+        "status": {
+            "value": "active"
+        },
+        "version": {
+            "changelog": "selfReferenceArrayContainsArray",
+            "value": "0.0.1-SNAPSHOT"
+        }
+    }
+}
