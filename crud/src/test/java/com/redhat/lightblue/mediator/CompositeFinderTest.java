@@ -1035,9 +1035,18 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     public void test_self_ref_array_contains() throws Exception {
         FindRequest fr=new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'!=','rvalue':''}"));
-        fr.setProjection(projection("[{'field':'*'},{'field':'test_reference'}]"));
+        fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'test_reference'}]"));
         fr.setEntityVersion(new EntityVersion("self_ref_array_contains","0.0.1-SNAPSHOT"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
+        // Every doc should have all the others in reference
+        for(JsonNode doc:response.getEntityData()) {
+            String id=doc.get("_id").asText();
+            Assert.assertEquals(3,doc.get("test_reference").size());
+            for(Iterator<JsonNode> itr=doc.get("test_reference").elements();itr.hasNext();) {
+                JsonNode node=itr.next();
+                Assert.assertTrue(!id.equals(node.get("_id")));
+            }
+        }
     }
 }
