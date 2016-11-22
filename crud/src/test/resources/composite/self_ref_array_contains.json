@@ -1,0 +1,73 @@
+{
+    "entityInfo": {
+        "datastore": {
+            "backend": "mongo",
+            "collection": "self_ref_array_contains",
+            "datasource": "mongodata"
+        },
+        "defaultVersion": "0.0.1-SNAPSHOT",
+        "name": "self_ref_array_contains"
+    },
+    "schema": {
+        "access": {
+            "delete": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": {
+                "type": "string",
+                "constraints": {
+                    "identity": true
+                }
+            },
+            "a": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "expectation": {
+                "type": "string"
+            },
+            "test_reference": {
+                "entity": "self_ref_array_contains",
+                "query": {
+                    "$and": [
+                        {
+                            "field": "_id",
+                            "op": "$neq",
+                            "rfield": "$parent._id"
+                        },
+                        {
+                            "array": "a",
+                            "elemMatch": {
+                                "field": "$this",
+                                "op": "$in",
+                                "rfield": "$parent.$parent.a"
+                            }
+                        }
+                    ]
+                },
+                "type": "reference"
+            }
+        },
+        "name": "selfReferenceArrayContainsArray",
+        "status": {
+            "value": "active"
+        },
+        "version": {
+            "changelog": "selfReferenceArrayContainsArray",
+            "value": "0.0.1-SNAPSHOT"
+        }
+    }
+}
