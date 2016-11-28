@@ -41,6 +41,7 @@ import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.ResolvedReferenceField;
 
 public class ConstraintValidator {
 
@@ -216,30 +217,42 @@ public class ConstraintValidator {
     private void checkConstraints(JsonDoc doc, Path currentValuePath, JsonNode currentValue) {
         LOGGER.debug("checking field constraints");
         FieldCursor cursor = md.getFieldCursor();
+        Path skip=null;
         while (cursor.next()) {
             currentFieldNode = cursor.getCurrentNode();
             currentFieldPath = cursor.getCurrentPath();
-            LOGGER.debug("checking field {}", currentFieldPath);
-            Error.push(currentFieldPath.toString());
-            try {
-                List<FieldConstraint> constraints = null;
-                if (currentFieldNode instanceof Field) {
-                    constraints = ((Field) currentFieldNode).getConstraints();
-                } else if (currentFieldNode instanceof SimpleArrayElement) {
-                    constraints = ((SimpleArrayElement) currentFieldNode).getConstraints();
+            // Skip any fields reached by crossing entity boundaries
+            if(skip!=null) {
+                if(!currentFieldPath.prefix(skip.numSegments()).equals(skip))
+                    skip=null;
+            }
+            if(skip==null) {
+                if(currentFieldNode instanceof ResolvedReferenceField)
+                    skip=currentFieldNode.getFullPath();
+            } 
+            if(skip==null) {
+                LOGGER.debug("checking field {}", currentFieldPath);
+                Error.push(currentFieldPath.toString());
+                try {
+                    List<FieldConstraint> constraints = null;
+                    if (currentFieldNode instanceof Field) {
+                        constraints = ((Field) currentFieldNode).getConstraints();
+                    } else if (currentFieldNode instanceof SimpleArrayElement) {
+                        constraints = ((SimpleArrayElement) currentFieldNode).getConstraints();
+                    }
+                    if (constraints != null && !constraints.isEmpty()) {
+                        checkFieldConstraints(doc, constraints, currentValuePath, currentValue);
+                    }
+                } catch (Error e) {
+                    // rethrow lightblue error
+                    throw e;
+                } catch (Exception e) {
+                    // throw new Error (preserves current error context)
+                    LOGGER.error(e.getMessage(), e);
+                    throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
+                } finally {
+                    Error.pop();
                 }
-                if (constraints != null && !constraints.isEmpty()) {
-                    checkFieldConstraints(doc, constraints, currentValuePath, currentValue);
-                }
-            } catch (Error e) {
-                // rethrow lightblue error
-                throw e;
-            } catch (Exception e) {
-                // throw new Error (preserves current error context)
-                LOGGER.error(e.getMessage(), e);
-                throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
-            } finally {
-                Error.pop();
             }
         }
     }

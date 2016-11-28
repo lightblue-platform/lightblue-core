@@ -40,6 +40,7 @@ import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.crud.validator.StringLengthChecker;
 import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
@@ -126,6 +127,71 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
         return entityMetadata;
     }
 
+
+    private CompositeMetadata getCmd(List<? extends EntityConstraint> entityConstraints,
+                                     Map<String, FieldConstraintParser<JsonNode>> fieldConstraintParsers,
+                                     JsonNode...metadataNodes) {
+        TestDataStoreParser<JsonNode> dsParser = new TestDataStoreParser<>();
+        
+        Extensions<JsonNode> extensions = new Extensions<>();
+        extensions.registerDataStoreParser(dsParser.getDefaultName(), dsParser);
+        extensions.addDefaultExtensions();
+        if (fieldConstraintParsers != null) {
+            for (Entry<String, ? extends FieldConstraintParser<JsonNode>> checker : fieldConstraintParsers.entrySet()) {
+                extensions.registerFieldConstraintParser(checker.getKey(), checker.getValue());
+            }
+        }
+        
+        JSONMetadataParser jsonParser = new JSONMetadataParser(extensions,
+                                                               new DefaultTypes(),
+                                                               JsonNodeFactory.withExactBigDecimals(false));
+        List<EntityMetadata> list=new ArrayList<>();
+        boolean first=true;
+        for(JsonNode node:metadataNodes) {
+            EntityMetadata entityMetadata = jsonParser.parseEntityMetadata(node);
+            if(first) {
+                first=false;
+                if ((entityConstraints != null) && !entityConstraints.isEmpty()) {
+                    entityMetadata.setConstraints(new ArrayList<>(entityConstraints));
+                }
+            }
+            list.add(entityMetadata);
+        }
+        return CompositeMetadata.buildCompositeMetadata(list.get(0),new GMD(list));
+    }
+
+    private class GMD implements CompositeMetadata.GetMetadata {
+        List<EntityMetadata> list;
+
+        public GMD(List<EntityMetadata> md) {
+            this.list=md;
+        }
+        @Override
+        public EntityMetadata getMetadata(Path injectionField,
+                                          String entityName,
+                                          String version) {
+            for(EntityMetadata m:list)
+                if(m.getName().equals(entityName))
+                    return m;
+            return null;
+        }
+    }
+
+    @Test
+    public void testNotValidateAssociations() throws Exception {
+        JsonNode a=loadJsonNode("composite/A.json");
+        JsonNode c=loadJsonNode("composite/C.json");
+        CompositeMetadata md=getCmd(null,null,a,c);
+        ConstraintValidator validator=createConstraintValidator(md);
+        JsonDoc doc=new JsonDoc(JsonNodeFactory.instance.objectNode());
+        // A doc containing only C doc. _id is required, but it is not there
+        doc.modify(new Path("obj1.c.0"),JsonNodeFactory.instance.objectNode(),true);
+        doc.modify(new Path("_id"),JsonNodeFactory.instance.textNode("1"),true);
+        validator.validateDocs(Arrays.asList(doc));
+        System.out.println("Doc errors:"+validator.getDocErrors());
+        assertFalse(validator.hasErrors());
+    }
+    
     /**
      * Should execute the happy path for {@link EntityConstraint}s,
      * {@link FieldConstraintDocChecker}s, and
