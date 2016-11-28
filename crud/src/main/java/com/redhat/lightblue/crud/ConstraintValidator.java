@@ -222,13 +222,14 @@ public class ConstraintValidator {
             currentFieldNode = cursor.getCurrentNode();
             currentFieldPath = cursor.getCurrentPath();
             // Skip any fields reached by crossing entity boundaries
-            if(skip==null) {
-                if(currentFieldNode instanceof ResolvedReferenceField)
-                    skip=currentFieldNode.getFullPath();
-            } else {
+            if(skip!=null) {
                 if(!currentFieldPath.prefix(skip.numSegments()).equals(skip))
                     skip=null;
             }
+            if(skip==null) {
+                if(currentFieldNode instanceof ResolvedReferenceField)
+                    skip=currentFieldNode.getFullPath();
+            } 
             if(skip==null) {
                 LOGGER.debug("checking field {}", currentFieldPath);
                 Error.push(currentFieldPath.toString());
