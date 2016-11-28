@@ -1030,4 +1030,50 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(3,response.getMatchCount());
         Assert.assertEquals(2,response.getEntityData().size());
     }
+
+    @Test
+    public void test_self_ref_array_contains() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'!=','rvalue':''}"));
+        fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'test_reference'}]"));
+        fr.setEntityVersion(new EntityVersion("self_ref_array_contains","0.0.1-SNAPSHOT"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        // Every doc should have all the others in reference
+        for(JsonNode doc:response.getEntityData()) {
+            String id=doc.get("_id").asText();
+            Assert.assertEquals(3,doc.get("test_reference").size());
+            for(Iterator<JsonNode> itr=doc.get("test_reference").elements();itr.hasNext();) {
+                JsonNode node=itr.next();
+                Assert.assertTrue(!id.equals(node.get("_id")));
+            }
+        }
+    }
+
+    @Test
+    public void test_self_ref_array_not_contains() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'!=','rvalue':''}"));
+        fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'test_reference'}]"));
+        fr.setEntityVersion(new EntityVersion("self_ref_array_not_contains","0.0.1-SNAPSHOT"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        for(JsonNode doc:response.getEntityData()) {
+            String id=doc.get("_id").asText();
+            if("Q".equals(id)) {
+                Assert.assertEquals(2,doc.get("test_reference").size());
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(0).get("_id").asText())!=-1);
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(1).get("_id").asText())!=-1);
+            } else if("R".equals(id)) {
+                Assert.assertEquals(2,doc.get("test_reference").size());
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(0).get("_id").asText())!=-1);
+                Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(1).get("_id").asText())!=-1);
+            } else if("S".equals(id)) {
+                Assert.assertEquals(1,doc.get("test_reference").size());
+                Assert.assertEquals("T",doc.get("test_reference").get(0).get("_id").asText());
+            } else {
+                Assert.assertNull(doc.get("test_reference"));
+            }
+        }
+    }
 }

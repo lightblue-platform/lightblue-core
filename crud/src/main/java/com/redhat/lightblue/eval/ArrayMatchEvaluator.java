@@ -34,7 +34,7 @@ import com.redhat.lightblue.util.KeyValueCursor;
 public class ArrayMatchEvaluator extends QueryEvaluator {
     private final Path field;
     private final QueryEvaluator ev;
-    private final ObjectArrayElement elem;
+    private final ArrayElement elem;
 
     public ArrayMatchEvaluator(ArrayMatchExpression expr,
                                FieldTreeNode context) {
@@ -45,13 +45,8 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
             throw new EvaluationError(expr);
         }
         if (node instanceof ArrayField) {
-            ArrayElement el = ((ArrayField) node).getElement();
-            if (el instanceof ObjectArrayElement) {
-                elem = (ObjectArrayElement) el;
-                ev = QueryEvaluator.getInstance(expr.getElemMatch(), elem);
-            } else {
-                throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_OBJECT_ARRAY + field);
-            }
+            elem = ((ArrayField) node).getElement();
+            ev = QueryEvaluator.getInstance(expr.getElemMatch(), elem);
         } else {
             throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_ARRAY + field);
         }

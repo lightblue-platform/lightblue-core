@@ -72,7 +72,7 @@ public class SimpleArrayElement extends ArrayElement {
         } else if (p.head(level).equals(Path.THIS)) {
             return this.resolve(p,level+1);
         } else {
-            throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
+            throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE,p.toString());
         }
     }
 

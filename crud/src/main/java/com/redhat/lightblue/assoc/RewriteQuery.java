@@ -119,6 +119,8 @@ public class RewriteQuery extends QueryIterator {
 
         // This is prefixed to all field names
         private Path nestedFieldPrefix = Path.EMPTY;
+        // This is the field info the the field of the current array context
+        private QueryFieldInfo contextField=null;
 
         /**
          * Rewrites a query for a query plan node
@@ -156,6 +158,28 @@ public class RewriteQuery extends QueryIterator {
             } else {
                 return new Path(nestedFieldPrefix, fieldName);
             }
+        }
+
+        /**
+         * Remove the context prefix from the field. If the field is under an array elemMatch, and if the field
+         * shares the same prefix as the array field, remove that prefix. This is only useful if the field
+         * and the array are in the same entity
+         */
+        private Path removeContext(CompositeMetadata fieldEntity,Path fieldName) {
+            if(contextField!=null&&fieldEntity==contextField.getFieldEntity()) {
+                Path prefix=new Path(contextField.getEntityRelativeFieldName(),Path.ANYPATH);
+                if(fieldName.numSegments()>=prefix.numSegments()) {
+                    Path fieldPrefix=fieldName.prefix(prefix.numSegments()); // Also include the *
+                    if(fieldPrefix.equals(prefix)) {
+                        // Remove fieldPrefix
+                        Path relativeFieldName=fieldName.suffix(-prefix.numSegments());
+                        if(relativeFieldName.isEmpty())
+                            relativeFieldName=new Path(Path.THIS);
+                        return relativeFieldName;
+                    }
+                }
+            } 
+            return fieldName;
         }
 
         @Override
@@ -276,7 +300,7 @@ public class RewriteQuery extends QueryIterator {
             if (lfi.getFieldEntity() == currentEntity) {
                 if (rfi.getFieldEntity() != currentEntity) {
                     Value value = bind(rfi);
-                    return new ValueComparisonExpression(addPrefix(lfi.getEntityRelativeFieldName()), q.getOp(), value);
+                    return new ValueComparisonExpression(removeContext(lfi.getFieldEntity(),addPrefix(lfi.getEntityRelativeFieldName())), q.getOp(), value);
                 } else if (nestedFieldPrefix.isEmpty()) {
                     return q;
                 } else {
@@ -284,7 +308,7 @@ public class RewriteQuery extends QueryIterator {
                 }
             } else if (rfi.getFieldEntity() == currentEntity) {
                 Value value = bind(lfi);
-                return new ValueComparisonExpression(addPrefix(rfi.getEntityRelativeFieldName()), q.getOp().invert(), value);
+                return new ValueComparisonExpression(removeContext(rfi.getFieldEntity(),addPrefix(rfi.getEntityRelativeFieldName())), q.getOp().invert(), value);
             } else {
                 return new TruePH();
             }
@@ -326,17 +350,18 @@ public class RewriteQuery extends QueryIterator {
             if (lfi.getFieldEntity() == currentEntity) {
                 if (rfi.getFieldEntity() != currentEntity) {
                     List<Value> value = bindList(rfi);
-                    return new NaryValueRelationalExpression(addPrefix(lfi.getEntityRelativeFieldName()), q.getOp(), value);
+                    return new NaryValueRelationalExpression(removeContext(lfi.getFieldEntity(),addPrefix(lfi.getEntityRelativeFieldName())), q.getOp(), value);
                 } else if (nestedFieldPrefix.isEmpty()) {
                     return q;
                 } else {
-                    return new NaryFieldRelationalExpression(addPrefix(q.getField()), q.getOp(), addPrefix(q.getRfield()));
+                    return new NaryFieldRelationalExpression(removeContext(lfi.getFieldEntity(),addPrefix(q.getField())), q.getOp(),
+                                                             removeContext(rfi.getFieldEntity(),addPrefix(q.getRfield())));
                 }
             } else if (rfi.getFieldEntity() == currentEntity) {
                 Value value = bind(lfi);
                 List<Value> list = new ArrayList<>(1);
                 list.add(value);
-                return new ArrayContainsExpression(addPrefix(rfi.getEntityRelativeFieldName()),
+                return new ArrayContainsExpression(removeContext(rfi.getFieldEntity(),addPrefix(rfi.getEntityRelativeFieldName())),
                         q.getOp() == NaryRelationalOperator._in ? ContainsOperator._all : ContainsOperator._none,
                         list);
             } else {
@@ -423,66 +448,79 @@ public class RewriteQuery extends QueryIterator {
          */
         @Override
         protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
+            Path newContext=context.equals(Path.EMPTY)?new Path(q.getArray(),Path.ANYPATH):
+                new Path(context,new Path(q.getArray(),Path.ANYPATH));
+            QueryFieldInfo oldContextField=contextField;
             QueryFieldInfo qfi = findFieldInfo(q.getArray(), q);
-            if (qfi.getFieldEntity() == currentEntity) {
-                if (qfi.getFieldMd() instanceof ResolvedReferenceField) {
-                    // The array is pointing to a reference field
-                    // This could be a simple reference, like {array:ref, elemMatch: Q }
-                    // In that case, the return value is Q
-                    // Example: in: { array: ref, elemMatch:{ field:_id, op:$eq, rfield: $parent.ref_id} }
-                    //         out: { field: ref_id, op: $eq, rvalue: <_id value> }
-                    //
-                    // This could also be a nested array reference, like {array: x.*.ref, elemMatch: Q }
-                    // Example: in: { array: x.*.obj.ref, elemMatch: { field: _id, op:$eq, rfield: $parent.ref_id } }
-                    //         out: { array: x, elemMatch: { field: obj.ref_id, op: $eq, rvalue: < _id value> } }
-
-                    // Find the closest array containing the reference
-                    Path arrName = qfi.getEntityRelativeFieldName();
-                    int lastAny = -1;
-                    int n = arrName.numSegments();
-                    for (int i = 0; i < n; i++) {
-                        if (arrName.tail(i).equals(Path.ANY)) {
-                            lastAny = i;
-                            break;
+            try {
+                if (qfi.getFieldEntity() == currentEntity) {
+                    if (qfi.getFieldMd() instanceof ResolvedReferenceField) {
+                        // The array is pointing to a reference field
+                        // This could be a simple reference, like {array:ref, elemMatch: Q }
+                        // In that case, the return value is Q
+                        // Example: in: { array: ref, elemMatch:{ field:_id, op:$eq, rfield: $parent.ref_id} }
+                        //         out: { field: ref_id, op: $eq, rvalue: <_id value> }
+                        //
+                        // This could also be a nested array reference, like {array: x.*.ref, elemMatch: Q }
+                        // Example: in: { array: x.*.obj.ref, elemMatch: { field: _id, op:$eq, rfield: $parent.ref_id } }
+                        //         out: { array: x, elemMatch: { field: obj.ref_id, op: $eq, rvalue: < _id value> } }
+                        
+                        // Find the closest array containing the reference
+                        Path arrName = qfi.getEntityRelativeFieldName();
+                        int lastAny = -1;
+                        int n = arrName.numSegments();
+                        for (int i = 0; i < n; i++) {
+                            if (arrName.tail(i).equals(Path.ANY)) {
+                                lastAny = i;
+                                break;
+                            }
                         }
-                    }
-                    if (lastAny == -1) {
-                        // Reference field is not in an array.
-                        QueryExpression em = iterate(q.getElemMatch(), context);
-                        return em;
-                    } else {
-                        // If arrName is x.*.ref, lastAny will be 1, so a prefix of -2 will be x
-                        Path closestArray = arrName.prefix(-(lastAny + 1));
-                        // Any remaining part between the closest array and reference should be a prefix of all the nested fields
-                        // For instance, if arrName is x.*.obj.ref, all fields should be prefixed by obj
-                        Path oldPrefix = nestedFieldPrefix;
-                        nestedFieldPrefix = arrName.suffix(-(closestArray.numSegments() + 1)).prefix(-1);
-                        QueryExpression em = iterate(q.getElemMatch(), context);
-                        nestedFieldPrefix = oldPrefix;
-                        if (em instanceof TruePH
-                                || em instanceof FalsePH) {
+                        if (lastAny == -1) {
+                            // Reference field is not in an array.
+                            QueryExpression em = iterate(q.getElemMatch(), newContext);
                             return em;
                         } else {
-                            return new ArrayMatchExpression(addPrefix(closestArray), em);
+                            // If arrName is x.*.ref, lastAny will be 1, so a prefix of -2 will be x
+                            Path closestArray = arrName.prefix(-(lastAny + 1));
+                            // Any remaining part between the closest array and reference should be a prefix of all the nested fields
+                            // For instance, if arrName is x.*.obj.ref, all fields should be prefixed by obj
+                            Path oldPrefix = nestedFieldPrefix;
+                            nestedFieldPrefix = arrName.suffix(-(closestArray.numSegments() + 1)).prefix(-1);
+                            QueryExpression em = iterate(q.getElemMatch(), newContext);
+                            nestedFieldPrefix = oldPrefix;
+                            if (em instanceof TruePH
+                                || em instanceof FalsePH) {
+                                return em;
+                            } else {
+                                // Update context only if we're writing a new arraymatch expression
+                                contextField=qfi;
+                                return new ArrayMatchExpression(addPrefix(closestArray), em);
+                            }
+                        }
+                    } else if (currentEntity.getParent() != null) {
+                        // The array is pointing to a field in current entity, and current entity is not the root
+                        // Remove any parts of the array field before the reference
+                        Path relative = qfi.getEntityRelativeFieldName();
+                        // Update context only if we're writing a new arraymatch expression
+                       contextField=qfi;
+                        return new ArrayMatchExpression(relative, iterate(q.getElemMatch(), newContext));
+                    } else {
+                        QueryExpression em = iterate(q.getElemMatch(), newContext);
+                        if (em instanceof TruePH
+                            || em instanceof FalsePH) {
+                            return em;
+                        } else {
+                            // Update context only if we're writing a new arraymatch expression
+                           contextField=qfi;
+                            return new ArrayMatchExpression(addPrefix(q.getArray()), em);
                         }
                     }
-                } else if (currentEntity.getParent() != null) {
-                    // The array is pointing to a field in current entity, and current entity is not the root
-                    // Remove any parts of the array field before the reference
-                    Path relative = qfi.getEntityRelativeFieldName();
-                    return new ArrayMatchExpression(relative, iterate(q.getElemMatch(), context));
                 } else {
-                    QueryExpression em = iterate(q.getElemMatch(), context);
-                    if (em instanceof TruePH
-                            || em instanceof FalsePH) {
-                        return em;
-                    } else {
-                        return new ArrayMatchExpression(addPrefix(q.getArray()), em);
-                    }
+                    QueryExpression em = iterate(q.getElemMatch(), newContext);
+                    return em;
                 }
-            } else {
-                QueryExpression em = iterate(q.getElemMatch(), context);
-                return em;
+            } finally {
+                contextField=oldContextField;
             }
         }
     }

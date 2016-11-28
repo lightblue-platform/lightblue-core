@@ -42,7 +42,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryEvaluator.getInstance(expr, md);
     }
 
-    @Test(expected = com.redhat.lightblue.eval.EvaluationError.class)
+    @Test(expected = com.redhat.lightblue.util.Error.class)
     public void simple_values_in_expression_for_object_array_results_in_expression_error() throws Exception {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf9','elemMatch':{'field':'elemf3','op':'>','rvalue':3}}");
         QueryEvaluator.getInstance(expr, md);
