@@ -20,31 +20,31 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>2.7.0</version>
+        <version>2.8.0-SNAPSHOT</version>
     </parent>
-    <version>2.7.0</version><artifactId>lightblue-core-test</artifactId>
+    <version>2.8.0-SNAPSHOT</version><artifactId>lightblue-core-test</artifactId>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <description>A module for helping with lightblue releated unit tests in plugins</description>
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-config</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-metadata</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-api</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-util</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
