@@ -29,7 +29,7 @@ def getTypeProperties(type):
     elif type=='integer':
         properties['type']='integer'
         properties['format']='int64'
-    elif type=='string':
+    else:
         properties['type']='string'
     return properties;
 
@@ -61,11 +61,13 @@ def processFieldTree(fields,toplevel,nameStack):
             elif fieldContents['type']=='object':
                 # Add a reference to the top level object
                 # For that, we have to generate a name for this class
-                fieldBlock['type']='object'
                 nameStack.append(capital1(field))
-                newEntityName=makeEntityName(nameStack)                
-                fieldBlock['items']={'$ref':'#definitions/'+newEntityName}
-                toplevel[newEntityName]=processFieldTree(fieldContents['fields'],toplevel,nameStack)
+                newEntityName=makeEntityName(nameStack)
+                fieldBlock['$ref']='#/definitions/'+newEntityName
+                newEntityDefinition=dict()
+                newEntityDefinition['type']='object'
+                newEntityDefinition['properties']=processFieldTree(fieldContents['fields'],toplevel,nameStack)
+                toplevel[newEntityName]=newEntityDefinition
                 nameStack.pop()
             elif fieldContents['type']=='array':
                 fieldBlock['type']='array'
@@ -74,6 +76,8 @@ def processFieldTree(fields,toplevel,nameStack):
                     nameStack.append(singular(capital1(field)))
                     newEntityName=makeEntityName(nameStack)
                     fieldBlock['items']={'$ref':'#definitions/'+newEntityName}
+                    newEntityDefinition['type']='object'
+                    newEntityDefinition['properties']=processFieldTree(fieldContents['items']['fields'],toplevel,nameStack)
                     toplevel[newEntityName]=processFieldTree(fieldContents['items']['fields'],toplevel,nameStack)
                     nameStack.pop()
                 else:
