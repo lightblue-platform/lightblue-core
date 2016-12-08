@@ -1085,5 +1085,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("containerImage-self","0.0.1"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertTrue(response.getEntityData().get(0).get("vulnerabilities").get(0).get("packages").get(0).get("fixed_by_images").size()==1);
     }
 }
