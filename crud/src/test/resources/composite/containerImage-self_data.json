@@ -1,0 +1,5 @@
+[
+    {"_id":"img1","objectType":"containerImage","repositories":[{"repository":"repo1","registry":"registry1"}],"vulnerabilities":[{"packages":[{"srpm_nevra":"srpm"}]}]},
+    {"_id":"img2","objectType":"containerImage","repositories":[{"repository":"repo1","registry":"registry1"}],"parsed_data":{"rpm_manifest":[{"srpm_nevra":"srpm"}]}}
+
+]

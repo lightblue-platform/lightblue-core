@@ -1,0 +1,100 @@
+{
+  "entityInfo" : {
+    "name": "containerImage-self",
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "containerImage-self"
+    }
+  },
+  "schema" : {
+    "name" : "containerImage-self",
+      "version": {
+          "value": "1.0.0",
+          "changelog": "Test"
+      },
+    "status": {
+        "value": "active"
+    },
+      "access" : {
+          "insert": ["anyone"],
+          "find":["anyone"],
+          "update":["anyone"],
+          "delete":["anyone"]
+      },
+      "fields": {
+          "_id": {"type": "string", "constraints":{ "identity":1 } },
+          "objectType": {"type": "string"},
+          "certified":{"type":"boolean"},
+          "repositories": {
+              "type": "array",
+              "items": {
+                  "type":"object",
+                  "fields":{
+                      "repository":{"type":"string"},
+                      "registry":{"type":"string"}
+                  }
+              }
+          },
+             "vulnerabilities": {
+                 "type":"array",
+                 "items":{
+                     "type":"object",
+                     "fields":{
+                         "packages":{
+                             "type":"array",
+                             "items":{
+                                 "type":"object",
+                                 "fields":{
+                                     "srpm_nevra": {"type":"string"},
+                                   "fixed_by_images": {
+                                        "entity": "containerImage-self",
+                                        "query": {
+                                            "$and": [
+                                                {
+                                                    "field": "_id",
+                                                    "op": "$neq",
+                                                    "rfield": "$parent.$parent.$parent._id"
+                                                },
+                                                {
+                                                    "field": "parsed_data.rpm_manifest.*.srpm_nevra",
+                                                    "op": "$eq",
+                                                    "rfield": "$parent.srpm_nevra"
+                                                },
+                                                {
+                                                    "field": "repositories.*.registry",
+                                                    "op": "$eq",
+                                                    "rfield": "$parent.$parent.$parent.repositories.*.registry"
+                                                },
+                                                {
+                                                    "field": "repositories.*.repository",
+                                                    "op": "$eq",
+                                                    "rfield": "$parent.$parent.$parent.repositories.*.repository"
+                                                }
+                                            ]
+                                        },
+                                        "type": "reference"
+                                   }
+                                 }
+                             }
+                         }
+                     }
+                 }
+             },
+          "parsed_data":{
+              "type":"object",
+              "fields":{
+                  "rpm_manifest":{
+                      "type":"array",
+                      "items":{
+                          "type":"object",
+                          "fields":{
+                              "srpm_nevra": {"type":"string"}
+                          }
+                      }
+                  }
+              }
+          }                                       
+      }
+  }
+}

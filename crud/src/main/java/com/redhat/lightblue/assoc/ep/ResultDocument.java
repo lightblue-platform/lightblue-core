@@ -146,9 +146,16 @@ public class ResultDocument {
             Path field = bo.getFieldInfo().getEntityRelativeFieldNameWithContext();
             Path fieldAtSlot = field.mutableCopy().rewriteIndexes(slot.getLocalContainerName()).immutableCopy();
             if (fieldAtSlot.nAnys() > 0) {
-                throw new IllegalArgumentException(fieldAtSlot.toString());
+                KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(fieldAtSlot);
+                List<Value> value=new ArrayList<Value>();
+                while (cursor.hasNext()) {
+                    cursor.next();
+                    ((List)value).add(getValue(bo.getFieldInfo().getFieldMd(),cursor.getCurrentValue()));
+                }
+                binders.add(new Binder(bo,value));
+            } else {
+            	binders.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),doc.get(fieldAtSlot))));
             }
-            binders.add(new Binder(bo, getValue(bo.getFieldInfo().getFieldMd(), doc.get(fieldAtSlot))));
         }
         return new BindQuery(binders);
     }
