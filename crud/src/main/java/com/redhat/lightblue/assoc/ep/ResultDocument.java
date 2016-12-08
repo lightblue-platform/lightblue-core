@@ -145,10 +145,18 @@ public class ResultDocument {
             // Interpret field based on this slot
             Path field = bo.getFieldInfo().getEntityRelativeFieldNameWithContext();
             Path fieldAtSlot = field.mutableCopy().rewriteIndexes(slot.getLocalContainerName()).immutableCopy();
+            Object value;
             if (fieldAtSlot.nAnys() > 0) {
-                throw new IllegalArgumentException(fieldAtSlot.toString());
+                KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(fieldAtSlot);
+                value=new ArrayList<Value>();
+                while (cursor.hasNext()) {
+                    cursor.next();
+                    ((List)value).add(getValue(bo.getFieldInfo().getFieldMd(),cursor.getCurrentValue()));
+                }
+            } else {
+            	value=getValue(bo.getFieldInfo().getFieldMd(),doc.get(fieldAtSlot));
             }
-            binders.add(new Binder(bo, getValue(bo.getFieldInfo().getFieldMd(), doc.get(fieldAtSlot))));
+            binders.add(new Binder(bo, value));
         }
         return new BindQuery(binders);
     }

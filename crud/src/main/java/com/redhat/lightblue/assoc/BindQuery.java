@@ -66,7 +66,15 @@ public class BindQuery extends QueryIterator {
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
         Binder binding = getBoundValue(q.getRvalue());
         if (binding != null) {
-            return new ValueComparisonExpression(q.getField(), q.getOp(), (Value) binding.getValue());
+            if(binding.getValue() instanceof List) {
+                List<QueryExpression> resultList=new ArrayList<>();
+                for(Value v:(List<Value>)binding.getValue()) {
+                    resultList.add(new ValueComparisonExpression(q.getField(),q.getOp(),v));
+                }
+                return new NaryLogicalExpression(NaryLogicalOperator._or,resultList);
+            } else {
+                return new ValueComparisonExpression(q.getField(), q.getOp(), (Value) binding.getValue());
+            }
         } else {
             return q;
         }
