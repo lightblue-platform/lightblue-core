@@ -1088,4 +1088,17 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertTrue(response.getEntityData().get(0).get("vulnerabilities").get(0).get("packages").get(0).get("fixed_by_images").size()==1);
     }
+
+    @Test
+    public void limited_retrieval_with_queries_on_sub() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'$and':[{'array':'repositories','elemMatch':{'field':'repositories.*._id','op':'>','rvalue':'1'}},"+
+                          "{'array':'repositories','elemMatch':{'field':'published','op':'=','rvalue':true}}]}"));        
+        fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'repositories.*.repositories.*.vendors','recursive':true}]"));
+        fr.setEntityVersion(new EntityVersion("containerImage","1.0.0"));
+        fr.setTo(2l);
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(3,response.getEntityData().size());
+    }
 }

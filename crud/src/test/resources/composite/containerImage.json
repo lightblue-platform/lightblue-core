@@ -5,7 +5,14 @@
         "backend":"mongo",
         "datasource": "mongodata",
         "collection": "containerImage"
-    }
+    },
+      "indexes":[
+          {
+              "fields":[
+                  {"field":"repositories.*.published","dir":"$asc"}
+                  ]
+          }
+          ]
   },
   "schema" : {
     "name" : "containerImage",
