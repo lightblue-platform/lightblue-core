@@ -28,6 +28,16 @@
           "repository": { "type": "string" },
           "registry": { "type": "string" },
           "vendorLabel": { "type":"string" },
+          "vendors":{
+              "type":"reference",
+              "entity":"vendors",
+              "versionValue":"1.0.0",
+              "query":{
+                  "field":"label",
+                  "op":"=",
+                  "rfield":"$parent.vendorLabel"
+              }
+          },
           "images": {
               "type":"reference",
               "entity":"containerImage",

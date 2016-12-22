@@ -114,6 +114,17 @@ public class ExecutionPlan {
         // This is set to true when we identify the step that sets matchcount
         boolean matchCountSet=false;
 
+
+        // This is set if there are queries associated with the nodes
+        // that are not the root node of the retrieval plan
+        boolean queries_in_non_root_nodes=false;
+        for(QueryPlanNode node:retrievalQueryPlan.getAllNodes()) {
+            if(node.getSources().length!=0&& // non-root
+               !node.getData().getConjuncts().isEmpty()) {
+                queries_in_non_root_nodes=true;
+                break;
+            }
+        }
         // First, create execution blocks for every node in the search and
         // retrieval plans. We keep a map of query plan nodes to execution
         // blocks to keep query plan immutable.
@@ -197,7 +208,7 @@ public class ExecutionPlan {
                 if (block == rootEntityInQueryPlan) {
                     // This is the block for the root entity
                     if (rootIsTheOnlySource) {
-                        if (unassigned.isEmpty()) {
+                        if (unassigned.isEmpty()&&!queries_in_non_root_nodes) {
                             // Root is the only source, and there are no unassigned clauses
                             // We can sort/limit here
                             search.setLimit(from, to);
@@ -230,7 +241,7 @@ public class ExecutionPlan {
                         		last = new Source<>(new Skip(block, from.intValue(), last));
                         	}
                         	if (to != null) {
-                        		last = new Source<>(new Limit(block, to.intValue() - from.intValue() + 1, last));
+                        		last = new Source<>(new Limit(block, to.intValue() - (from==null?0:from.intValue()) + 1, last));
                         	}
                         }
                         block.setResultStep(last);
@@ -258,17 +269,6 @@ public class ExecutionPlan {
         // Done with the search plan. Now we build the execution plan for retrieval
         LOGGER.debug("Building execution plan from retrieval query plan:{}", retrievalQueryPlan);
         List<Conjunct> unassigned = retrievalQueryPlan.getUnassignedClauses();
-
-        // This is set if there are queries associated with the nodes
-        // that are not the root node of the retrieval plan
-        boolean queries_in_non_root_nodes=false;
-        for(QueryPlanNode node:retrievalQueryPlan.getAllNodes()) {
-            if(node.getSources().length!=0&& // non-root
-               !node.getData().getConjuncts().isEmpty()) {
-                queries_in_non_root_nodes=true;
-                break;
-            }
-        }
         if(qfi==null) {
             qfi = getAllQueryFieldInfo(retrievalQueryPlan);
         } else {
@@ -329,7 +329,7 @@ public class ExecutionPlan {
                         resultStep = new Skip(block, from.intValue(), new Source<>(resultStep));
                     }
                     if (to != null) {
-                        resultStep = new Limit(block, to.intValue() - from.intValue() + 1, new Source<>(resultStep));
+                        resultStep = new Limit(block, to.intValue() - (from==null?0:from.intValue()) + 1, new Source<>(resultStep));
                     }
                 }
                 resultStep = new Project(block, new Source<>(resultStep), requestProjection);

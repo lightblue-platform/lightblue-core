@@ -1,0 +1,31 @@
+{
+  "entityInfo" : {
+    "name": "vendors",
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "vendors"
+    }
+  },
+  "schema" : {
+    "name" : "vendors",
+      "version": {
+          "value": "1.0.0",
+          "changelog": "Test"
+      },
+    "status": {
+        "value": "active"
+    },
+      "access" : {
+          "insert": ["anyone"],
+          "find":["anyone"],
+          "update":["anyone"],
+          "delete":["anyone"]
+      },
+      "fields": {
+          "_id": {"type": "string", "constraints":{ "identity":1 } },
+          "objectType": {"type": "string"},
+          "label": { "type": "string" }
+      }
+  }
+}
