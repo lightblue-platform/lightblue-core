@@ -32,8 +32,8 @@ public interface KeySpec {
     int compareKeys(Key k1,Key k2);
     
     /**
-     * Extract key values from the doc
+     * Extract key values from the doc, store in dest. Return dest. Allocate dest if dest is null
      */
-    Set<Key> extract(JsonDoc doc);
+    Set<Key> extract(JsonDoc doc,Set<Key> dest);
 }
 

@@ -25,6 +25,10 @@ import java.util.Objects;
  */
 class SimpleKey implements Key {
     final Object value;
+    int hcode;
+    boolean hcodeInitialized;
+
+    static final SimpleKey NULL_KEY=new SimpleKey(null);
     
     SimpleKey(Object v) {
         value=v;
@@ -32,12 +36,16 @@ class SimpleKey implements Key {
     
     @Override
     public int hashCode() {
-        return Objects.hashCode(value);
+        if(!hcodeInitialized) {
+            hcode=Objects.hashCode(value);
+            hcodeInitialized=true;
+        }
+        return hcode;
     }
     
     @Override
     public boolean equals(Object o) {
-        if(o instanceof SimpleKey) {
+        if(hashCode()==o.hashCode()) {
             return Objects.equals( value, ((SimpleKey)o).value );
         }
         return false;

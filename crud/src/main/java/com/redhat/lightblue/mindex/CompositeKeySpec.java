@@ -53,11 +53,12 @@ public class CompositeKeySpec implements KeySpec,Comparator<ArrayKey> {
     }
     
     @Override
-    public Set<Key> extract(JsonDoc doc) {
-        HashSet<Key> set=new HashSet<>();
+    public Set<Key> extract(JsonDoc doc,Set<Key> set) {
+        if(set==null)
+            set=new HashSet<>();
         Tuples<Key> tuples=new Tuples<>();
         for(int i=0;i<keyFields.length;i++) {
-            tuples.add(keyFields[i].extract(doc));
+            tuples.add(keyFields[i].extract(doc,null));
         }
         for(Iterator<List<Key>> itr=tuples.tuples();itr.hasNext();) {
             List<Key> l=itr.next();

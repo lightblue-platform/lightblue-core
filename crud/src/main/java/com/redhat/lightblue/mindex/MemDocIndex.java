@@ -34,7 +34,45 @@ import com.redhat.lightblue.util.Tuples;
  *
  * Before using the index, the caller should decide what type of
  * queries will be run on the index, and build a key spec to be used
- * for index keys.
+ * for index keys. The index is declare dusing a KeySpec. A KeySpec
+ * can be a SimpleKeySpec for a top-level value field:
+ *
+ * <pre>
+ *    { field: f1, op:=, rvalue:str } -> 
+ *          new SimpleKeySpec(md.resolve("f1"))
+ * </pre>
+ *
+ * Or a simple value field under an array:
+ * 
+ * <pre>
+ *   { field: arr.*.f1, op:=, rvalue:str} -> 
+ *         new SimpleKeySpec(md.resolve("arr.*.f1"))
+ * </pre>
+ *
+ * If the field is accessed using an elem-match search, and there are
+ * multiple predicates involved under the same array, then an
+ * ArrayKeySpec must be used:
+ * 
+ * <pre>
+ * { array:arr, elemMatch: { $and: [ {field:f1,op:=,rvalue:str1}, {field:f2,op:=,rvalue:str2}]}} ->
+ *         arrMd=md.resolve("arr")
+ *         new ArrayKeySpec(arrMd,new KeySpec[] {
+ *                new SimpleKeySpec(arrMd.getElement().resolve("f1")),
+ *                new SimpleKeySpec(arrMd.getElement().resolve("f2"))});
+ * </pre>
+ * 
+ * For clauses combined with AND, use CompositeKeySpec.
+ *
+ * Once the index is constructed with a key spec, add docs using add()
+ * method. This will create index entries for each doc using the
+ * keyspec.
+ *
+ * For lookups, the caller must create a lookup spec in the same
+ * structure as the key spec. A lookup spec composed ot only Value
+ * lookups and multi-value lookups is a simple lookup. If a range
+ * lookup spec or prefix lookup spec is used, the lookup becomes an
+ * index scan.
+ *    
  */
 public class MemDocIndex {
     
@@ -63,7 +101,7 @@ public class MemDocIndex {
      * Add the document to the index
      */
     public void add(JsonDoc doc) {
-        Set<Key> keys=keySpec.extract(doc);
+        Set<Key> keys=keySpec.extract(doc,null);
         for(Key k:keys) {
             Set<JsonDoc> docSet=documents.get(k);
             if(docSet==null)

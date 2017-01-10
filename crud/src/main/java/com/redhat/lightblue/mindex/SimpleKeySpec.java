@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.ArrayField;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -44,7 +45,22 @@ public class SimpleKeySpec implements KeySpec,Comparator<SimpleKey> {
         this.fullName=fieldMd.getFullPath();
         this.type=fieldMd.getType();
     }
-    
+
+    /**
+     * Create a simple key spec under an array. This initializes the key relative to the array
+     */
+    public SimpleKeySpec(ArrayField containingArray,FieldTreeNode fieldMd) {
+        this.fieldMd=fieldMd;
+        Path arrayName=containingArray.getElement().getFullPath();
+        Path full=fieldMd.getFullPath();
+        if(full.prefix(arrayName.numSegments()).equals(arrayName)) {
+            this.fullName=fieldMd.getFullPath().suffix(-arrayName.numSegments());
+        } else {
+            this.fullName=fieldMd.getFullPath();
+        }
+        this.type=fieldMd.getType();
+    }
+
     @Override
     public int compareKeys(Key k1,Key k2) {
         return compare( (SimpleKey)k1,(SimpleKey)k2);
@@ -56,16 +72,19 @@ public class SimpleKeySpec implements KeySpec,Comparator<SimpleKey> {
     }
     
     @Override
-    public Set<Key> extract(JsonDoc doc) {
-        HashSet<Key> set=new HashSet<>();
+    public Set<Key> extract(JsonDoc doc,Set<Key> set) {
+        if(set==null)
+            set=new HashSet<>();
         KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(fullName);
+        boolean hasData=false;
         while(cursor.hasNext()) {
             cursor.next();
             set.add(new SimpleKey(type.fromJson(cursor.getCurrentValue())));
+            hasData=true;
         }
-        if(set.isEmpty()) {
+        if(!hasData) {
         	// No value in doc: insert null
-        	set.add(new SimpleKey(null));
+        	set.add(SimpleKey.NULL_KEY);
         }
         return set;
     }

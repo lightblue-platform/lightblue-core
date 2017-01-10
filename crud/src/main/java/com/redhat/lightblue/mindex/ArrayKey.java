@@ -25,22 +25,34 @@ import java.util.Arrays;
  */
 class ArrayKey implements Key {
     final Key[] values;
+
+    int hcode;
+    boolean hcodeInitialized;
     
     ArrayKey(Key[] values) {
         this.values=values;
     }
-    
+
+    /**
+     * The simple optimization of caching hashcode appears to improve the speed by x2
+     */
     @Override
     public int hashCode() {
-        int h=0;
-        for(Key k:values)
-            h*=k.hashCode()+1;
-        return h;
+        if(!hcodeInitialized) {
+            int h=0;
+            for(Key k:values)
+                h*=k.hashCode()+1;
+            hcode=h;
+            hcodeInitialized=true;
+        }
+        return hcode;
     }
     
     @Override
     public boolean equals(Object o) {
-        if(o instanceof ArrayKey) {
+        if(o.hashCode()==hashCode()) {
+            if(o==this)
+                return true;
             for(int i=0;i<values.length;i++) {
                 if(!values[i].equals( ((ArrayKey)o).values[i]))
                     return false;

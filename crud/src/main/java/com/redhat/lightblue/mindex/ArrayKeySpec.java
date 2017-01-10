@@ -52,6 +52,20 @@ public class ArrayKeySpec implements KeySpec,Comparator<ArrayKey> {
         this.arrayName=array.getFullPath();
         this.element=array.getElement();
     }
+
+    public ArrayKeySpec(ArrayField containingArray,ArrayField array,KeySpec[] fields) {
+        this.keyFields=fields;
+        this.array=array;
+        Path arrName=containingArray.getElement().getFullPath();
+        Path full=array.getFullPath();
+        if(full.prefix(arrName.numSegments()).equals(arrName)) {
+            this.arrayName=array.getFullPath().suffix(-arrName.numSegments());
+        } else {
+            this.arrayName=array.getFullPath();
+        }
+
+        this.element=array.getElement();
+    }
     
     @Override
     public int compareKeys(Key k1,Key k2) {
@@ -69,8 +83,9 @@ public class ArrayKeySpec implements KeySpec,Comparator<ArrayKey> {
     }
     
     @Override
-    public Set<Key> extract(JsonDoc doc) {
-        HashSet<Key> set=new HashSet<>();
+    public Set<Key> extract(JsonDoc doc,Set<Key> set) {
+        if(set==null)
+            set=new HashSet<>();
         KeyValueCursor<Path,JsonNode> arrayCursor=doc.getAllNodes(arrayName);
         while(arrayCursor.hasNext()) {
             arrayCursor.next();
@@ -80,7 +95,7 @@ public class ArrayKeySpec implements KeySpec,Comparator<ArrayKey> {
                 JsonDoc nestedDoc=new JsonDoc(element);
                 Tuples<Key> tuples=new Tuples<>();
                 for(KeySpec keyField:keyFields) {
-                    tuples.add(keyField.extract(nestedDoc));
+                    tuples.add(keyField.extract(nestedDoc,null));
                 }
                 Iterator<List<Key>> tupleItr=tuples.tuples();
                 while(tupleItr.hasNext()) {

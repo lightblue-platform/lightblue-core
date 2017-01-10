@@ -37,6 +37,8 @@ import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
@@ -340,9 +342,30 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         
         // Search
         Set<JsonDoc> results=index.find(new ValueLookupSpec(spec,"doc:10 elemf1:20"));
-        System.out.println(index);
         Assert.assertEquals(1,results.size());
         Assert.assertEquals("field1:10",results.iterator().next().get(new Path("field1")).asText());
+    }
+
+    @Test
+    public void doubleSimpleArrayLookupTest() throws Exception {
+        EntityMetadata md=getMd("testMetadata.json");
+        List<JsonDoc> docs=fill();
+
+        ArrayField array=(ArrayField)md.resolve(new Path("field7"));
+        SimpleKeySpec spec1=new SimpleKeySpec(array,array.getElement().resolve(new Path("elemf1")));
+        SimpleKeySpec spec2=new SimpleKeySpec(array,array.getElement().resolve(new Path("elemf2")));
+        ArrayKeySpec aspec=new ArrayKeySpec(array,new SimpleKeySpec[] {spec1,spec2});
+        MemDocIndex index=new MemDocIndex(aspec);
+        
+        // Add all docs
+        for(JsonDoc doc:docs)
+            index.add(doc);
+
+        // Search
+        Set<JsonDoc> results=index.find(new ArrayLookupSpec(aspec,new LookupSpec[]{new ValueLookupSpec(spec1,"doc:2 elemf1:10"),
+                                                                                   new ValueLookupSpec(spec2,"doc:2 elemf2:10")}));
+        Assert.assertEquals(1,results.size());
+        Assert.assertEquals("field1:2",results.iterator().next().get(new Path("field1")).asText());
     }
 
 }
