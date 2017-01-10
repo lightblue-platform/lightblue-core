@@ -23,11 +23,9 @@ import java.util.Iterator;
 import com.redhat.lightblue.util.Tuples;
 
 public class ArrayLookupSpec extends LookupSpec {
-    final ArrayKeySpec key;
     final LookupSpec[] values;
     
-    public ArrayLookupSpec(ArrayKeySpec keyField,LookupSpec[] values) {
-        this.key=keyField;
+    public ArrayLookupSpec(LookupSpec[] values) {
         this.values=values;
     }
     
@@ -84,6 +82,6 @@ public class ArrayLookupSpec extends LookupSpec {
         for(int i=0;i<values.length;i++) {
             newValues[i]=values[i].next(tuple);
         }
-        return new ArrayLookupSpec(key,newValues);
+        return new ArrayLookupSpec(newValues);
     }
 }

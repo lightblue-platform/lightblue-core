@@ -23,11 +23,9 @@ import java.util.Iterator;
 import com.redhat.lightblue.util.Tuples;
 
 public class CompositeLookupSpec extends LookupSpec {
-    final CompositeKeySpec key;
     final LookupSpec[] values;
     
-    public CompositeLookupSpec(CompositeKeySpec keyField,LookupSpec[] values) {
-        this.key=keyField;
+    public CompositeLookupSpec(LookupSpec[] values) {
         this.values=values;
     }
     
@@ -84,6 +82,6 @@ public class CompositeLookupSpec extends LookupSpec {
         for(int i=0;i<values.length;i++) {
             newValues[i]=values[i].next(tuple);
         }
-        return new CompositeLookupSpec(key,newValues);
+        return new CompositeLookupSpec(newValues);
     }
 }
