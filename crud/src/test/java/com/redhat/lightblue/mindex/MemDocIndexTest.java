@@ -243,15 +243,13 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
             index.add(doc);
         
         // Search
-        Set<JsonDoc> results=index.find(new CompositeLookupSpec(aspec,
-                                                                new LookupSpec[] {new ValueLookupSpec(spec1,"field1:10"),
+        Set<JsonDoc> results=index.find(new CompositeLookupSpec(new LookupSpec[] {new ValueLookupSpec(spec1,"field1:10"),
                                                                                   new ValueLookupSpec(spec2,"field2:10")}));
                                                                 
         Assert.assertEquals(1,results.size());
         Assert.assertEquals("field1:10",results.iterator().next().get(new Path("field1")).asText());
 
-        results=index.find(new CompositeLookupSpec(aspec,
-                                                   new LookupSpec[] {new ValueLookupSpec(spec1,"field1:10"),
+        results=index.find(new CompositeLookupSpec(new LookupSpec[] {new ValueLookupSpec(spec1,"field1:10"),
                                                                      new ValueLookupSpec(spec2,"field2:11")}));
         Assert.assertEquals(0,results.size());
     }
@@ -276,8 +274,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         values1.add("field1:10");
         values1.add("field1:11");
         values1.add("field1:1101");
-        Set<JsonDoc> results=index.find(new CompositeLookupSpec(aspec,
-                                                                new LookupSpec[] {new MultiValueLookupSpec(spec1,values1),
+        Set<JsonDoc> results=index.find(new CompositeLookupSpec(new LookupSpec[] {new MultiValueLookupSpec(spec1,values1),
                                                                                   new ValueLookupSpec(spec2,"field2:10")}));
         Assert.assertEquals(1,results.size());
         Assert.assertEquals("field1:10",results.iterator().next().get(new Path("field1")).asText());
@@ -298,8 +295,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         for(JsonDoc doc:docs)
             index.add(doc);
 
-        Set<JsonDoc> results=index.find(new CompositeLookupSpec(aspec,
-                                                                new LookupSpec[] {new RangeLookupSpec(spec1,"field1:10","field1:15"),
+        Set<JsonDoc> results=index.find(new CompositeLookupSpec(new LookupSpec[] {new RangeLookupSpec(spec1,"field1:10","field1:15"),
                                                                                   new ValueLookupSpec(spec2,"field2:10")}));
         Assert.assertEquals(1,results.size());
         Assert.assertTrue(results.stream().map(d->d.get(new Path("field1")).asText()).collect(Collectors.toSet()).contains("field1:10"));
@@ -320,8 +316,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         for(JsonDoc doc:docs)
             index.add(doc);
 
-        Set<JsonDoc> results=index.find(new CompositeLookupSpec(aspec,
-                                                                new LookupSpec[] {new PrefixLookupSpec(spec1,"FIELD1:1",true),
+        Set<JsonDoc> results=index.find(new CompositeLookupSpec(new LookupSpec[] {new PrefixLookupSpec(spec1,"FIELD1:1",true),
                                                                                   new ValueLookupSpec(spec2,"field2:10")}));
         Assert.assertEquals(1,results.size());
         Assert.assertTrue(results.stream().map(d->d.get(new Path("field1")).asText()).collect(Collectors.toSet()).contains("field1:10"));
@@ -362,8 +357,8 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
             index.add(doc);
 
         // Search
-        Set<JsonDoc> results=index.find(new ArrayLookupSpec(aspec,new LookupSpec[]{new ValueLookupSpec(spec1,"doc:2 elemf1:10"),
-                                                                                   new ValueLookupSpec(spec2,"doc:2 elemf2:10")}));
+        Set<JsonDoc> results=index.find(new ArrayLookupSpec(new LookupSpec[]{new ValueLookupSpec(spec1,"doc:2 elemf1:10"),
+                                                                             new ValueLookupSpec(spec2,"doc:2 elemf2:10")}));
         Assert.assertEquals(1,results.size());
         Assert.assertEquals("field1:2",results.iterator().next().get(new Path("field1")).asText());
     }

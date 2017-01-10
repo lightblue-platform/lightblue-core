@@ -38,7 +38,8 @@ import com.redhat.lightblue.util.Error;
  * This class follows the same pattern as GetIndexKeySpec
  */
 public class GetIndexLookupSpec extends IndexQueryProcessorBase<LookupSpec> {
-
+    private static final String REGEX_CHARS="$[]*.\\^-&|{}()?+:<>!=";
+   
     public GetIndexLookupSpec(List<QueryFieldInfo> l) {
         super(l);
     }
@@ -57,7 +58,31 @@ public class GetIndexLookupSpec extends IndexQueryProcessorBase<LookupSpec> {
         }
         return null;
     }
-    
+
+    static String getPrefix(String pattern) {
+        StringBuilder bld=new StringBuilder();
+        int n=pattern.length();
+        for(int i=0;i<n;i++) {
+            char c=pattern.charAt(i);
+            if(i==0) {
+                if(c=='^') {
+                    // ok
+                } else if(pattern.startsWith("\\A")) {
+                    // ok
+                    i++; // pass A
+                } else {
+                    break;
+                }
+            } else {
+                if(REGEX_CHARS.indexOf(c)!=-1)
+                    bld.append(c);
+                else
+                    break;
+            }
+        }
+        return bld.toString();
+    }
+   
     @Override
     protected LookupSpec processRegexMatchExpression(RegexMatchExpression q) {
         return new PrefixLookupSpec(simpleKeySpec(findFieldInfo(q.getField(),q)),getPrefix(q.getRegex()),q.isCaseInsensitive());
