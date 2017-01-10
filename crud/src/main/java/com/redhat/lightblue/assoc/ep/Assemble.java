@@ -38,6 +38,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 
+import com.redhat.lightblue.assoc.BindQuery;
+
+import com.redhat.lightblue.eval.QueryEvaluator;
+
 /**
  * There are two sides to an Assemble step: Assemble gets results from the
  * source, and for each of those documents, it runs the associated queries on
@@ -182,7 +186,7 @@ public class Assemble extends Step<ResultDocument> {
                 }
                 List<ResultDocument> destResults = dest.getResultList(combinedQuery, ctx);
                 for (DocAndQ parentDocAndQ : docs) {
-                    Searches.associateDocs(parentDocAndQ.doc, destResults, aq);
+                    associateDocs(parentDocAndQ.doc, destResults, aq);
                 }
             }
             docs = new ArrayList<>();
@@ -208,6 +212,70 @@ public class Assemble extends Step<ResultDocument> {
         return o;
     }
 
+    /**
+     * Associates child documents obtained from 'aq' to all the slots in the
+     * parent document
+     */
+    public static void associateDocs(ResultDocument parentDoc,
+                                     List<ResultDocument> childDocs,
+                                     AssociationQuery aq) {
+        List<ChildSlot> slots = parentDoc.getSlots().get(aq.getReference());
+        for (ChildSlot slot : slots) {
+            associateDocs(parentDoc, slot, childDocs, aq);
+        }
+    }
+
+    /**
+     * Associate child documents with their parents. The association query is
+     * for the association from the child to the parent, so caller must flip it
+     * before sending it in if necessary. The caller also make sure parentDocs
+     * is a unique stream.
+     *
+     * @param parentDoc The parent document
+     * @param parentSlot The slot in parent docuemnt to which the results will
+     * be attached
+     * @param childDocs The child documents
+     * @param aq The association query from parent to child. This may not be the
+     * same association query between the blocks. If the child block is before
+     * the parent block, a new aq must be constructed for the association from
+     * the parent to the child
+     */
+    public static void associateDocs(ResultDocument parentDoc,
+                                     ChildSlot parentSlot,
+                                     List<ResultDocument> childDocs,
+                                     AssociationQuery aq) {
+        if (!childDocs.isEmpty()) {
+            LOGGER.debug("Associating docs");
+            ExecutionBlock childBlock = childDocs.get(0).getBlock();
+            ArrayNode destNode = (ArrayNode) parentDoc.getDoc().get(parentSlot.getSlotFieldName());
+            BindQuery binders = parentDoc.getBindersForSlot(parentSlot, aq);
+            // No binders means all child docs will be added to the parent            
+            if (binders.getBindings().isEmpty()) {
+                if (destNode == null) {
+                    destNode = JsonNodeFactory.instance.arrayNode();
+                    parentDoc.getDoc().modify(parentSlot.getSlotFieldName(), destNode, true);
+                }
+                for (ResultDocument d : childDocs) {
+                    destNode.add(d.getDoc().getRoot());
+                }
+            } else {
+                QueryExpression boundQuery = binders.iterate(aq.getQuery());
+                LOGGER.debug("Association query:{}", boundQuery);
+                QueryEvaluator qeval = QueryEvaluator.getInstance(boundQuery, childBlock.getMetadata());
+                for (ResultDocument childDoc : childDocs) {
+                    if (qeval.evaluate(childDoc.getDoc()).getResult()) {
+                        if (destNode == null) {
+                            destNode = JsonNodeFactory.instance.arrayNode();
+                            parentDoc.getDoc().modify(parentSlot.getSlotFieldName(), destNode, true);
+                        }
+                        destNode.add(childDoc.getDoc().getRoot());
+                    }
+                }
+            }
+        }
+    }
+
+    
     @Override
     public JsonNode toJson() {
         return toJson(Step::toJson,ExecutionBlock::toJson);
