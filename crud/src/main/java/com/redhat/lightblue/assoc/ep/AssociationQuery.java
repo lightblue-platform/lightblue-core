@@ -25,23 +25,7 @@ public class AssociationQuery {
     // If non-null, query is either always true or always false
     private final Boolean always;
     private final List<QueryFieldInfo> qfi;
-    private final List<AssociationQueryConjunct> aqConjuncts=new ArrayList<>();
 
-    public static class AssociationQueryConjunct {
-        public final QueryExpression query;
-        public final List<QueryFieldInfo> qfi;
-
-        AssociationQueryConjunct(QueryExpression q,List<QueryFieldInfo> qfi) {
-            this.query=q;
-            this.qfi=qfi;
-        }
-
-        @Override
-        public String toString() {
-            return query.toString();
-        }
-    }
-    
     public AssociationQuery(CompositeMetadata root,
                             CompositeMetadata currentEntity,
                             ResolvedReferenceField reference,
@@ -64,9 +48,7 @@ public class AssociationQuery {
                 // Analyze the query as if it is a root entity query
                 AnalyzeQuery aq=new AnalyzeQuery(currentEntity,null);
                 aq.iterate(result.query);
-                AssociationQueryConjunct q=new AssociationQueryConjunct(result.query,aq.getFieldInfo());
-                aqConjuncts.add(q);
-                qfi.addAll(q.qfi);
+                qfi.addAll(aq.getFieldInfo());
            }
             fieldBindings.addAll(result.bindings);
         }
@@ -83,10 +65,6 @@ public class AssociationQuery {
             query = Searches.and(queries);
             always=null;
         }
-    }
-
-    public List<AssociationQueryConjunct> getConjuncts() {
-        return aqConjuncts;
     }
     
     public List<QueryFieldInfo> getQueryFieldInfo() {
