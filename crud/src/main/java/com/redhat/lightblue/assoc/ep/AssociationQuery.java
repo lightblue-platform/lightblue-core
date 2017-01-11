@@ -12,6 +12,9 @@ import com.redhat.lightblue.assoc.RewriteQuery;
 import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.assoc.AnalyzeQuery;
 
+import com.redhat.lightblue.mindex.GetIndexKeySpec;
+import com.redhat.lightblue.mindex.KeySpec;
+
 import com.redhat.lightblue.query.QueryExpression;
 
 /**
@@ -25,6 +28,8 @@ public class AssociationQuery {
     // If non-null, query is either always true or always false
     private final Boolean always;
     private final List<QueryFieldInfo> qfi;
+    // In-memory index key spec
+    private final KeySpec keySpec;
 
     public AssociationQuery(CompositeMetadata root,
                             CompositeMetadata currentEntity,
@@ -61,10 +66,17 @@ public class AssociationQuery {
             } else {
                 always=null;
             }
+            keySpec=null;
         } else {
             query = Searches.and(queries);
+            GetIndexKeySpec giks=new GetIndexKeySpec(qfi);
+            keySpec=giks.iterate(query);
             always=null;
         }
+    }
+
+    public KeySpec getIndexKeySpec() {
+        return keySpec;
     }
     
     public List<QueryFieldInfo> getQueryFieldInfo() {

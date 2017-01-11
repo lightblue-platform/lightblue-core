@@ -218,9 +218,7 @@ public class Assemble extends Step<ResultDocument> {
                 // Try to build an index from results
                 MemDocIndex docIndex=null;
                 if(aq.getQuery()!=null&&numSlots>MEM_INDEX_THRESHOLD) {
-                    // Lets see if we can build a key spec from this query
-                    GetIndexKeySpec giks=new GetIndexKeySpec(aq.getQueryFieldInfo());
-                    KeySpec keySpec=giks.iterate(aq.getQuery());
+                    KeySpec keySpec=aq.getIndexKeySpec();
                     LOGGER.debug("In-memory index key spec:{}",keySpec);
                     if(keySpec!=null) {
                         // There is a key spec, meaning we can index the docs
