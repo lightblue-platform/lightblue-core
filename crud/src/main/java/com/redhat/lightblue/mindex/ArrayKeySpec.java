@@ -27,8 +27,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.assoc.QueryFieldInfo;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -41,32 +40,13 @@ import com.redhat.lightblue.util.KeyValueCursor;
  */
 public class ArrayKeySpec implements KeySpec,Comparator<ArrayKey> {
     final KeySpec[] keyFields;
-    final ArrayField array;
-    
-    final ArrayElement element;
     final Path arrayName;
     
-    public ArrayKeySpec(ArrayField array,KeySpec[] fields) {
+    public ArrayKeySpec(QueryFieldInfo array,KeySpec[] fields) {
         this.keyFields=fields;
-        this.array=array;
-        this.arrayName=array.getFullPath();
-        this.element=array.getElement();
+        this.arrayName=array.getEntityRelativeFieldNameWithContext();
     }
 
-    public ArrayKeySpec(ArrayField containingArray,ArrayField array,KeySpec[] fields) {
-        this.keyFields=fields;
-        this.array=array;
-        Path arrName=containingArray.getElement().getFullPath();
-        Path full=array.getFullPath();
-        if(full.prefix(arrName.numSegments()).equals(arrName)) {
-            this.arrayName=array.getFullPath().suffix(-arrName.numSegments());
-        } else {
-            this.arrayName=array.getFullPath();
-        }
-
-        this.element=array.getElement();
-    }
-    
     @Override
     public int compareKeys(Key k1,Key k2) {
         return compare( (ArrayKey)k1,(ArrayKey)k2);

@@ -94,9 +94,9 @@ public class GetIndexKeySpec extends IndexQueryProcessorBase<KeySpec> {
             ret=null;
         } else {
             if(nestedSpec instanceof CompositeKeySpec) {
-                ret=new ArrayKeySpec(enclosingArrayMd, ((CompositeKeySpec)nestedSpec).keyFields);
+                ret=new ArrayKeySpec(enclosingArray,((CompositeKeySpec)nestedSpec).keyFields);
             } else {
-                ret=new ArrayKeySpec(enclosingArrayMd ,new KeySpec[]{nestedSpec});
+                ret=new ArrayKeySpec(enclosingArray,new KeySpec[]{nestedSpec});
             }
         }
         return ret;

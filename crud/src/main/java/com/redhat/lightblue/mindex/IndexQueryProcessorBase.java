@@ -35,7 +35,7 @@ abstract class IndexQueryProcessorBase<T> extends QueryIteratorSkeleton<T> {
     public static final String ERR_INDEX_ANALYZE="crud:index:QueryAnalysisError";
 
     protected final List<QueryFieldInfo> fieldInfo;
-    protected ArrayField enclosingArrayMd;
+    protected QueryFieldInfo enclosingArray;
     
     public IndexQueryProcessorBase(List<QueryFieldInfo> fields) {
         this.fieldInfo=fields;
@@ -53,11 +53,7 @@ abstract class IndexQueryProcessorBase<T> extends QueryIteratorSkeleton<T> {
     }
 
     protected SimpleKeySpec simpleKeySpec(QueryFieldInfo finfo) {
-        if(enclosingArrayMd==null) {
-            return new SimpleKeySpec(finfo.getFieldMd());
-        } else {
-            return new SimpleKeySpec(enclosingArrayMd,finfo.getFieldMd());
-        }
+        return new SimpleKeySpec(finfo);
     }
 
     @Override
@@ -176,11 +172,10 @@ abstract class IndexQueryProcessorBase<T> extends QueryIteratorSkeleton<T> {
     
     @Override
     protected T itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
-        ArrayField oldArray=enclosingArrayMd;        
-        QueryFieldInfo finfo=findFieldInfo(q.getArray(),q);
-        enclosingArrayMd=(ArrayField)finfo.getFieldMd();
+        QueryFieldInfo oldArray=enclosingArray;        
+        enclosingArray=findFieldInfo(q.getArray(),q);
         T ret=processArrayMatchExpression(q.getElemMatch(), new Path(new Path(context, q.getArray()), Path.ANYPATH));
-        enclosingArrayMd=oldArray;
+        enclosingArray=oldArray;
         return ret;
     }
 }

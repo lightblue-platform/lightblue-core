@@ -9,6 +9,8 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.assoc.BoundObject;
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.RewriteQuery;
+import com.redhat.lightblue.assoc.QueryFieldInfo;
+import com.redhat.lightblue.assoc.AnalyzeQuery;
 
 import com.redhat.lightblue.query.QueryExpression;
 
@@ -22,7 +24,24 @@ public class AssociationQuery {
     private final ResolvedReferenceField reference;
     // If non-null, query is either always true or always false
     private final Boolean always;
+    private final List<QueryFieldInfo> qfi;
+    private final List<AssociationQueryConjunct> aqConjuncts=new ArrayList<>();
 
+    public static class AssociationQueryConjunct {
+        public final QueryExpression query;
+        public final List<QueryFieldInfo> qfi;
+
+        AssociationQueryConjunct(QueryExpression q,List<QueryFieldInfo> qfi) {
+            this.query=q;
+            this.qfi=qfi;
+        }
+
+        @Override
+        public String toString() {
+            return query.toString();
+        }
+    }
+    
     public AssociationQuery(CompositeMetadata root,
                             CompositeMetadata currentEntity,
                             ResolvedReferenceField reference,
@@ -32,6 +51,7 @@ public class AssociationQuery {
         List<QueryExpression> queries = new ArrayList<>(conjuncts.size());
         int numTrue=0;
         int numFalse=0;
+        qfi=new ArrayList<>();
         for (Conjunct c : conjuncts) {
             RewriteQuery.RewriteQueryResult result = rewriter.rewriteQuery(c.getClause(), c.getFieldInfo());
             if(result.query instanceof RewriteQuery.TruePH) {
@@ -41,7 +61,13 @@ public class AssociationQuery {
                 numFalse++;
             } else {
                 queries.add(result.query);
-            }
+                // Analyze the query as if it is a root entity query
+                AnalyzeQuery aq=new AnalyzeQuery(currentEntity,null);
+                aq.iterate(result.query);
+                AssociationQueryConjunct q=new AssociationQueryConjunct(result.query,aq.getFieldInfo());
+                aqConjuncts.add(q);
+                qfi.addAll(q.qfi);
+           }
             fieldBindings.addAll(result.bindings);
         }
         if(queries.isEmpty()) {
@@ -57,6 +83,14 @@ public class AssociationQuery {
             query = Searches.and(queries);
             always=null;
         }
+    }
+
+    public List<AssociationQueryConjunct> getConjuncts() {
+        return aqConjuncts;
+    }
+    
+    public List<QueryFieldInfo> getQueryFieldInfo() {
+        return qfi;
     }
 
     public Boolean getAlways() {

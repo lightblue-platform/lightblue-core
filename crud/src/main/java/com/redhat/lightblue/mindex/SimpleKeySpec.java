@@ -28,6 +28,8 @@ import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ArrayField;
 
+import com.redhat.lightblue.assoc.QueryFieldInfo;
+
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.KeyValueCursor;
@@ -39,27 +41,13 @@ public class SimpleKeySpec implements KeySpec,Comparator<SimpleKey> {
     final FieldTreeNode fieldMd;
     final Path fullName;
     final Type type;
-    
-    public SimpleKeySpec(FieldTreeNode fieldMd) {
-        this.fieldMd=fieldMd;
-        this.fullName=fieldMd.getFullPath();
+
+    public SimpleKeySpec(QueryFieldInfo finfo) {
+        this.fieldMd=finfo.getFieldMd();
+        this.fullName=finfo.getEntityRelativeFieldName();
         this.type=fieldMd.getType();
     }
 
-    /**
-     * Create a simple key spec under an array. This initializes the key relative to the array
-     */
-    public SimpleKeySpec(ArrayField containingArray,FieldTreeNode fieldMd) {
-        this.fieldMd=fieldMd;
-        Path arrayName=containingArray.getElement().getFullPath();
-        Path full=fieldMd.getFullPath();
-        if(full.prefix(arrayName.numSegments()).equals(arrayName)) {
-            this.fullName=fieldMd.getFullPath().suffix(-arrayName.numSegments());
-        } else {
-            this.fullName=fieldMd.getFullPath();
-        }
-        this.type=fieldMd.getType();
-    }
 
     @Override
     public int compareKeys(Key k1,Key k2) {

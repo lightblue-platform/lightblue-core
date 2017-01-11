@@ -23,7 +23,7 @@ import com.redhat.lightblue.util.Path;
  */
 public class ExecutionBlock {
 
-    private final CompositeMetadata rootMd;
+    public final CompositeMetadata rootMd;
 
     /**
      * The query plan node corresponding to this execution block

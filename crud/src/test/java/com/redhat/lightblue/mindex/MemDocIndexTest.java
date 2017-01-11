@@ -43,6 +43,8 @@ import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
+import com.redhat.lightblue.assoc.QueryFieldInfo;
+
 import com.redhat.lightblue.query.*;
 
 import com.redhat.lightblue.util.JsonDoc;
@@ -106,13 +108,26 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         return docs;
     }
 
+    public QueryFieldInfo qfi(EntityMetadata md,
+                              String entityRelativeFieldName,
+                              String entityRelativeFieldNameWithContext) {
+        return new QueryFieldInfo(null,
+                                  null,
+                                  md.resolve(new Path(entityRelativeFieldNameWithContext)),
+                                  null,
+                                  new Path(entityRelativeFieldName),
+                                  new Path(entityRelativeFieldNameWithContext),
+                                  null,
+                                  true);
+    }
+
     @Test
     public void simpleValueLookupTest() throws Exception {
         EntityMetadata md=getMd("testMetadata.json");
         List<JsonDoc> docs=fill();
 
         // Simple indexing using field1
-        SimpleKeySpec spec=new SimpleKeySpec(md.resolve(new Path("field1")));
+        SimpleKeySpec spec=new SimpleKeySpec(qfi(md,"field1","field1"));
         MemDocIndex index=new MemDocIndex(spec);
         
         // Add all docs
@@ -134,7 +149,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // Simple indexing using field4 - it has nulls
-        SimpleKeySpec spec=new SimpleKeySpec(md.resolve(new Path("field4")));
+        SimpleKeySpec spec=new SimpleKeySpec(qfi(md,"field4","field4"));
         MemDocIndex index=new MemDocIndex(spec);
         
         // Add all docs
@@ -159,7 +174,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // Simple indexing using field1
-        SimpleKeySpec spec=new SimpleKeySpec(md.resolve(new Path("field1")));
+        SimpleKeySpec spec=new SimpleKeySpec(qfi(md,"field1","field1"));
         MemDocIndex index=new MemDocIndex(spec);
         
         // Add all docs
@@ -182,7 +197,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // Simple indexeing using field1
-        SimpleKeySpec spec=new SimpleKeySpec(md.resolve(new Path("field1")));
+        SimpleKeySpec spec=new SimpleKeySpec(qfi(md,"field1","field1"));
         MemDocIndex index=new MemDocIndex(spec);
         
         // Add all docs
@@ -205,7 +220,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // Simple indexeing using field1
-        SimpleKeySpec spec=new SimpleKeySpec(md.resolve(new Path("field1")));
+        SimpleKeySpec spec=new SimpleKeySpec(qfi(md,"field1","field1"));
         MemDocIndex index=new MemDocIndex(spec);
         
         // Add all docs
@@ -233,8 +248,8 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // indexeing using field1 and field2
-        SimpleKeySpec spec1=new SimpleKeySpec(md.resolve(new Path("field1")));
-        SimpleKeySpec spec2=new SimpleKeySpec(md.resolve(new Path("field2")));
+        SimpleKeySpec spec1=new SimpleKeySpec(qfi(md,"field1","field1"));
+        SimpleKeySpec spec2=new SimpleKeySpec(qfi(md,"field2","field2"));
         CompositeKeySpec aspec=new CompositeKeySpec(new KeySpec[] {spec1,spec2});
         MemDocIndex index=new MemDocIndex(aspec);
         
@@ -260,8 +275,8 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // indexing using field1 and field2
-        SimpleKeySpec spec1=new SimpleKeySpec(md.resolve(new Path("field1")));
-        SimpleKeySpec spec2=new SimpleKeySpec(md.resolve(new Path("field2")));
+        SimpleKeySpec spec1=new SimpleKeySpec(qfi(md,"field1","field1"));
+        SimpleKeySpec spec2=new SimpleKeySpec(qfi(md,"field2","field2"));
         CompositeKeySpec aspec=new CompositeKeySpec(new KeySpec[] {spec1,spec2});
         MemDocIndex index=new MemDocIndex(aspec);
         
@@ -286,8 +301,8 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // indexeing using field1 and field2
-        SimpleKeySpec spec1=new SimpleKeySpec(md.resolve(new Path("field1")));
-        SimpleKeySpec spec2=new SimpleKeySpec(md.resolve(new Path("field2")));
+        SimpleKeySpec spec1=new SimpleKeySpec(qfi(md,"field1","field1"));
+        SimpleKeySpec spec2=new SimpleKeySpec(qfi(md,"field2","field2"));
         CompositeKeySpec aspec=new CompositeKeySpec(new KeySpec[] {spec1,spec2});
         MemDocIndex index=new MemDocIndex(aspec);
         
@@ -307,8 +322,8 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // indexeing using field1 and field2
-        SimpleKeySpec spec1=new SimpleKeySpec(md.resolve(new Path("field1")));
-        SimpleKeySpec spec2=new SimpleKeySpec(md.resolve(new Path("field2")));
+        SimpleKeySpec spec1=new SimpleKeySpec(qfi(md,"field1","field1"));
+        SimpleKeySpec spec2=new SimpleKeySpec(qfi(md,"field2","field2"));
         CompositeKeySpec aspec=new CompositeKeySpec(new KeySpec[] {spec1,spec2});
         MemDocIndex index=new MemDocIndex(aspec);
         
@@ -328,7 +343,7 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=fill();
 
         // Find elemf1:
-        SimpleKeySpec spec=new SimpleKeySpec(md.resolve(new Path("field7.*.elemf1")));
+        SimpleKeySpec spec=new SimpleKeySpec(qfi(md,"field7.*.elemf1","field7.*.elemf1"));
         MemDocIndex index=new MemDocIndex(spec);
         
         // Add all docs
@@ -346,9 +361,9 @@ public class MemDocIndexTest extends AbstractJsonSchemaTest {
         EntityMetadata md=getMd("testMetadata.json");
         List<JsonDoc> docs=fill();
 
-        ArrayField array=(ArrayField)md.resolve(new Path("field7"));
-        SimpleKeySpec spec1=new SimpleKeySpec(array,array.getElement().resolve(new Path("elemf1")));
-        SimpleKeySpec spec2=new SimpleKeySpec(array,array.getElement().resolve(new Path("elemf2")));
+        QueryFieldInfo array=qfi(md,"field7","field7");
+        SimpleKeySpec spec1=new SimpleKeySpec(qfi(md,"elemf1","field7.*.elemf1"));
+        SimpleKeySpec spec2=new SimpleKeySpec(qfi(md,"elemf2","field7.*.elemf2"));
         ArrayKeySpec aspec=new ArrayKeySpec(array,new SimpleKeySpec[] {spec1,spec2});
         MemDocIndex index=new MemDocIndex(aspec);
         
