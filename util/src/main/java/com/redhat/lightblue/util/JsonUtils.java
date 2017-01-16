@@ -24,9 +24,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import java.nio.charset.Charset;
+
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
 
@@ -36,6 +45,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ValueNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.NumericNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
@@ -106,6 +121,126 @@ public final class JsonUtils {
             bld.append((char) c);
         }
         return json(bld.toString(), systemPropertySubstitution);
+    }
+
+    /**
+     * Returns a Java object for a json value node based on the node type.
+     */
+    public static Object valueFromJson(ValueNode node) {
+        if (node instanceof NullNode) {
+            return null;
+        } else {
+            if(node instanceof TextNode) {
+                return node.textValue();
+            } else if(node instanceof BooleanNode) {
+                return node.booleanValue();
+            } else if(node instanceof NumericNode) {
+                return node.numberValue();
+            } else {
+                throw new RuntimeException("Unsupported node type:"+node.getClass().getName());
+            }
+        }
+    }
+
+    /**
+     * Returns a Json value node for the given value. Dates are converted to strings
+     */
+    public static ValueNode valueToJson(Object value) {
+        if(value==null) {
+            return JsonNodeFactory.instance.nullNode();
+        } else if(value instanceof String) {
+            return JsonNodeFactory.instance.textNode((String)value);
+        } else if(value instanceof Number) {
+            if (value instanceof BigDecimal) {
+                return JsonNodeFactory.instance.numberNode((BigDecimal) value);
+            } else if (value instanceof BigInteger) {
+                return JsonNodeFactory.instance.numberNode((BigInteger) value);
+            } else if (value instanceof Double) {
+                return JsonNodeFactory.instance.numberNode((Double) value);
+            } else if (value instanceof Float) {
+                return JsonNodeFactory.instance.numberNode((Float) value);
+            } else if (value instanceof Long) {
+                return JsonNodeFactory.instance.numberNode((Long) value);
+            } else {
+                return JsonNodeFactory.instance.numberNode( ((Number)value).intValue());
+            }
+        } else if(value instanceof Boolean) {
+            return JsonNodeFactory.instance.booleanNode( ((Boolean)value).booleanValue());
+        } else if(value instanceof Date) {
+            return JsonNodeFactory.instance.textNode(Constants.getDateFormat().format((Date)value));
+        } else {
+            return JsonNodeFactory.instance.textNode(value.toString());
+        }            
+    }
+
+    /**
+     * Converts a json document to an object tree of maps/lists/values
+     *
+     * If json is a value, then the corresponding Java object is returned.
+     *
+     * If json is an array, a List is returned. Elements of the list are converted recursively
+     *
+     * If json is an object, a Map is returned.
+     */
+    public static Object fromJson(JsonNode json) {
+        if(json==null||json instanceof NullNode) {
+            return null;
+        } else if(json instanceof ObjectNode) {
+            return fromJson((ObjectNode)json);
+        } else if(json instanceof ArrayNode) {
+            return fromJson((ArrayNode)json);
+        } else {
+            return valueFromJson( (ValueNode)json);
+        }
+    }
+
+    private static Object fromJson(ObjectNode json) {
+        HashMap ret=new HashMap();
+        for(Iterator<Map.Entry<String,JsonNode>> itr=json.fields();itr.hasNext();) {
+            Map.Entry<String,JsonNode> entry=itr.next();
+            ret.put(entry.getKey(),fromJson(entry.getValue()));
+        }
+        return ret;
+    }
+
+    private static Object fromJson(ArrayNode json) {
+        ArrayList ret=new ArrayList(json.size());
+        for(Iterator<JsonNode> itr=json.elements();itr.hasNext();) {
+            ret.add(fromJson(itr.next()));
+        }
+        return ret;
+    }
+
+    /**
+     * Converts a Java object tree containing maps and collections to json
+     */
+    public static JsonNode toJson(Object obj) {
+        if(obj==null) {
+            return JsonNodeFactory.instance.nullNode();
+        } else if(obj instanceof Map) {
+            return toJson( (Map)obj );
+        } else if(obj instanceof Collection) {
+            return toJson( (Collection)obj);
+        } else {
+            return valueToJson(obj);
+        }
+    }
+
+    private static JsonNode toJson(Map obj) {
+        ObjectNode node=JsonNodeFactory.instance.objectNode();
+        for(Iterator<Map.Entry> itr=obj.entrySet().iterator();itr.hasNext();) {
+            Map.Entry entry=itr.next();
+            node.set((String)entry.getKey(),toJson(entry.getValue()));
+        }
+        return node;
+    }
+
+    private static JsonNode toJson(Collection obj) {
+        ArrayNode node=JsonNodeFactory.instance.arrayNode();
+        for(Object x:obj) {
+            node.add(toJson(x));
+        }
+        return node;
     }
 
     /**

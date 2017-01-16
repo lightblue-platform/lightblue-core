@@ -18,6 +18,11 @@
  */
 package com.redhat.lightblue.util;
 
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -119,5 +124,30 @@ public class JsonUtilsTest {
         JsonUtils.json("a");
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
+    }
+
+    @Test
+    public void testFromJson() throws Exception {
+        JsonNode node=JsonUtils.json(getClass().getResourceAsStream("/JsonNodeDocTest-complex.json"));
+        Map obj=(Map)JsonUtils.fromJson(node);
+        Assert.assertTrue(obj.get("object1") instanceof Map);
+        Assert.assertTrue(obj.get("object2") instanceof Map);
+        Assert.assertEquals("value3",((Map)obj.get("object2")).get("simple3"));
+        Assert.assertEquals(2,((List) ((Map)obj.get("object1")).get("array1")).size());
+        Assert.assertEquals("value1",((Map)((List)((Map)obj.get("object1")).get("array1")).get(0)).get("simple1"));
+    }
+    
+    @Test
+    public void testToson() throws Exception {
+        HashMap m=new HashMap();
+        m.put("v1","value1");
+        HashMap n;
+        m.put("o",n=new HashMap());
+        List a=new ArrayList();
+        n.put("a",a);
+        a.add(new Integer(1));
+        JsonNode node=JsonUtils.toJson(m);
+        Assert.assertEquals("value1",node.get("v1").asText());
+        Assert.assertEquals(1,node.get("o").get("a").get(0).asInt());
     }
 }
