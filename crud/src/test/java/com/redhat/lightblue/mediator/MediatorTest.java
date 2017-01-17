@@ -109,7 +109,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mdManager.md = getMd("./termsmd.json");
 
         InsertionRequest req = new InsertionRequest();
-        req.setEntityVersion(new EntityVersion("terms", "0.14.0-SNAPSHOT"));
+        req.setEntityVersion(new EntityVersion("terms", "0.14.1-SNAPSHOT"));
         req.setEntityData(loadJsonNode("./termsdata.json"));
         req.setReturnFields(null);
         req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));
@@ -118,6 +118,9 @@ public class MediatorTest extends AbstractMediatorTest {
 
         Response response = mediator.insert(req);
         // there should be no errors
+        // Response should return the entity name:version
+        Assert.assertEquals("terms",response.getEntity().getEntity());
+        Assert.assertEquals("0.14.1-SNAPSHOT",response.getEntity().getVersion());
     }
 
     @Test
@@ -247,6 +250,9 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
+        // Response should return the entity name:version
+        Assert.assertEquals("test",response.getEntity().getEntity());
+        Assert.assertEquals("1.0",response.getEntity().getVersion());
     }
 
     @Test
@@ -289,6 +295,9 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
+        // Response should return the entity name:version
+        Assert.assertEquals("test",response.getEntity().getEntity());
+        Assert.assertEquals("1.0",response.getEntity().getVersion());
     }
 
     @Test

@@ -38,6 +38,8 @@ public class Response extends JsonObject {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String PROPERTY_ENTITY = "entity";
+    private static final String PROPERTY_VERSION = "entityVersion";
     private static final String PROPERTY_STATUS = "status";
     private static final String PROPERTY_MOD_COUNT = "modifiedCount";
     private static final String PROPERTY_MATCH_COUNT = "matchCount";
@@ -48,6 +50,7 @@ public class Response extends JsonObject {
     private static final String PROPERTY_ERRORS = "errors";
     private static final String PROPERTY_HOSTNAME = "hostname";
 
+    private EntityVersion entity;
     private OperationStatus status;
     private long modifiedCount;
     private long matchCount;
@@ -86,6 +89,18 @@ public class Response extends JsonObject {
     public Response(JsonNodeFactory jsonNodeFactory) {
         this.jsonNodeFactory = jsonNodeFactory;
         this.hostname = HOSTNAME;
+    }
+
+    public EntityVersion getEntity() {
+        return entity;
+    }
+
+    public void setEntity(EntityVersion e) {
+        entity=e;
+    }
+
+    public void setEntity(String entityName,String version) {
+        this.entity=new EntityVersion(entityName,version);
     }
 
     /**
@@ -213,6 +228,10 @@ public class Response extends JsonObject {
     @Override
     public JsonNode toJson() {
         JsonNodeBuilder builder = new JsonNodeBuilder();
+        if(entity!=null) {
+            builder.add(PROPERTY_ENTITY,entity.getEntity());
+            builder.add(PROPERTY_VERSION,entity.getVersion());
+        }
         builder.add(PROPERTY_STATUS, status);
         builder.add(PROPERTY_MOD_COUNT, modifiedCount);
         builder.add(PROPERTY_MATCH_COUNT, matchCount);
