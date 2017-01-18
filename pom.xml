@@ -170,6 +170,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <module>util</module>
         <module>config</module>
         <module>extensions</module>
+        <module>misc</module>
         <module>test</module>
     </modules>
     <properties>
