@@ -20,6 +20,7 @@ package com.redhat.lightblue.savedsearch;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.HashMap;
 
 import java.io.IOException;
 
@@ -38,13 +39,74 @@ import com.redhat.lightblue.EntityVersion;
 
 import com.redhat.lightblue.crud.FindRequest;
 
+import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.StringType;
+
 import com.redhat.lightblue.query.*;
 
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Error;
 
+/**
+ * Builds a find request from a saved search
+ */
 public class FindRequestBuilder {
 
+    public static final String ERR_SAVED_SEARCH_INVALID_TYPE="crud:saved-search:invalidType";
+    public static final String ERR_SAVED_SEARCH_NO_DEFAULT_VALUE="crud:saved-search:noDefaultValue";
+    public static final String ERR_SAVED_SEARCH_MISSING_PARAM="crud:saved-search:missing";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FindRequestBuilder.class);
+
+    /**
+     * Given the parameter values supplied by the caller, returns a
+     * map containing default values for missing parameters. If there
+     * are missing required parameters, throws an Error with missing
+     * parameters.
+     */
+    public static Map<String,String> fillDefaults(JsonNode savedSearch,
+                                                  Map<String,String> parameterValues,
+                                                  TypeResolver types) {
+        Map<String,String> ret=new HashMap<>();
+        JsonNode parametersNode=savedSearch.get("parameters");
+        if(parametersNode instanceof ArrayNode) {
+            for(Iterator<JsonNode> itr=parametersNode.elements();itr.hasNext();) {
+                JsonNode parameterNode=itr.next();
+                if(parameterNode instanceof ObjectNode) {
+                    Type type=null;
+                    JsonNode x=parameterNode.get("name");
+                    String name=x.asText();
+                    x=parameterNode.get("type");
+                    if(x!=null) {
+                        type=types.getType(x.asText());
+                        if(type==null) {
+                            throw Error.get(ERR_SAVED_SEARCH_INVALID_TYPE,x.asText());
+                        }
+                    } else {
+                        type=StringType.TYPE;
+                    }
+                    boolean optional=false;
+                    x=parameterNode.get("optional");                    
+                    if(x!=null) {
+                        optional=x.asBoolean();
+                    }
+                    if(parameterValues.containsKey(name)) {
+                        ret.put(name,(String)StringType.TYPE.cast(type.cast(parameterValues.get(name))));
+                    } else if(optional) {
+                        // Fill it in using default value                    
+                        JsonNode defaultValue=parameterNode.get("defaultValue");
+                        if(defaultValue==null)
+                            throw Error.get(ERR_SAVED_SEARCH_NO_DEFAULT_VALUE,name);
+                        ret.put(name,(String)StringType.TYPE.cast(type.fromJson(defaultValue)));
+                    } else {
+                        throw Error.get(ERR_SAVED_SEARCH_MISSING_PARAM,name);
+                    }                    
+                }
+            }
+        }
+        return ret;
+    }
 
     /**
      * Builds a find request from the saved search by rewriting the

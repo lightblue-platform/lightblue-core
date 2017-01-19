@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.savedsearch;
 
-import java.util.Map;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.List;
@@ -60,12 +59,16 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonUtils;
 
+/**
+ * This class is the main access point to saved searches. It loads
+ * saved searches from the db, and keeps them in a weak cache.
+ */
 public class SavedSearchCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(SavedSearchCache.class);
 
     public static final String ERR_SAVED_SEARCH="crud:saved-search";
 
-    private Cache<Key,ObjectNode> cache;
+    Cache<Key,ObjectNode> cache;
 
     private static final Path P_NAME=new Path("name");
     private static final Path P_ENTITY=new Path("entity");
@@ -108,6 +111,11 @@ public class SavedSearchCache {
         public int hashCode() {
             return (version==null?1:version.hashCode())*searchName.hashCode()*entity.hashCode();
         }
+
+        @Override
+        public String toString() {
+            return searchName+":"+entity+":"+version;
+        }
         
         public Key(String searchName,String entity,String version) {
             this.searchName=searchName;
@@ -142,10 +150,21 @@ public class SavedSearchCache {
 
 
     /**
-     * Retrieves a saved search from the database. The returned JsonNode can be an ObjectNode, or an ArrayNode containing
-     * zero or more documents. If there are more than one documents, only one of them is for the requested version, and the
-     * other is for the null version that applies to all versions. It returns null or empty array if nothing is found.
-     * In case of retrieval error, a RetrievalError is thrown containing the errors.
+     * Retrieves a saved search from the database. 
+     *
+     * @param m Mediator instance
+     * @param clid The client id
+     * @param searchName name of the saved search
+     * @param entit Name of the entity
+     * @param version Entity version the search should run on
+     * 
+     * The returned JsonNode can be an ObjectNode, or an ArrayNode
+     * containing zero or more documents. If there are more than one
+     * documents, only one of them is for the requested version, and
+     * the other is for the null version that applies to all
+     * versions. It returns null or empty array if nothing is found.
+     * In case of retrieval error, a RetrievalError is thrown
+     * containing the errors.
      */
     public JsonNode retrieveFromDB(Mediator m,
                                    ClientIdentification clid,
@@ -181,21 +200,29 @@ public class SavedSearchCache {
         findRequest.setQuery(q);
         findRequest.setProjection(FieldProjection.ALL);
         Response response=m.find(findRequest);
-        if(response.getErrors()!=null&&response.getErrors().isEmpty())
+        if(response.getErrors()!=null&&!response.getErrors().isEmpty())
             throw new RetrievalError(response.getErrors());
+        LOGGER.debug("Found {}",response.getEntityData());
         return response.getEntityData();
     }
 
     /**
      * Either loads the saved search from the db, or from the
      * cache. 
+     *
+     * @param m Mediator instance
+     * @param clid The client id
+     * @param searchName name of the saved search
+     * @param entit Name of the entity
+     * @param version Entity version the search should run on
+     *
+     * @return The saved search document, or null if not found
      */
     public JsonNode getSavedSearch(Mediator m,
                                    ClientIdentification clid,
                                    String searchName,
                                    String entity,
-                                   String version,
-                                   Map<String,String> parameterValues) {
+                                   String version) {
         LOGGER.debug("Loading {}:{}:{}",searchName,entity,version);
         ObjectNode doc=null;
         String loadVersion;
@@ -221,9 +248,11 @@ public class SavedSearchCache {
             LOGGER.debug("Loading {} from DB",searchName);
             JsonNode node=retrieveFromDB(m,clid,searchName,entity,loadVersion);
             if(node instanceof ObjectNode) {
+                LOGGER.debug("Loaded a single search");
                 doc=(ObjectNode)node;
                 store(doc);
             } else if(node instanceof ArrayNode) {
+                LOGGER.debug("Loaded an array of searches");
                 store((ArrayNode)node);
                 doc=findDocForVersion((ArrayNode)node,loadVersion);
             }
@@ -235,13 +264,16 @@ public class SavedSearchCache {
     }
 
     private ObjectNode findDocForVersion(ArrayNode node,String version) {
+        LOGGER.debug("Searching {} in the array",version);
         ObjectNode ret=null;
         String matchedVersion=null;
         for(Iterator<JsonNode> itr=node.elements();itr.hasNext();) {
             JsonNode searchNode=itr.next();
             if(searchNode instanceof ObjectNode) {
                 JsonNode versionsNode=searchNode.get("versions");
-                if(versionsNode instanceof ArrayNode) {
+                LOGGER.debug("Versions in search:{}",versionsNode);
+                if(versionsNode instanceof ArrayNode && versionsNode.size()>0) {
+                    LOGGER.debug("Looking up in versions array");
                     for(Iterator<JsonNode> vitr=versionsNode.elements();vitr.hasNext();) {
                         JsonNode versionNode=vitr.next();
                         if(versionNode instanceof NullNode) {
@@ -257,11 +289,16 @@ public class SavedSearchCache {
                             }
                         }
                     }
-                } else if(version==null) {
-                    ret=(ObjectNode)searchNode;
+                } else {
+                    if(ret==null) {
+                        ret=(ObjectNode)searchNode;
+                        matchedVersion=null;
+                    }
                 }
+                LOGGER.debug("Current best match after {}:{}",searchNode,ret);
             }
         }
+        LOGGER.debug("Best match for version {}:{}",version,ret);
         return ret;
     }
 
@@ -283,6 +320,8 @@ public class SavedSearchCache {
                     // if newVersion is a longer prefix of searchVersion than matchedVersion is, then it is a better match
                     int newMatchingPrefix=getMatchingPrefix(searchedVersion,newVersion);
                     int oldMatchingPrefix=getMatchingPrefix(searchedVersion,matchedVersion);
+                    LOGGER.debug("Comparing to {}: {}: prefix={} {}: prefix={}",searchedVersion,newVersion,newMatchingPrefix,
+                                 matchedVersion,oldMatchingPrefix);
                     return newMatchingPrefix>oldMatchingPrefix;
                 }
             }
@@ -321,18 +360,22 @@ public class SavedSearchCache {
         String name=doc.get("name").asText();
         String entity=doc.get("entity").asText();
         ArrayNode arr=(ArrayNode)doc.get("versions");
+        Key key=null;
         if(arr!=null) {
             for(Iterator<JsonNode> itr=arr.elements();itr.hasNext();) {
                 JsonNode version=itr.next();
                 if(version instanceof NullNode) {
-                    cache.put(new Key(name,entity,null),doc);
+                    key=new Key(name,entity,null);
                 } else {
-                    cache.put(new Key(name,entity,version.asText()),doc);
+                    key=new Key(name,entity,version.asText());
                 }
             }
-        } else {
-            cache.put(new Key(name,entity,null),doc);
         }
+        if(key==null) {
+            key=new Key(name,entity,null);
+        }
+        LOGGER.debug("Adding {} to cache",key);
+        cache.put(key,doc);
     }
 
     private synchronized void store(ArrayNode arr) {
