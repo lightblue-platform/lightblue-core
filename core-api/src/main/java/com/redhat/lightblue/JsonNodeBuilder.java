@@ -104,7 +104,7 @@ public class JsonNodeBuilder {
             ArrayNode arr = JsonObject.getFactory().arrayNode();
             root.set(key, arr);
             for (JsonObject err : values) {
-                arr.add(err.toJson());
+                arr.add(err==null?JsonObject.getFactory().nullNode():err.toJson());
             }
         }
         return this;

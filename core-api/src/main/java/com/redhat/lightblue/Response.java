@@ -55,7 +55,7 @@ public class Response extends JsonObject {
     private String taskHandle;
     private SessionInfo session;
     private JsonNode entityData;
-    private List<DocumentMetadata> resultMetadata;
+    private List<ResultMetadata> resultMetadata;
     private String hostname;
     private final List<DataError> dataErrors = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
@@ -199,11 +199,11 @@ public class Response extends JsonObject {
      * Metadata list for documents in entityData. If there are more
      * than one documents, the entitydata and metadata indexes match.
      */
-    public List<DocumentMetadata> getResultMetadata() {
+    public List<ResultMetadata> getResultMetadata() {
         return resultMetadata;
     }
 
-    public void setResultMetadata(List<DocumentMetadata> l) {
+    public void setResultMetadata(List<ResultMetadata> l) {
         resultMetadata=l;
     }
 
@@ -236,7 +236,8 @@ public class Response extends JsonObject {
         builder.add(PROPERTY_HOSTNAME, HOSTNAME);
         builder.addJsonObjectsList(PROPERTY_DATA_ERRORS, dataErrors);
         builder.addErrorsList(PROPERTY_ERRORS, errors);
-        builder.addJsonObjectsList(PROPERTY_RESULT_METADATA,resultMetadata);
+        if(resultMetadata!=null)
+            builder.addJsonObjectsList(PROPERTY_RESULT_METADATA,resultMetadata);
         return builder.build();
     }
 

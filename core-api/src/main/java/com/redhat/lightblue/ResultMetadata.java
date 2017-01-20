@@ -25,9 +25,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.JsonObject;
 
 /**
- * Contains document metadata returned for each document in the resultset
+ * Contains result metadata returned for each document in the resultset
  */
-public class DocumentMetadata extends JsonObject {
+public class ResultMetadata extends JsonObject {
 
     private String documentVersion;
 

@@ -29,6 +29,7 @@ import java.util.HashSet;
 
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.ExecutionOptions;
+import com.redhat.lightblue.ResultMetadata;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -228,6 +229,23 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
             for (DocCtx doc : documents) {
                 if (!doc.hasErrors() && doc.getOutputDocument() != null) {
                     list.add(doc.getOutputDocument());
+                }
+            }
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns a list of output document metadata with no errors
+     */
+    public List<ResultMetadata> getOutputDocumentMetadataWithoutErrors() {
+        if (documents != null) {
+            List<ResultMetadata> list = new ArrayList<>(documents.size());
+            for (DocCtx doc : documents) {
+                if (!doc.hasErrors() && doc.getOutputDocument() != null) {
+                    list.add(doc.getResultMetadata());
                 }
             }
             return list;

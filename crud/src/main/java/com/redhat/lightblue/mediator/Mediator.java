@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.ResultMetadata;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.BulkResponse;
 import com.redhat.lightblue.crud.CRUDController;
@@ -131,6 +132,7 @@ public class Mediator {
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(applyRange(req, insertedDocuments), factory.getNodeFactory()));
+                        response.setResultMetadata(ctx.getOutputDocumentMetadataWithoutErrors());
                         response.setModifiedCount(insertedDocuments.size());
                     }
                     if (!ctx.hasErrors() && !ctx.hasDocumentErrors()
@@ -199,7 +201,8 @@ public class Mediator {
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
-                        response.setModifiedCount(updatedDocuments.size());
+                        response.setResultMetadata(ctx.getOutputDocumentMetadataWithoutErrors());
+                       response.setModifiedCount(updatedDocuments.size());
                     }
                     if (!ctx.hasErrors() && !ctx.hasDocumentErrors()
                             && updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
@@ -283,6 +286,7 @@ public class Mediator {
                 List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                 if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                     response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
+                    response.setResultMetadata(ctx.getOutputDocumentMetadataWithoutErrors());
                 }
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
@@ -471,18 +475,20 @@ public class Mediator {
                 response.setMatchCount(result == null ? 0 : result.getSize());
                 List<DocCtx> documents = ctx.getDocuments();
                 if (documents != null) {
+                    List<ResultMetadata> resultMetadata=new ArrayList<>(documents.size());
                     List<JsonDoc> resultList = new ArrayList<>(documents.size());
                     for (DocCtx doc : documents) {
                         resultList.add(doc.getOutputDocument());
+                        resultMetadata.add(doc.getResultMetadata());
                     }
                     response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
+                    response.setResultMetadata(resultMetadata);
                 }
 
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
             }
             // call any queued up hooks (regardless of status)
             ctx.getHookManager().queueMediatorHooks(ctx);
-
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
             response.getDataErrors().addAll(ctx.getDataErrors());
