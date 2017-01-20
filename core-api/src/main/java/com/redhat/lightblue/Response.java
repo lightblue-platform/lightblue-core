@@ -47,13 +47,15 @@ public class Response extends JsonObject {
     private static final String PROPERTY_DATA_ERRORS = "dataErrors";
     private static final String PROPERTY_ERRORS = "errors";
     private static final String PROPERTY_HOSTNAME = "hostname";
+    private static final String PROPERTY_RESULT_METADATA = "resultMetadata";
 
     private OperationStatus status;
     private long modifiedCount;
     private long matchCount;
     private String taskHandle;
     private SessionInfo session;
-    private transient JsonNode entityData;
+    private JsonNode entityData;
+    private List<DocumentMetadata> resultMetadata;
     private String hostname;
     private final List<DataError> dataErrors = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
@@ -194,6 +196,18 @@ public class Response extends JsonObject {
     }
 
     /**
+     * Metadata list for documents in entityData. If there are more
+     * than one documents, the entitydata and metadata indexes match.
+     */
+    public List<DocumentMetadata> getResultMetadata() {
+        return resultMetadata;
+    }
+
+    public void setResultMetadata(List<DocumentMetadata> l) {
+        resultMetadata=l;
+    }
+
+    /**
      * Errors related to each document
      */
     public List<DataError> getDataErrors() {
@@ -222,9 +236,12 @@ public class Response extends JsonObject {
         builder.add(PROPERTY_HOSTNAME, HOSTNAME);
         builder.addJsonObjectsList(PROPERTY_DATA_ERRORS, dataErrors);
         builder.addErrorsList(PROPERTY_ERRORS, errors);
+        builder.addJsonObjectsList(PROPERTY_RESULT_METADATA,resultMetadata);
         return builder.build();
     }
 
+    // This class is not used
+    @Deprecated
     public static class ResponseBuilder {
 
         private OperationStatus status;
