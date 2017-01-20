@@ -886,8 +886,9 @@ public abstract class MetadataParser<T> {
 
     private ObjectField parseObjectField(String name, T object) {
         ObjectField field = new ObjectField(name);
-        T fields = getRequiredObjectProperty(object, STR_FIELDS);
-        parseFields(field.getFields(), fields);
+        T fields = getObjectProperty(object, STR_FIELDS);
+        if(fields!=null)
+            parseFields(field.getFields(), fields);
         parseProperties(field, object, OBJECT_FIELD_ELEMENTS);
         return field;
     }

@@ -29,6 +29,18 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public class ResultMetadata extends JsonObject {
 
+    /**
+     * Metadata property denoting the field should receive its contents from result metadata.
+     * The field must be an object or any, and it is not persisted.
+     */
+    public static final String MD_PROPERTY_RESULT_METADATA="resultMetadata";
+
+    /**
+     * Metadata property denoting the field should receive its contents from document version
+     * The field must be a string, and it is not persisted.
+     */
+    public static final String MD_PROPERTY_DOCVER="documentVersion";
+
     private String documentVersion;
 
     public String getDocumentVersion() {

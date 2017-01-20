@@ -221,26 +221,26 @@ public class BulkTest extends AbstractMediatorTest {
             @Override
             public void run() {
                 try {
-                    // Check if all 3 finds are waiting
+                    System.out.println("Check if all 3 finds are waiting");
                     while (find.nested < 3) {
                         Thread.sleep(1);
                     }
-                    // Let the 3 find requests complete
+                    System.out.println("Let the 3 find requests complete");
                     find.sem.release(3);
-                    // Busy wait
+                    System.out.println("Busy wait");
                     while (find.sem.availablePermits() > 0) {
                         Thread.sleep(1);
                     }
-                    // Let insert complete
+                    System.out.println("Let insert complete");
                     insert.sem.release(1);
                     while (insert.sem.availablePermits() > 0) {
                         Thread.sleep(1);
                     }
-                    // Check if all 2 finds are waiting
+                    System.out.println("Check if all 2 finds are waiting");
                     while (find.nested < 2) {
                         Thread.sleep(1);
                     }
-                    // Let the remaining 2 find requests complete
+                    System.out.println("Let the remaining 2 find requests complete");
                     find.sem.release(2);
                     while (find.sem.availablePermits() > 0) {
                         Thread.sleep(1);
@@ -249,6 +249,7 @@ public class BulkTest extends AbstractMediatorTest {
                     while (insert.sem.availablePermits() > 0) {
                         Thread.sleep(1);
                     }
+                    System.out.println("Complete");
                     valid = true;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -257,8 +258,10 @@ public class BulkTest extends AbstractMediatorTest {
         };
         validator.start();
 
+        System.out.println("Ordered exec");
         BulkResponse bresp = mediator.bulkRequest(breq);
         validator.join();
+        System.out.println("Ordered exec done");
 
         Assert.assertTrue(validator.valid);
     }
@@ -316,9 +319,10 @@ public class BulkTest extends AbstractMediatorTest {
             }
         };
         validator.start();
-
+        System.out.println("Unordered exec");
         mediator.bulkRequest(breq);
         validator.join();
+        System.out.println("Unordered exec done");
 
         Assert.assertTrue(validator.valid);
     }
