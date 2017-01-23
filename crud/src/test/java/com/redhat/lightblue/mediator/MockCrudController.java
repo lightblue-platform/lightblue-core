@@ -26,10 +26,22 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
     CRUDInsertionResponse insertResponse;
     CRUDOperationContext ctx;
 
+    Callback insertCb=x->{};
+    Callback saveCb=x->{};
+    Callback updateCb=x->{};
+    Callback deleteCb=x->{};
+    Callback findCb=x->{};
+
+    @FunctionalInterface
+    public interface Callback {
+        void cb(CRUDOperationContext ctx);
+    }
+
     @Override
     public CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                         Projection projection) {
         this.ctx = ctx;
+        insertCb.cb(ctx);
         return insertResponse;
     }
 
@@ -38,6 +50,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
                                  boolean upsert,
                                  Projection projection) {
         this.ctx = ctx;
+        saveCb.cb(ctx);
         return saveResponse;
     }
 
@@ -47,12 +60,14 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
                                      UpdateExpression update,
                                      Projection projection) {
         this.ctx = ctx;
+        updateCb.cb(ctx);
         return updateResponse;
     }
 
     @Override
     public CRUDDeleteResponse delete(CRUDOperationContext ctx,
-                                     QueryExpression query) {
+                                     QueryExpression query) {        
+        deleteCb.cb(ctx);
         return deleteResponse;
     }
 
@@ -63,6 +78,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
                                  Sort sort,
                                  Long from,
                                  Long to) {
+        findCb.cb(ctx);
         return findResponse;
     }
 
