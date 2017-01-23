@@ -169,11 +169,21 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      *
      * @return Returns the new document
      */
+    @Deprecated
     public DocCtx addDocument(JsonDoc doc) {
+        return addDocument(doc,null);
+    }
+    
+    /**
+     * Adds a new document to the context with metadata
+     *
+     * @return Returns the new document
+     */
+    public DocCtx addDocument(JsonDoc doc,ResultMetadata rmd) {
         if (documents == null) {
             documents = new ArrayList<>();
         }
-        DocCtx x = new DocCtx(doc);
+        DocCtx x = new DocCtx(doc,rmd);
         documents.add(x);
         return x;
     }

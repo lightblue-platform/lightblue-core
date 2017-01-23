@@ -62,6 +62,11 @@ public class DocCtx extends JsonDoc {
         super(doc.getRoot());
     }
 
+    public DocCtx(JsonDoc doc,ResultMetadata rmd) {
+        super(doc.getRoot());
+        this.resultMetadata=rmd;
+    }
+
     /**
      * Adds an error to this document
      */
