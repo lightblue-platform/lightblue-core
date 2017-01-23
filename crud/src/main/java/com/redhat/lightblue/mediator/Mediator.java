@@ -115,6 +115,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.INSERT);
+            response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -182,6 +183,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.SAVE);
+            response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -249,6 +251,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.UPDATE);
+            response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -317,6 +320,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.DELETE);
+            response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -439,6 +443,7 @@ public class Mediator {
         response.setStatus(OperationStatus.ERROR);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.FIND);
+            response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -513,6 +518,7 @@ public class Mediator {
         response.setStatus(OperationStatus.ERROR);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.FIND);
+            response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             Finder finder;
             if (ctx.isSimple()) {
