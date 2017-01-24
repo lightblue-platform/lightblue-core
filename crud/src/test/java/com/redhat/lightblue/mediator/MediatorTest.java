@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.ResultMetadata;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
@@ -81,6 +82,32 @@ public class MediatorTest extends AbstractMediatorTest {
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
+    }
+
+    private ResultMetadata getRmd(String ver) {
+        ResultMetadata md=new ResultMetadata();
+        md.setDocumentVersion(ver);
+        return md;
+    }
+
+    @Test
+    public void insertResultMetadataTest() throws Exception {
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setEntityData(loadJsonNode("./sample1.json"));
+        req.setReturnFields(null);
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
+        mockCrudController.insertCb=ctx->{ctx.getDocuments().get(0).setResultMetadata(getRmd("1"));};
+
+        Response response = mediator.insert(req);
+
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1,response.getResultMetadata().size());
+        Assert.assertEquals("1",response.getResultMetadata().get(0).getDocumentVersion());
         Assert.assertEquals(1, response.getModifiedCount());
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
@@ -180,7 +207,25 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(0, response.getErrors().size());
 
     }
+    
+    @Test
+    public void saveResultMdTest() throws Exception {
+        SaveRequest req = new SaveRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setEntityData(loadJsonNode("./sample1.json"));
+        req.setReturnFields(null);
+        mockCrudController.saveCb=ctx->{ctx.getDocuments().get(0).setResultMetadata(getRmd("1"));};
 
+        mdManager.md.getAccess().getInsert().setRoles("anyone");
+        mdManager.md.getAccess().getUpdate().setRoles("anyone");
+        Response response = mediator.save(req);
+
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(1,response.getResultMetadata().size());
+        Assert.assertEquals("1",response.getResultMetadata().get(0).getDocumentVersion());
+    }
+        
     @Test
     public void updateRoleTest() throws Exception {
         UpdateRequest req = new UpdateRequest();
@@ -298,6 +343,27 @@ public class MediatorTest extends AbstractMediatorTest {
         // Response should return the entity name:version
         Assert.assertEquals("test",response.getEntity().getEntity());
         Assert.assertEquals("1.0",response.getEntity().getVersion());
+    }
+
+    @Test
+    public void findResultMdTest() throws Exception {
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+
+        mdManager.md.getAccess().getFind().setRoles("anyone");
+        mockCrudController.findResponse = new CRUDFindResponse();
+        mockCrudController.findResponse.setSize(10);
+        mockCrudController.findCb=ctx->{
+            for(int i=0;i<10;i++)
+                ctx.addDocument(new JsonDoc(JsonNodeFactory.instance.objectNode()),getRmd(Integer.toString(i)));
+        };
+        Response response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(10, response.getMatchCount());
+        for(int i=0;i<10;i++) {
+            Assert.assertEquals(Integer.toString(i),response.getResultMetadata().get(i).getDocumentVersion());
+        }
     }
 
     @Test

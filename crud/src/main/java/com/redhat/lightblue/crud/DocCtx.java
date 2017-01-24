@@ -28,6 +28,7 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.DataError;
+import com.redhat.lightblue.ResultMetadata;
 
 /**
  * This class represents a document and its related copies, errors, and the
@@ -44,6 +45,7 @@ import com.redhat.lightblue.DataError;
  * will not appear in the output.</li>
  * <li>updatedDoc: This is the copy of the unprojected updated document . This
  * has to be explicitly set (expected on the update & save operations). </li>
+ * <li>resultMetadata: Result specific metadata</li>
  * </ul>
  */
 public class DocCtx extends JsonDoc {
@@ -54,9 +56,15 @@ public class DocCtx extends JsonDoc {
     private JsonDoc updatedDoc = null;
     private CRUDOperation CRUDOperationPerformed;
     private final Map<String, Object> propertyMap = new HashMap<>();
+    private ResultMetadata resultMetadata;
 
     public DocCtx(JsonDoc doc) {
         super(doc.getRoot());
+    }
+
+    public DocCtx(JsonDoc doc,ResultMetadata rmd) {
+        super(doc.getRoot());
+        this.resultMetadata=rmd;
     }
 
     /**
@@ -202,4 +210,11 @@ public class DocCtx extends JsonDoc {
         updatedDoc = doc;
     }
 
+    public ResultMetadata getResultMetadata() {
+        return resultMetadata;
+    }
+
+    public void setResultMetadata(ResultMetadata d) {
+        resultMetadata=d;
+    }
 }
