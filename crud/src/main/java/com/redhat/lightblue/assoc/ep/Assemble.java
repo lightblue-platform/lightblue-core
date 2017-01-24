@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 import java.util.stream.Collectors;
 
@@ -38,6 +39,23 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 
+import com.redhat.lightblue.metadata.CompositeMetadata;
+
+import com.redhat.lightblue.assoc.BindQuery;
+import com.redhat.lightblue.assoc.QueryFieldInfo;
+import com.redhat.lightblue.assoc.AnalyzeQuery;
+
+import com.redhat.lightblue.mindex.MemDocIndex;
+import com.redhat.lightblue.mindex.GetIndexKeySpec;
+import com.redhat.lightblue.mindex.GetIndexLookupSpec;
+import com.redhat.lightblue.mindex.KeySpec;
+import com.redhat.lightblue.mindex.LookupSpec;
+
+import com.redhat.lightblue.eval.QueryEvaluator;
+
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonDoc;
+
 /**
  * There are two sides to an Assemble step: Assemble gets results from the
  * source, and for each of those documents, it runs the associated queries on
@@ -47,6 +65,13 @@ import com.redhat.lightblue.query.NaryLogicalOperator;
 public class Assemble extends Step<ResultDocument> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Assemble.class);
+
+    /**
+     * This is used for testing. This is the threshold for the number
+     * of slots above which we'll use the memory indexing. If we have
+     * slots fewer than this, then we don't use in-memory index.
+     */
+    public static int MEM_INDEX_THRESHOLD=16;
 
     private final ExecutionBlock[] destinationBlocks;
     private final Source<ResultDocument> source;
@@ -95,6 +120,9 @@ public class Assemble extends Step<ResultDocument> {
             return StepResult.EMPTY;
         }
 
+        // Assemble results: retrieve results from associated
+        // execution blocks, and insert them into sourceResults
+        // documents
         List<Future> assemblers = new ArrayList<>();
         for (Map.Entry<ExecutionBlock, Assemble> destination : destinations.entrySet()) {
             AssociationQuery aq = destination.getKey().getAssociationQueryForEdge(block);
@@ -141,7 +169,7 @@ public class Assemble extends Step<ResultDocument> {
         }
     }
 
-    private static class BatchAssembler {
+    private class BatchAssembler {
         private List<DocAndQ> docs = new ArrayList<>();
         private List<QueryExpression> queries = new ArrayList<>();
         private final int batchSize;
@@ -181,8 +209,27 @@ public class Assemble extends Step<ResultDocument> {
                     combinedQuery = null;
                 }
                 List<ResultDocument> destResults = dest.getResultList(combinedQuery, ctx);
+                int numSlots=0;
+                for(ResultDocument doc:destResults) {
+                    List<ChildSlot> slots=doc.getSlots().get(aq.getReference());
+                    if(slots!=null)
+                        numSlots+=slots.size();
+                }
+                // Try to build an index from results
+                MemDocIndex docIndex=null;
+                if(aq.getQuery()!=null&&numSlots>MEM_INDEX_THRESHOLD) {
+                    KeySpec keySpec=aq.getIndexKeySpec();
+                    LOGGER.debug("In-memory index key spec:{}",keySpec);
+                    if(keySpec!=null) {
+                        // There is a key spec, meaning we can index the docs
+                        docIndex=new MemDocIndex(keySpec);
+                        for(ResultDocument child:destResults) {
+                            docIndex.add(child.getDoc());
+                        }
+                    }
+                }
                 for (DocAndQ parentDocAndQ : docs) {
-                    Searches.associateDocs(parentDocAndQ.doc, destResults, aq);
+                    associateDocs(parentDocAndQ.doc, destResults, aq,docIndex);
                 }
             }
             docs = new ArrayList<>();
@@ -206,6 +253,121 @@ public class Assemble extends Step<ResultDocument> {
             array.add(detail);
         }
         return o;
+    }
+    
+    /**
+     * Associates child documents obtained from 'aq' to all the slots in the
+     * parent document
+     */
+    public void associateDocs(ResultDocument parentDoc,
+                              List<ResultDocument> childDocs,
+                              AssociationQuery aq,
+                              MemDocIndex childIndex) {
+        if(!childDocs.isEmpty()) {
+            CompositeMetadata childMetadata = childDocs.get(0).getBlock().getMetadata();
+            List<ChildSlot> slots = parentDoc.getSlots().get(aq.getReference());        
+            for (ChildSlot slot : slots) {
+                BindQuery binders = parentDoc.getBindersForSlot(slot, aq);
+                // No binders means all child docs will be added to the parent
+                // aq.always==true means query is always true, so add everything to the parent
+                if (binders.getBindings().isEmpty()||(aq.getAlways()!=null && aq.getAlways()) ) {
+                    associateAllDocs(parentDoc,childDocs,slot.getSlotFieldName());
+                } else if(aq.getAlways()==null||!aq.getAlways()) { // If query is not always false
+                    if(childIndex==null)
+                        associateDocs(childMetadata,parentDoc,slot.getSlotFieldName(),binders,childDocs,aq.getQuery());
+                    else 
+                        associateDocsWithIndex(childMetadata,parentDoc,slot.getSlotFieldName(),binders,childDocs,aq,childIndex);
+                }
+            }
+        }
+    }
+
+    private static void associateAllDocs(ResultDocument parentDoc,List<ResultDocument> childDocs,Path fieldName) {
+        ArrayNode destNode=ensureDestNodeExists(parentDoc,null,fieldName);
+        for (ResultDocument d : childDocs) {
+            destNode.add(d.getDoc().getRoot());
+        }
+    }
+
+    private static ArrayNode ensureDestNodeExists(ResultDocument doc,ArrayNode destNode,Path fieldName) {
+        if (destNode == null) {
+            destNode = JsonNodeFactory.instance.arrayNode();
+            doc.getDoc().modify(fieldName, destNode, true);
+        }
+        return destNode;
+    }
+
+    /**
+     * Associate child documents with their parents. The association query is
+     * for the association from the child to the parent, so caller must flip it
+     * before sending it in if necessary. The caller also make sure parentDocs
+     * is a unique stream.
+     *
+     * @param parentDoc The parent document
+     * @param parentSlot The slot in parent docuemnt to which the results will
+     * be attached
+     * @param childDocs The child documents
+     * @param aq The association query from parent to child. This may not be the
+     * same association query between the blocks. If the child block is before
+     * the parent block, a new aq must be constructed for the association from
+     * the parent to the child
+     */
+    public static void associateDocs(CompositeMetadata childMetadata,
+                                     ResultDocument parentDoc,
+                                     Path destFieldName,
+                                     BindQuery binders,
+                                     List<ResultDocument> childDocs,
+                                     QueryExpression query) {
+        LOGGER.debug("Associating docs");
+        QueryExpression boundQuery = binders.iterate(query);
+        LOGGER.debug("Association query:{}", boundQuery);
+        QueryEvaluator qeval = QueryEvaluator.getInstance(boundQuery, childMetadata);
+        ArrayNode destNode=null;
+        for (ResultDocument childDoc : childDocs) {
+            if (qeval.evaluate(childDoc.getDoc()).getResult()) {
+                destNode=ensureDestNodeExists(parentDoc,destNode,destFieldName);
+                destNode.add(childDoc.getDoc().getRoot());
+            }
+        }
+    }
+    
+    private void associateDocsWithIndex(CompositeMetadata childMetadata,
+                                        ResultDocument parentDoc,
+                                        Path destFieldName,
+                                        BindQuery binders,
+                                        List<ResultDocument> childDocs,
+                                        AssociationQuery aq,
+                                        MemDocIndex childIndex) {
+        LOGGER.debug("Associating docs using index");
+        QueryExpression boundQuery = binders.iterate(aq.getQuery());
+        LOGGER.debug("Association query:{}", boundQuery);
+        QueryEvaluator qeval = QueryEvaluator.getInstance(boundQuery, childMetadata);
+        AnalyzeQuery analyzer=new AnalyzeQuery(block.rootMd,aq.getReference());
+        analyzer.iterate(boundQuery);
+        List<QueryFieldInfo> qfi=analyzer.getFieldInfo();
+        GetIndexLookupSpec gils=new GetIndexLookupSpec(qfi);
+        LookupSpec ls=gils.iterate(boundQuery);
+        LOGGER.debug("Lookup spec:"+ls);
+        List<ResultDocument> docs=reorder(childDocs,childIndex.find(ls));
+        ArrayNode destNode=null;
+        for (ResultDocument childDoc : childDocs) {
+            if (qeval.evaluate(childDoc.getDoc()).getResult()) {
+                destNode=ensureDestNodeExists(parentDoc,destNode,destFieldName);
+                destNode.add(childDoc.getDoc().getRoot());
+            }
+        }
+    }
+    
+    /**
+     * Returns the documents in foundList in the order of originalList
+     */
+    private static List<ResultDocument> reorder(List<ResultDocument> originalList,Set<JsonDoc> foundList) {
+        List<ResultDocument> ret=new ArrayList<>(foundList.size());
+        for(ResultDocument d:originalList) {
+            if(foundList.contains(d.getDoc()))
+                ret.add(d);
+        }
+        return ret;
     }
 
     @Override
