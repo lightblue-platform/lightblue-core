@@ -142,7 +142,7 @@
                 "constraints":{
                     "required":true
                 },
-                "description":"The query. Bound parameters are given as ${parameter}. This could be a strig, or json "
+                "description":"The query. Bound parameters are given as ${parameter}. This could be a string, or json "
             },
             "projection":{
                 "type":"any"

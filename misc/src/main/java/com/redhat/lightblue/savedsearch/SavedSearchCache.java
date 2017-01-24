@@ -62,6 +62,22 @@ import com.redhat.lightblue.util.JsonUtils;
 /**
  * This class is the main access point to saved searches. It loads
  * saved searches from the db, and keeps them in a weak cache.
+ *
+ * We only provide the basics to implement saved search functionality
+ * at this level. The functionality must be enabled at the higher
+ * layer, REST or embedded application layers.
+ *
+ * The implementation should:
+ * <ul>
+ * <li>Instantiate a singleton instance of the SavedSearchCache. This 
+ * should be shared among all threads.</li>
+ * <li>Determine the name of the saved search, the entity, and its version.
+ * The saved search name is meaningful only with its associated entity<li?.
+ * <li>Retrieve the saved search document using SavedSearchCache.getSavedSearch</li>
+ * <li>Collect the query parameters, and fill in defaults using FindRequestBuilder.fillDefaults</li>
+ * <li>Prepare a FindRequest using FindRequestBuilder.buildRequest.</li>
+ * <li>Call find()</li>
+ * </ul>
  */
 public class SavedSearchCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(SavedSearchCache.class);
@@ -166,11 +182,11 @@ public class SavedSearchCache {
      * In case of retrieval error, a RetrievalError is thrown
      * containing the errors.
      */
-    public JsonNode retrieveFromDB(Mediator m,
-                                   ClientIdentification clid,
-                                   String searchName,
-                                   String entity,
-                                   String version) {
+    public JsonNode getSavedSearchFromDB(Mediator m,
+                                         ClientIdentification clid,
+                                         String searchName,
+                                         String entity,
+                                         String version) {
         
         FindRequest findRequest=new FindRequest();
         findRequest.setEntityVersion(new EntityVersion(savedSearchEntity,savedSearchVersion));
@@ -246,7 +262,7 @@ public class SavedSearchCache {
         }
         if(doc==null) {
             LOGGER.debug("Loading {} from DB",searchName);
-            JsonNode node=retrieveFromDB(m,clid,searchName,entity,loadVersion);
+            JsonNode node=getSavedSearchFromDB(m,clid,searchName,entity,loadVersion);
             if(node instanceof ObjectNode) {
                 LOGGER.debug("Loaded a single search");
                 doc=(ObjectNode)node;
