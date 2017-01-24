@@ -22,11 +22,14 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.EntityVersion;
@@ -41,6 +44,8 @@ import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.metadata.Metadata;
 
 public class BulkTest extends AbstractMediatorTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BulkTest.class);
 
     public interface FindCb {
         Response call(FindRequest req);
@@ -139,41 +144,45 @@ public class BulkTest extends AbstractMediatorTest {
 
         BulkRequest breqParsed = BulkRequest.fromJson(breqJson);
 
-        System.out.println("asdf");
+        LOGGER.debug("asdf");
     }
 
     private class PFindCb implements FindCb {
         Semaphore sem = new Semaphore(0);
-        int nested = 0;
+        AtomicInteger nested = new AtomicInteger(0);
 
         @Override
-        public Response call(FindRequest req) {
-            nested++;
+        public  Response call(FindRequest req) {
+            nested.incrementAndGet();
             try {
+                LOGGER.debug("find: nested:"+nested+" waiting");
                 sem.acquire();
+                LOGGER.debug("find: nested:"+nested+" acquired");
                 return new Response();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
-                nested--;
+                nested.decrementAndGet();
             }
         }
     }
 
     private class PInsertCb implements InsertCb {
         Semaphore sem = new Semaphore(0);
-        int nested = 0;
+        AtomicInteger nested = new AtomicInteger(0);
 
         @Override
         public Response call(InsertionRequest req) {
-            nested++;
+            nested.incrementAndGet();
             try {
+                LOGGER.debug("insert: nested:"+nested+" waiting");
                 sem.acquire();
+                LOGGER.debug("insert: nested:"+nested+" acquired");
                 return new Response();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
-                nested--;
+                nested.decrementAndGet();
             }
         }
     }
@@ -221,26 +230,26 @@ public class BulkTest extends AbstractMediatorTest {
             @Override
             public void run() {
                 try {
-                    System.out.println("Check if all 3 finds are waiting");
-                    while (find.nested < 3) {
+                    LOGGER.debug("Check if all 3 finds are waiting");
+                    while (find.nested.get() < 3) {
                         Thread.sleep(1);
                     }
-                    System.out.println("Let the 3 find requests complete");
+                    LOGGER.debug("Let the 3 find requests complete");
                     find.sem.release(3);
-                    System.out.println("Busy wait");
+                    LOGGER.debug("Busy wait");
                     while (find.sem.availablePermits() > 0) {
                         Thread.sleep(1);
                     }
-                    System.out.println("Let insert complete");
+                    LOGGER.debug("Let insert complete");
                     insert.sem.release(1);
                     while (insert.sem.availablePermits() > 0) {
                         Thread.sleep(1);
                     }
-                    System.out.println("Check if all 2 finds are waiting");
-                    while (find.nested < 2) {
+                    LOGGER.debug("Check if all 2 finds are waiting");
+                    while (find.nested.get() < 2) {
                         Thread.sleep(1);
                     }
-                    System.out.println("Let the remaining 2 find requests complete");
+                    LOGGER.debug("Let the remaining 2 find requests complete");
                     find.sem.release(2);
                     while (find.sem.availablePermits() > 0) {
                         Thread.sleep(1);
@@ -249,7 +258,7 @@ public class BulkTest extends AbstractMediatorTest {
                     while (insert.sem.availablePermits() > 0) {
                         Thread.sleep(1);
                     }
-                    System.out.println("Complete");
+                    LOGGER.debug("Complete");
                     valid = true;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -258,10 +267,10 @@ public class BulkTest extends AbstractMediatorTest {
         };
         validator.start();
 
-        System.out.println("Ordered exec");
+        LOGGER.debug("Ordered exec");
         BulkResponse bresp = mediator.bulkRequest(breq);
         validator.join();
-        System.out.println("Ordered exec done");
+        LOGGER.debug("Ordered exec done");
 
         Assert.assertTrue(validator.valid);
     }
@@ -299,7 +308,7 @@ public class BulkTest extends AbstractMediatorTest {
             public void run() {
                 try {
                     // Wait until all 7 calls started
-                    while (find.nested + insert.nested < 7) {
+                    while (find.nested.get() + insert.nested.get() < 7) {
                         Thread.sleep(1);
                     }
 
@@ -308,7 +317,7 @@ public class BulkTest extends AbstractMediatorTest {
                     insert.sem.release(2);
 
                     // Wait until they're all completed
-                    while(find.nested > 0 && insert.nested > 0) {
+                    while(find.nested.get() > 0 && insert.nested.get() > 0) {
                         Thread.sleep(1);
                     }
 
@@ -319,10 +328,10 @@ public class BulkTest extends AbstractMediatorTest {
             }
         };
         validator.start();
-        System.out.println("Unordered exec");
+        LOGGER.debug("Unordered exec");
         mediator.bulkRequest(breq);
         validator.join();
-        System.out.println("Unordered exec done");
+        LOGGER.debug("Unordered exec done");
 
         Assert.assertTrue(validator.valid);
     }

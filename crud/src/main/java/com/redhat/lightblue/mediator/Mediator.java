@@ -591,6 +591,7 @@ public class Mediator {
         return new Callable<Response>() {
             @Override
             public Response call() {
+                LOGGER.debug("Starting a future {} request",req.getOperation());
                 switch (req.getOperation()) {
                     case FIND:
                         return find((FindRequest) req);
@@ -643,6 +644,7 @@ public class Mediator {
                         }
                     }
                 } else {
+                    LOGGER.debug("Scheduling a future operation");
                     // unordered - do them all in parallel
                     ctx.futures[i] = executor.submit(getFutureRequest(req));
                 }
