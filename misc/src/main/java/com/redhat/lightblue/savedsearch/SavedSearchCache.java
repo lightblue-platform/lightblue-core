@@ -92,8 +92,8 @@ public class SavedSearchCache {
 
     private static final Value NULL_VALUE=new Value(null);
 
-    private final String savedSearchEntity;
-    private final String savedSearchVersion;
+    public final String savedSearchEntity;
+    public final String savedSearchVersion;
 
     public static class RetrievalError extends RuntimeException {
         public final List<Error> errors;
