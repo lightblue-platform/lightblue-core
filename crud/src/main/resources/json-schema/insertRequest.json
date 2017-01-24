@@ -23,9 +23,9 @@
      "properties": {
          "client": {
          },
-         "objectType": {
+         "entity": {
          },
-         "version": {
+         "entityVersion": {
          },
          "execution": {
          },

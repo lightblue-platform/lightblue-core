@@ -25,6 +25,14 @@
             ],
             "description": "COMPLETE: The operation completed, all requests are processed<br>PARTIAL: Some of the operations are successful, some failed<br>ASYNC: Operation running asynchronously<br>ERROR: Operation failed because of some system error"
         },
+        "entity": {
+            "type":"string",
+            "description":"The entity name"
+        },
+        "entityVersion":{
+            "type":"string",
+            "description":"The entity version"
+        },
         "modifiedCount": {
             "type": "integer",
             "description": "number of entities affected by the call, if this is an insert, update, or delete"
@@ -41,6 +49,20 @@
             "type": "object",
             "additionalProperties": true,
             "description": "Session information for the client. How this is used is implementation dependent, and TBD"
+        },
+        "resultMetadata":{
+            "type":"array",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "documentVersion": {
+                        "type":"string",
+                        "description":"Unique string identifying the document at a point in time"
+                    }
+                },
+                "additionalProperties":true
+            },
+            "description":"Result metadata, each element corresponds to the same indexed element in the processed array"
         },
         "processed": {
             "type": "array",
@@ -69,7 +91,7 @@
                 }
             }
         },
-        "otherErrors": {
+        "errors": {
             "type": "array",
             "items": {
                 "$ref": "/json-schema/error/error.json#"
@@ -80,5 +102,5 @@
     "required": [
         "status"
     ],
-    "additionalProperties": false
+    "additionalProperties": true
 }

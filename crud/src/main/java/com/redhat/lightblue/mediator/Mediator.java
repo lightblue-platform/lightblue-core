@@ -668,7 +668,17 @@ public class Mediator {
     }
 
     protected OperationContext newCtx(Request request, CRUDOperation CRUDOperation) {
-        return new OperationContext(request, metadata, factory, CRUDOperation);
+        OperationContext ctx=new OperationContext(request, metadata, factory, CRUDOperation);
+        if(request instanceof WithIfSame) {
+            WithIfSame wif=(WithIfSame)request;
+            if(wif.isIfSameOnly()) {
+                ctx.setUpdateIfSame(true);
+                List<String> list=wif.getDocumentVersions();
+                if(list!=null)
+                    ctx.getUpdateDocumentVersions().addAll(list);
+            }
+        }
+        return ctx;
     }
 
     /**

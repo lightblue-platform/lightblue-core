@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.crud;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
@@ -27,9 +29,31 @@ import com.redhat.lightblue.query.QueryExpression;
 /**
  * Request to delete documents matching a query
  */
-public class DeleteRequest extends Request implements WithQuery {
+public class DeleteRequest extends Request implements WithQuery, WithIfSame {
 
     private QueryExpression query;
+    private boolean ifSameOnly;
+    private List<String> documentVersions;
+
+    @Override
+    public boolean isIfSameOnly() {
+        return ifSameOnly;
+    }
+
+    @Override
+    public void setIfSameOnly(boolean b) {
+        ifSameOnly=b;
+    }
+
+    @Override
+    public List<String> getDocumentVersions() {
+        return documentVersions;
+    }
+
+    @Override
+    public void setDocumentVersions(List<String> s) {
+        documentVersions=s;
+    }
 
     /**
      * The query whose result set will be deleted
@@ -60,6 +84,7 @@ public class DeleteRequest extends Request implements WithQuery {
         if (query != null) {
             node.set("query", query.toJson());
         }
+        WithIfSame.toJson(this,node);
         return node;
     }
 
@@ -75,6 +100,7 @@ public class DeleteRequest extends Request implements WithQuery {
         if (x != null) {
             req.query = QueryExpression.fromJson(x);
         }
+        WithIfSame.fromJson(req,node);
         return req;
     }
 }

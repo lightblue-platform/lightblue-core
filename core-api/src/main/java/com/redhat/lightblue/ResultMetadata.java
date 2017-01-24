@@ -41,6 +41,13 @@ public class ResultMetadata extends JsonObject {
      */
     public static final String MD_PROPERTY_DOCVER="documentVersion";
 
+    /**
+     * Document version is a string that uniquely identifies the
+     * document in its back end at a point in time. Thus, this string
+     * contains the backend specific unique ID and the document's
+     * timestamp/version. When the document is modified, its version
+     * changes.
+     */
     private String documentVersion;
 
     public String getDocumentVersion() {
