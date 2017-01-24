@@ -1,0 +1,169 @@
+{
+    "entityInfo": {
+        "datastore": {
+            "backend": "mongo",
+            "collection": "savedSearches",
+            "datasource": "mongodata"
+        },
+        "defaultVersion": "1.0.0",
+        "indexes": [
+            {
+                "fields": [
+                    {
+                        "caseInsensitive": false,
+                        "dir": "$asc",
+                        "field": "searchName"
+                    },
+                    {
+                        "caseInsensitive": false,
+                        "dir": "$asc",
+                        "field": "entity"
+                    },
+                    {
+                        "caseInsensitive": false,
+                        "dir": "$asc",
+                        "field": "versions"
+                    }
+                ],
+                "name": "search_entity_version",
+                "unique":true
+            },
+            {
+                "fields": [
+                    {
+                        "_id": false,
+                        "dir": "$asc",
+                        "field": "_id"
+                    }
+                ],
+                "name": "id_index",
+                "unique":true
+            }
+        ],
+        "name": "savedSearch"
+    },
+    "schema": {
+        "access": {
+            "delete": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": {
+                "access": {
+                    "update": [
+                        "noone"
+                    ]
+                },
+                "constraints": {
+                    "identity": true
+                },
+                "description": "unique search id",
+                "type": "string"
+            },
+            "objectType": {
+                "access": {
+                    "find": [
+                        "anyone"
+                    ],
+                    "update": [
+                        "noone"
+                    ]
+                },
+                "constraints": {
+                    "minLength": 1,
+                    "required": true
+                },
+                "description": null,
+                "type": "string"
+            },
+            "name": {
+                "type":"string",
+                "constraints":{
+                    "required":true
+                },
+                "description":"Name of the search"
+                
+            },
+            "entity": {
+                "type":"string",
+                "constraints":{
+                    "required":true
+                },
+                "description":"The name of the entity search works on"
+            },
+            "versions": {
+                "type":"array",
+                "description": "Entity versions this search can be applied to. It is a partial version match. A 1.0 value in this array means the search will be used for all 1.0.x versions as well as 1.0 version. A null value means the search will be used for all entity versions that are not explicitly selected by other elements in the array.",
+                "items": {
+                    "type":"string",
+                    "description":"Version values"
+                }
+            },
+            "parameters": {
+                "type":"array",
+                "description":"Query parameters",
+                "items":{
+                    "type":"object",
+                    "fields":{
+                        "name":{
+                            "type":"string",
+                            "constraints":{
+                                "required":true
+                            },
+                            "description":"Parameter name"
+                        },
+                        "type":{
+                            "type":"string",
+                            "description":"Optional type of parameter."
+                        },
+                        "optional":{
+                            "type":"boolean",
+                            "description":"If parameter is optional or not"
+                        },
+                        "defaultValue":{
+                            "type":"any",
+                            "description":"Default value of parameter if it is optional"
+                        }
+                    }
+                }
+            },
+            "query":{
+                "type":"any",
+                "constraints":{
+                    "required":true
+                },
+                "description":"The query. Bound parameters are given as ${parameter}. This could be a string, or json "
+            },
+            "projection":{
+                "type":"any"
+            },
+            "sort":{
+                "type":"any"
+            },
+            "range":{
+                "type":"array",
+                "items":{
+                    "type":"integer"
+                }
+            }
+        },
+        "name": "savedSearch",
+        "status": {
+            "value": "active"
+        },
+        "version": {
+            "changelog": "First version",
+            "value": "0.0.1-SNAPSHOT"
+        }
+    }
+}

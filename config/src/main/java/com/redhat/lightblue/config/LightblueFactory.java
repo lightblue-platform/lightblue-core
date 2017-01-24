@@ -82,6 +82,7 @@ public final class LightblueFactory implements Serializable {
     private transient volatile Factory factory;
     private transient volatile JsonTranslator jsonTranslator = null;
     private transient volatile Map<String, LockingSupport> lockingMap = null;
+    private transient volatile CrudConfiguration crudConfiguration=null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
         this(datasources, null, null);
@@ -121,10 +122,9 @@ public final class LightblueFactory implements Serializable {
         }
     }
 
-    private synchronized void initializeFactory()
-            throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
-        if (factory == null) {
-            LOGGER.debug("Initializing factory");
+    private synchronized void initializeCrudConfiguration()
+        throws IOException {
+        if(crudConfiguration==null) {
             JsonNode root = crudNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
@@ -134,31 +134,38 @@ public final class LightblueFactory implements Serializable {
                     root = JsonUtils.json(is, true);
                 }
             } else {
-                LOGGER.debug("Using passed in node to initialize factory");
+                LOGGER.debug("Using passed in node to initialize crud configuration");
             }
-            LOGGER.debug("Initializing factory from {}", root);
-
+            LOGGER.debug("crud configuration: {}", root);
             // convert root to Configuration object
-            CrudConfiguration configuration = new CrudConfiguration();
-            configuration.initializeFromJson(root);
+            crudConfiguration = new CrudConfiguration();
+            crudConfiguration.initializeFromJson(root);
+            // validate
+            if (!crudConfiguration.isValid()) {
+                throw new IllegalStateException(CrudConstants.ERR_CONFIG_NOT_VALID + " - " + CrudConfiguration.FILENAME);
+            }
+        }
+    }
+
+    private synchronized void initializeFactory()
+            throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+        if (factory == null) {
+            LOGGER.debug("Initializing factory");
+            if(crudConfiguration==null)
+                initializeCrudConfiguration();
 
             // Set validation flag for all crud requests
-            getJsonTranslator().setValidation(Request.class, configuration.isValidateRequests());
+            getJsonTranslator().setValidation(Request.class, crudConfiguration.isValidateRequests());
 
             Factory f = new Factory();
-            f.setBulkParallelExecutions(configuration.getBulkParallelExecutions());
+            f.setBulkParallelExecutions(crudConfiguration.getBulkParallelExecutions());
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
 
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());
             new GeneratedFieldInterceptor().register(f.getInterceptors());
 
-            // validate
-            if (!configuration.isValid()) {
-                throw new IllegalStateException(CrudConstants.ERR_CONFIG_NOT_VALID + " - " + CrudConfiguration.FILENAME);
-            }
-
-            for (ControllerConfiguration x : configuration.getControllers()) {
+            for (ControllerConfiguration x : crudConfiguration.getControllers()) {
                 ControllerFactory cfactory = x.getControllerFactory().newInstance();
                 CRUDController controller = cfactory.createController(x, datasources);
                 injectDependencies(controller);
@@ -341,6 +348,12 @@ public final class LightblueFactory implements Serializable {
         return mediator;
     }
 
+    public CrudConfiguration getCrudConfiguration() throws IOException {
+        if(crudConfiguration==null)
+            initializeCrudConfiguration();
+        return crudConfiguration;
+    }
+    
     public Locking getLocking(String domain)
             throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (lockingMap == null) {
