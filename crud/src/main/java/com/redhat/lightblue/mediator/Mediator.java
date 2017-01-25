@@ -53,6 +53,7 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.WithQuery;
 import com.redhat.lightblue.crud.WithRange;
+import com.redhat.lightblue.crud.WithIfSame;
 import com.redhat.lightblue.assoc.AnalyzeQuery;
 import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
