@@ -673,7 +673,7 @@ public class Mediator {
         if(request instanceof WithIfSame) {
             WithIfSame wif=(WithIfSame)request;
             if(wif.isIfSameOnly()) {
-                ctx.setUpdateIfSame(true);
+                ctx.setUpdateIfCurrent(true);
                 List<String> list=wif.getDocumentVersions();
                 if(list!=null)
                     ctx.getUpdateDocumentVersions().addAll(list);

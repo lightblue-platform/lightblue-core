@@ -54,7 +54,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final HookManager hookManager;
     private final ExecutionOptions executionOptions;
     private final Set<String> documentVersions=new HashSet<>();
-    private boolean updateIfSame;
+    private boolean updateIfCurrent;
 
     /**
      * This is the constructor used to represent the context of an operation
@@ -123,12 +123,12 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * updateDocumentVersions set, and update them only if they are
      * unchanged
      */
-    public boolean isUpdateIfSame() {
-        return updateIfSame;
+    public boolean isUpdateIfCurrent() {
+        return updateIfCurrent;
     }
 
-    public void setUpdateIfSame(boolean b) {
-        updateIfSame=b;
+    public void setUpdateIfCurrent(boolean b) {
+        updateIfCurrent=b;
     }
         
     /**
