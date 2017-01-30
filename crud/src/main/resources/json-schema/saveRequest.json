@@ -45,7 +45,7 @@
              "type": "boolean",
              "default": false
          },
-         "onlyIfSame":{
+         "onlyIfCurrent":{
              "type":"boolean",
              "description":"If true, perform the operation only if document version is unchanged"
          },

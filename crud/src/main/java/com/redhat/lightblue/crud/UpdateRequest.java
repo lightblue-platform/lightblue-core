@@ -30,24 +30,24 @@ import com.redhat.lightblue.query.UpdateExpression;
 /**
  * Request to update documents based on a query
  */
-public class UpdateRequest extends Request implements WithQuery, WithProjection, WithRange, WithIfSame {
+public class UpdateRequest extends Request implements WithQuery, WithProjection, WithRange, WithIfCurrent {
 
     private QueryExpression query;
     private UpdateExpression updateExpression;
     private Projection returnFields;
     private Long from;
     private Long to;
-    private boolean ifSameOnly;
+    private boolean ifCurrentOnly;
     private List<String> documentVersions;
 
     @Override
-    public boolean isIfSameOnly() {
-        return ifSameOnly;
+    public boolean isIfCurrentOnly() {
+        return ifCurrentOnly;
     }
 
     @Override
-    public void setIfSameOnly(boolean b) {
-        ifSameOnly=b;
+    public void setIfCurrentOnly(boolean b) {
+        ifCurrentOnly=b;
     }
 
     @Override
@@ -146,7 +146,7 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection,
         if (returnFields != null) {
             node.set("projection", returnFields.toJson());
         }
-        WithIfSame.toJson(this,node);
+        WithIfCurrent.toJson(this,node);
         WithRange.toJson(this, getFactory(), node);
         return node;
     }
@@ -169,7 +169,7 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection,
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }
-        WithIfSame.fromJson(req,node);
+        WithIfCurrent.fromJson(req,node);
         Range r = WithRange.fromJson(node);
         req.setFrom(r.from);
         req.setTo(r.to);

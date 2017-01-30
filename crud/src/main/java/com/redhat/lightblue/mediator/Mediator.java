@@ -53,7 +53,7 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.WithQuery;
 import com.redhat.lightblue.crud.WithRange;
-import com.redhat.lightblue.crud.WithIfSame;
+import com.redhat.lightblue.crud.WithIfCurrent;
 import com.redhat.lightblue.assoc.AnalyzeQuery;
 import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
@@ -670,9 +670,9 @@ public class Mediator {
 
     protected OperationContext newCtx(Request request, CRUDOperation CRUDOperation) {
         OperationContext ctx=new OperationContext(request, metadata, factory, CRUDOperation);
-        if(request instanceof WithIfSame) {
-            WithIfSame wif=(WithIfSame)request;
-            if(wif.isIfSameOnly()) {
+        if(request instanceof WithIfCurrent) {
+            WithIfCurrent wif=(WithIfCurrent)request;
+            if(wif.isIfCurrentOnly()) {
                 ctx.setUpdateIfCurrent(true);
                 List<String> list=wif.getDocumentVersions();
                 if(list!=null)

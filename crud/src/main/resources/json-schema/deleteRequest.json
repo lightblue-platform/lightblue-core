@@ -34,7 +34,7 @@
            "query": {
                "$ref": "/json-schema/crudCommon.json#/definitions/query"
            },
-            "onlyIfSame":{
+            "onlyIfCurrent":{
                 "type":"boolean",
                 "description":"If true, perform the operation only if document version is unchanged"
             },
