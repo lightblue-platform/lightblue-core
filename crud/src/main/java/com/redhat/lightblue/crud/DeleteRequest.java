@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.crud;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
@@ -30,6 +32,7 @@ import com.redhat.lightblue.query.QueryExpression;
 public class DeleteRequest extends Request implements WithQuery {
 
     private QueryExpression query;
+
 
     /**
      * The query whose result set will be deleted

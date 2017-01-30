@@ -23,17 +23,27 @@
         "properties": {
            "client": {
            },
-           "objectType": {
+           "entity": {
            },
-           "version": {
+           "entityVersion": {
            },
            "execution": {
            },
            "projection": {
            },
            "query": {
-              "$ref": "/json-schema/crudCommon.json#/definitions/query"
-           }
+               "$ref": "/json-schema/crudCommon.json#/definitions/query"
+           },
+            "onlyIfCurrent":{
+                "type":"boolean",
+                "description":"If true, perform the operation only if document version is unchanged"
+            },
+            "documentVersions":{
+                "type":"array",
+                "items":{
+                    "type":"string"
+                }
+            }
         },
     "required": [
          "query"

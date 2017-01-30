@@ -23,9 +23,9 @@
      "properties": {
          "client": {
          },
-         "objectType": {
+         "entity": {
          },
-         "version": {
+         "entityVersion": {
          },
          "execution": {
          },
@@ -44,6 +44,16 @@
          "upsert": {
              "type": "boolean",
              "default": false
+         },
+         "onlyIfCurrent":{
+             "type":"boolean",
+             "description":"If true, perform the operation only if document version is unchanged"
+         },
+         "documentVersions":{
+             "type":"array",
+             "items":{
+                 "type":"string"
+             }
          }
      },
      "required": [

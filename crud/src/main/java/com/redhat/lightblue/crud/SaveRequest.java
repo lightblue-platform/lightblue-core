@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.crud;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.query.Projection;
@@ -25,12 +27,34 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to save documents
  */
-public class SaveRequest extends DocRequest implements WithRange, WithProjection {
+public class SaveRequest extends DocRequest implements WithRange, WithProjection, WithIfCurrent {
 
     private Projection returnFields;
     private boolean upsert;
     private Long from;
     private Long to;
+    private boolean ifCurrentOnly;
+    private List<String> documentVersions;
+
+    @Override
+    public boolean isIfCurrentOnly() {
+        return ifCurrentOnly;
+    }
+
+    @Override
+    public void setIfCurrentOnly(boolean b) {
+        ifCurrentOnly=b;
+    }
+
+    @Override
+    public List<String> getDocumentVersions() {
+        return documentVersions;
+    }
+
+    @Override
+    public void setDocumentVersions(List<String> s) {
+        documentVersions=s;
+    }
 
     /**
      * Specifies the fields of the inserted entities to return. This can be used
@@ -100,6 +124,7 @@ public class SaveRequest extends DocRequest implements WithRange, WithProjection
             node.set("projection", returnFields.toJson());
         }
         node.put("upsert", upsert);
+        WithIfCurrent.toJson(this,node);
         WithRange.toJson(this, getFactory(), node);
         return node;
     }
@@ -118,6 +143,7 @@ public class SaveRequest extends DocRequest implements WithRange, WithProjection
         if (x != null) {
             req.upsert = x.asBoolean();
         }
+        WithIfCurrent.fromJson(req,node);
         Range r = WithRange.fromJson(node);
         req.setFrom(r.from);
         req.setTo(r.to);
