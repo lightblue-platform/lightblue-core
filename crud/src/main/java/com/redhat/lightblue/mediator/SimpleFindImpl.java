@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.OperationStatus;
-
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.crud.ExplainQuerySupport;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -41,12 +41,10 @@ public class SimpleFindImpl implements Finder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleFindImpl.class);
 
-    private final EntityMetadata md;
     private final CRUDController controller;
 
     public SimpleFindImpl(EntityMetadata md,
                           Factory factory) {
-        this.md = md;
         this.controller = factory.getCRUDController(md);
         LOGGER.debug("Controller for {}:{}", md.getName(), controller.getClass().getName());
     }
@@ -86,7 +84,7 @@ public class SimpleFindImpl implements Finder {
                                                       req.getTo(),
                                                       doc);
             LOGGER.debug("Adding explain doc:{}",doc);
-            ctx.addDocument(doc);
+            ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new DocCtx(doc)));
         }
     }
 }

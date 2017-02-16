@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.DocumentStream;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -207,8 +209,7 @@ public class HookManager {
         }
         LOGGER.debug("Hooks are resolved: {}", hooks);
         if (!hooks.isEmpty()) {
-            List<DocCtx> documents = ctx.getDocumentsWithoutErrors();
-            LOGGER.debug("There are {} documents", documents.size());
+            DocumentStream<DocCtx> documents=ctx.getDocumentStream();
             // We don't want to create a separate copy of every
             // document for each hook. So, we share the only copy of
             // the document between hooks.  First we create a list of
@@ -219,12 +220,14 @@ public class HookManager {
             // list where each element gives a hook, and all the
             // documents that will be passed to that hook.
             List<DocHooks> docHooksList = new ArrayList<>();
-            for (DocCtx doc : documents) {
-                if (doc.getCRUDOperationPerformed() != null) {
-                    Map<Hook, CRUDHook> hooksList = null;
-                    for (Map.Entry<Hook, CRUDHook> hook : hooks.entrySet()) {
-                        boolean queue;
-                        switch (doc.getCRUDOperationPerformed()) {
+            for (Iterator<DocCtx> itr=documents.getDocuments();itr.hasNext();) {
+                DocCtx doc=itr.next();
+                if(!doc.hasErrors()) {
+                    if (doc.getCRUDOperationPerformed() != null) {
+                        Map<Hook, CRUDHook> hooksList = null;
+                        for (Map.Entry<Hook, CRUDHook> hook : hooks.entrySet()) {
+                            boolean queue;
+                            switch (doc.getCRUDOperationPerformed()) {
                             case INSERT:
                                 queue = hook.getKey().isInsert();
                                 break;
@@ -240,16 +243,17 @@ public class HookManager {
                             default:
                                 queue = false;
                                 break;
-                        }
-                        if (queue) {
-                            if (hooksList == null) {
-                                hooksList = new HashMap<>();
                             }
-                            hooksList.put(hook.getKey(), hook.getValue());
+                            if (queue) {
+                                if (hooksList == null) {
+                                    hooksList = new HashMap<>();
+                                }
+                                hooksList.put(hook.getKey(), hook.getValue());
+                            }
                         }
-                    }
-                    if (hooksList != null) {
-                        docHooksList.add(new DocHooks(doc, hooksList));
+                        if (hooksList != null) {
+                            docHooksList.add(new DocHooks(doc, hooksList));
+                        }
                     }
                 }
             }

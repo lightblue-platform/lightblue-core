@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+import com.redhat.lightblue.crud.DocumentStream;
+
 /**
  * Copies the results from another step
  */
@@ -59,7 +61,7 @@ public class Copy extends AbstractSearchStep {
     }
 
     @Override
-    protected final List<ResultDocument> getSearchResults(ExecutionContext ctx) {
+    protected final DocumentStream<ResultDocument> getSearchResults(ExecutionContext ctx) {
         // This should be called at all
         throw new IllegalStateException();
     }

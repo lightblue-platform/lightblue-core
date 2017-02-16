@@ -32,6 +32,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.ListDocumentStream;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
 
@@ -48,6 +49,8 @@ import com.redhat.lightblue.assoc.ep.ExecutionPlan;
 import com.redhat.lightblue.assoc.ep.StepResult;
 import com.redhat.lightblue.assoc.ep.ResultDocument;
 import com.redhat.lightblue.assoc.ep.ExecutionContext;
+import com.redhat.lightblue.assoc.ep.MakeDocCtx;
+import com.redhat.lightblue.assoc.ep.StepResultDocumentStream;
 
 import com.redhat.lightblue.util.JsonDoc;
 
@@ -140,7 +143,7 @@ public class CompositeFindImpl implements Finder {
         initialize(ctx,req);
         ExecutionContext executionContext = new ExecutionContext(ctx,null);
         JsonDoc doc=new JsonDoc(executionPlan.explain(executionContext));
-        ctx.addDocument(doc);        
+        ctx.setDocumentStream(new ListDocumentStream(new DocCtx(doc)));
     }
     
     @Override
@@ -158,7 +161,7 @@ public class CompositeFindImpl implements Finder {
                 Executors.newWorkStealingPool(parallelism));
         try {
             StepResult<ResultDocument> results = executionPlan.getResults(executionContext);
-            results.stream().map(d -> new DocCtx(d.getDoc())).forEach(d -> ctx.addDocument(d));
+            ctx.setDocumentStream(new StepResultDocumentStream(new MakeDocCtx(results)));            	
             response.setSize(executionContext.getMatchCount());
             LOGGER.debug("Composite find: end");
             return response;

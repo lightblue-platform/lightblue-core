@@ -40,6 +40,7 @@ import com.redhat.lightblue.mediator.SimpleFindImpl;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.DocumentStream;
 import com.redhat.lightblue.assoc.Conjunct;
 
 /**
@@ -90,11 +91,10 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        List<ResultDocument> list = getSearchResults(ctx);
-        return new ListStepResult(list);
+        return new DocumentStreamStepResult<ResultDocument>(getSearchResults(ctx));
     }
 
-    protected abstract List<ResultDocument> getSearchResults(ExecutionContext ctx);
+    protected abstract DocumentStream<ResultDocument> getSearchResults(ExecutionContext ctx);
 
     public OperationContext search(ExecutionContext ctx, CRUDFindRequest req) {
         return search(block, ctx, req);
@@ -125,7 +125,7 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
             }
             LOGGER.debug("execute {}: returning {} documents",
                     block.getQueryPlanNode().getName(),
-                    searchCtx.getDocuments().size());
+                         response.getSize());
         }
         return searchCtx;
     }

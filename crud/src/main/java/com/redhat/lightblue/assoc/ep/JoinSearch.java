@@ -20,6 +20,9 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -32,6 +35,8 @@ import com.redhat.lightblue.query.NaryLogicalOperator;
 
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.crud.CRUDFindRequest;
+import com.redhat.lightblue.crud.DocumentStream;
+import com.redhat.lightblue.crud.DocCtx;
 
 /**
  * Performs searches based on the n-tuple of result documents obtained from the
@@ -51,56 +56,89 @@ public class JoinSearch extends AbstractSearchStep {
     }
 
     @Override
-    protected List<ResultDocument> getSearchResults(ExecutionContext ctx) {
-        BatchQueryExecutor executor = new BatchQueryExecutor(256, ctx);
-        source.getStep().getResults(ctx).stream().forEach(x -> executor.add(x));
-        return executor.getResults();
+    protected DocumentStream<ResultDocument> getSearchResults(final ExecutionContext ctx) {
+        return new DocumentStream<ResultDocument>() {
+            @Override
+            public Iterator<ResultDocument> getDocuments() {
+                return new BatchQueryIterator(256,ctx);
+            }
+        };
     }
 
-    public class BatchQueryExecutor {
+    /**
+     * Streaming batch query executor/iterator
+     *
+     * When the results are retrieved from the stream, executes a
+     * batch of queries, computes results, and streams them to the
+     * caller
+     */
+    private class BatchQueryIterator implements Iterator<ResultDocument> {
         private final int batchSize;
-        private List<JoinTuple> jtBatch;
-        ;
-        private List<QueryExpression> qBatch;
         private final ExecutionContext ctx;
-        private List<ResultDocument> docs = new ArrayList<>();
+        private final Iterator<JoinTuple> sourceStream;
 
-        public BatchQueryExecutor(int batchSize, ExecutionContext ctx) {
-            this.batchSize = batchSize;
-            this.jtBatch = new ArrayList<>(batchSize);
-            this.qBatch = new ArrayList<>(batchSize);
-            this.ctx = ctx;
+        private Iterator<DocCtx> currentIterator;
+        private boolean done=false; // Are we still iterating, or are we done?
+        
+        public BatchQueryIterator(int batchSize,ExecutionContext ctx) {
+            this.batchSize=batchSize;
+            this.ctx=ctx;
+            sourceStream=source.getStep().getResults(ctx).stream().iterator();
         }
 
-        public void add(JoinTuple tuple) {
-            jtBatch.add(tuple);
-            qBatch.addAll(Searches.writeQueriesForJoinTuple(tuple, block));
-            if (qBatch.size() >= batchSize) {
-                executeBatch();
-                qBatch = new ArrayList<>(batchSize);
-                jtBatch = new ArrayList<>(batchSize);
+        @Override
+        public boolean hasNext() {
+            if(!done) {
+                if(currentIterator==null||!currentIterator.hasNext())
+                    retrieveNextBatch();
+                if(done)
+                    return false;
+                else
+                    return currentIterator.hasNext();
+            } else {
+                return false;
             }
         }
-
-        public void executeBatch() {
-            if (!qBatch.isEmpty()) {
-                QueryExpression q = Searches.combine(NaryLogicalOperator._or, qBatch);
-                CRUDFindRequest findRequest = new CRUDFindRequest();
-                findRequest.setQuery(Searches.and(q, query));
-                findRequest.setProjection(projection);
-                findRequest.setSort(sort);
-                findRequest.setFrom(from);
-                findRequest.setTo(to);
-                OperationContext opctx = search(ctx, findRequest);
-                opctx.getDocuments().stream().
-                        forEach(doc -> docs.add(new ResultDocument(block, doc.getOutputDocument())));
+        
+        @Override
+        public ResultDocument next() {
+            if(!done) {
+                if(currentIterator==null||!currentIterator.hasNext())
+                    retrieveNextBatch();
+                if(currentIterator!=null)
+                    return new ResultDocument(block,currentIterator.next().getOutputDocument());
             }
+            throw new NoSuchElementException();
         }
-
-        public List<ResultDocument> getResults() {
-            executeBatch();
-            return docs;
-        }
+        
+        private void retrieveNextBatch() {
+            do {
+                int n=0;
+                ArrayList<QueryExpression> qBatch=new ArrayList<>(batchSize);
+                currentIterator=null;
+                while(sourceStream.hasNext()&&n<batchSize) {
+                    JoinTuple t=sourceStream.next();
+                    qBatch.addAll(Searches.writeQueriesForJoinTuple(t, block));
+                    n++;
+                }
+                if(!qBatch.isEmpty()) {
+                    QueryExpression q = Searches.combine(NaryLogicalOperator._or, qBatch);
+                    CRUDFindRequest findRequest = new CRUDFindRequest();
+                    findRequest.setQuery(Searches.and(q, query));
+                    findRequest.setProjection(projection);
+                    findRequest.setSort(sort);
+                    findRequest.setFrom(from);
+                    findRequest.setTo(to);
+                    OperationContext opctx = search(ctx, findRequest);
+                    currentIterator=opctx.getDocumentStream().getDocuments();
+                    if(!currentIterator.hasNext())
+                        currentIterator=null;
+                } else {
+                    done=true;
+                }
+            } while(!done&&currentIterator==null);
+        }   
+            
     }
 
     @Override

@@ -46,7 +46,6 @@ import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.assoc.AnalyzeQuery;
 
 import com.redhat.lightblue.mindex.MemDocIndex;
-import com.redhat.lightblue.mindex.GetIndexKeySpec;
 import com.redhat.lightblue.mindex.GetIndexLookupSpec;
 import com.redhat.lightblue.mindex.KeySpec;
 import com.redhat.lightblue.mindex.LookupSpec;
@@ -350,7 +349,7 @@ public class Assemble extends Step<ResultDocument> {
         LOGGER.debug("Lookup spec:"+ls);
         List<ResultDocument> docs=reorder(childDocs,childIndex.find(ls));
         ArrayNode destNode=null;
-        for (ResultDocument childDoc : childDocs) {
+        for (ResultDocument childDoc : docs) {
             if (qeval.evaluate(childDoc.getDoc()).getResult()) {
                 destNode=ensureDestNodeExists(parentDoc,destNode,destFieldName);
                 destNode.add(childDoc.getDoc().getRoot());
