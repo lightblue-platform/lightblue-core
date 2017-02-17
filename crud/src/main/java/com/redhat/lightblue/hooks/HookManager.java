@@ -131,6 +131,23 @@ public class HookManager {
     }
 
     /**
+     * Returns true if there are any hooks for this operation
+     */
+    public boolean hasHooks(CRUDOperationContext ctx,CRUDOperation op) {
+        EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
+        List<Hook> mdHooks = md.getHooks().getHooks();
+        for (Hook h : mdHooks) {
+            switch (op) {
+            case INSERT: if(h.isInsert()) return true;
+            case UPDATE: if(h.isUpdate()) return true;
+            case DELETE: if(h.isDelete()) return true;
+            case FIND: if(h.isFind()) return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Queues hooks for the operation represented by the operation context.
      *
      * @param ctx Operation context
