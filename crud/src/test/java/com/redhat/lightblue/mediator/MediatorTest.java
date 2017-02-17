@@ -104,7 +104,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
         req.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
-        mockCrudController.insertCb=ctx->{ctx.getDocuments().get(0).setResultMetadata(getRmd("1"));};
+        mockCrudController.insertCb=ctx->{ctx.getInputDocuments().get(0).setResultMetadata(getRmd("1"));};
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         mockCrudController.insertResponse.setNumInserted(1);
         Response response = mediator.insert(req);
@@ -228,7 +228,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setReturnFields(null);
         mockCrudController.saveResponse=new CRUDSaveResponse();
         mockCrudController.saveResponse.setNumSaved(1);
-        mockCrudController.saveCb=ctx->{ctx.getDocuments().get(0).setResultMetadata(getRmd("1"));};
+        mockCrudController.saveCb=ctx->{ctx.getInputDocuments().get(0).setResultMetadata(getRmd("1"));};
 
         mdManager.md.getAccess().getInsert().setRoles("anyone");
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
@@ -336,6 +336,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityVersion(new EntityVersion("test", "1.0"));
 
         mdManager.md.getAccess().getFind().setRoles("role1");
+        mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
         mockCrudController.findResponse = new CRUDFindResponse();
         Response response = mediator.find(req);
 
@@ -390,6 +391,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
 
         mockCrudController.findResponse = new CRUDFindResponse();
+        mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
         Response response = mediator.find(req);
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
 
@@ -405,6 +407,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
 
         mockCrudController.findResponse = new CRUDFindResponse();
+        mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
         Response response = mediator.find(req);
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
     }
@@ -420,7 +423,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.insertResponse = new CRUDInsertionResponse();
         Response response = mediator.insert(req);
         System.out.println(response.getDataErrors());
-        JsonDoc doc = mockCrudController.ctx.getDocuments().get(0);
+        JsonDoc doc = mockCrudController.ctx.getInputDocuments().get(0);
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
         System.out.println(doc);
@@ -457,7 +460,7 @@ public class MediatorTest extends AbstractMediatorTest {
         String id = docNode.get("_id").asText();
 
         Response response = mediator.insert(req);
-        JsonDoc doc = mockCrudController.ctx.getDocuments().get(0);
+        JsonDoc doc = mockCrudController.ctx.getInputDocuments().get(0);
         System.out.println(doc);
 
         Assert.assertEquals(id, doc.get(new Path("_id")).asText());
@@ -477,7 +480,7 @@ public class MediatorTest extends AbstractMediatorTest {
         System.out.println(response.getDataErrors());
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
-        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+        System.out.println(mockCrudController.ctx.getInputDocuments().get(0));
     }
 
     @Test
@@ -493,7 +496,7 @@ public class MediatorTest extends AbstractMediatorTest {
         System.out.println(response.getErrors());
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
-        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+        System.out.println(mockCrudController.ctx.getInputDocuments().get(0));
     }
 
     @Test
@@ -509,7 +512,7 @@ public class MediatorTest extends AbstractMediatorTest {
         System.out.println(response.getErrors());
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
-        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+        System.out.println(mockCrudController.ctx.getInputDocuments().get(0));
     }
 
 }

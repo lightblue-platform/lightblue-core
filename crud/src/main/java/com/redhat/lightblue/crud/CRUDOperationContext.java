@@ -71,8 +71,9 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        if(docs!=null)
-        	documents=docs.stream().map(x->new DocCtx(x)).collect(Collectors.toList());
+        if(docs!=null) {
+        	setInputDocuments(docs.stream().map(x->new DocCtx(x)).collect(Collectors.toList()));
+        }
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
         this.callerRoles = new HashSet<>();
         this.executionOptions = eo;
@@ -88,8 +89,9 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        if(docs!=null)
-        	documents=docs.stream().map(x->new DocCtx(x)).collect(Collectors.toList());
+        if(docs!=null) {
+        	setInputDocuments(docs.stream().map(x->new DocCtx(x)).collect(Collectors.toList()));
+        }
         this.callerRoles = callerRoles;
         this.hookManager = hookManager;
         this.executionOptions = eo;
@@ -109,7 +111,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        this.documents = docs;
+        setInputDocuments(docs);
         this.callerRoles = callerRoles;
         this.hookManager = hookManager;
         this.executionOptions = eo;
@@ -183,26 +185,22 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * to iterate through those documents.
      */
     public DocumentStream<DocCtx> getDocumentStream() {
-        return documentStream==null?new ListDocumentStream<DocCtx>(documents==null?new ArrayList<DocCtx>():documents):documentStream;
+        return documentStream;
     }
 
     /**
-     * Returns the list of documents in the context.
-     *
-     * If the list of documents is not set, but the document stream is set, this call constructs a list from the
-     * document stream and returns that
+     * Returns the list of input documents in the context.
      */
-    public List<DocCtx> getDocuments() {
-        if(documents==null&&documentStream!=null) {
-            documents=new ArrayList<DocCtx>();
-            for(Iterator<DocCtx> itr=documentStream.getDocuments();itr.hasNext();)
-                documents.add(itr.next());
-        }
+    public List<DocCtx> getInputDocuments() {
         return documents;
     }
 
-    public void setDocuments(List<DocCtx> docs) {
+    public void setInputDocuments(List<DocCtx> docs) {
         documents = docs;
+        if(documents!=null) {
+            // Set the documentStream to input documents. A later call to setDocumentStream may set the output stream
+            documentStream=new ListDocumentStream(documents);
+        }
     }
 
     /**

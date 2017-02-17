@@ -21,6 +21,7 @@ package com.redhat.lightblue.assoc;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 
 import java.util.concurrent.Executors;
 
@@ -143,7 +144,9 @@ public class CompositeFindImpl implements Finder {
         initialize(ctx,req);
         ExecutionContext executionContext = new ExecutionContext(ctx,null);
         JsonDoc doc=new JsonDoc(executionPlan.explain(executionContext));
-        ctx.setDocumentStream(new ListDocumentStream(new DocCtx(doc)));
+        ArrayList<DocCtx> l=new ArrayList<>(1);
+        l.add(new DocCtx(doc));
+        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(l));
     }
     
     @Override

@@ -57,12 +57,7 @@ public class JoinSearch extends AbstractSearchStep {
 
     @Override
     protected DocumentStream<ResultDocument> getSearchResults(final ExecutionContext ctx) {
-        return new DocumentStream<ResultDocument>() {
-            @Override
-            public Iterator<ResultDocument> getDocuments() {
-                return new BatchQueryIterator(256,ctx);
-            }
-        };
+        return new BatchQueryIterator(256,ctx);
     }
 
     /**
@@ -72,12 +67,12 @@ public class JoinSearch extends AbstractSearchStep {
      * batch of queries, computes results, and streams them to the
      * caller
      */
-    private class BatchQueryIterator implements Iterator<ResultDocument> {
+    private class BatchQueryIterator implements DocumentStream<ResultDocument> {
         private final int batchSize;
         private final ExecutionContext ctx;
         private final Iterator<JoinTuple> sourceStream;
 
-        private Iterator<DocCtx> currentIterator;
+        private DocumentStream<DocCtx> currentIterator;
         private boolean done=false; // Are we still iterating, or are we done?
         
         public BatchQueryIterator(int batchSize,ExecutionContext ctx) {
@@ -110,12 +105,21 @@ public class JoinSearch extends AbstractSearchStep {
             }
             throw new NoSuchElementException();
         }
+
+        @Override
+        public void close() {
+            if(currentIterator!=null)
+                currentIterator.close();
+        }            
         
         private void retrieveNextBatch() {
             do {
                 int n=0;
                 ArrayList<QueryExpression> qBatch=new ArrayList<>(batchSize);
-                currentIterator=null;
+                if(currentIterator!=null) {
+                    currentIterator.close();
+                    currentIterator=null;
+                }
                 while(sourceStream.hasNext()&&n<batchSize) {
                     JoinTuple t=sourceStream.next();
                     qBatch.addAll(Searches.writeQueriesForJoinTuple(t, block));
@@ -130,9 +134,11 @@ public class JoinSearch extends AbstractSearchStep {
                     findRequest.setFrom(from);
                     findRequest.setTo(to);
                     OperationContext opctx = search(ctx, findRequest);
-                    currentIterator=opctx.getDocumentStream().getDocuments();
-                    if(!currentIterator.hasNext())
+                    currentIterator=opctx.getDocumentStream();
+                    if(!currentIterator.hasNext()) {
+                        currentIterator.close();
                         currentIterator=null;
+                    }
                 } else {
                     done=true;
                 }

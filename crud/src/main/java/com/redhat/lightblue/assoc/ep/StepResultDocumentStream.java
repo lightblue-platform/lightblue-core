@@ -11,14 +11,22 @@ import com.redhat.lightblue.crud.DocumentStream;
  */
 public class StepResultDocumentStream implements DocumentStream<DocCtx> {
 
-    private final StepResult<DocCtx> result;
+    private final Iterator<DocCtx> itr;
 
     public StepResultDocumentStream(StepResult<DocCtx> result) {
-        this.result=result;
+        this.itr=result.stream().iterator();
     }
 
     @Override
-    public Iterator<DocCtx> getDocuments() {
-        return result.stream().iterator();
+    public boolean hasNext() {
+        return itr.hasNext();
     }
+
+    @Override
+    public DocCtx next() {
+        return itr.next();
+    }
+
+    @Override
+    public void close() {}
 }

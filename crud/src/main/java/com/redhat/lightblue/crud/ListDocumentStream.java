@@ -18,28 +18,39 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * Default trivial implementation of document stream using a list
+ * Default trivial implementation of document stream that uses a list to hold its elements
  */
 public class ListDocumentStream<T> implements DocumentStream<T> {
 
     private final List<T> documents;
-    
-    public ListDocumentStream(T item) {
-    	this.documents=new ArrayList<T>(1);
-    	this.documents.add(item);
-    }
+    private final Iterator<T> itr;
     
     public ListDocumentStream(List<T> list) {
         this.documents=list;
+        this.itr=documents.iterator();
+    }
+
+    /**
+     * Return the underlying list
+     */
+    public List<T> getDocuments() {
+        return documents;
     }
 
     @Override
-    public Iterator<T> getDocuments() {
-        return documents.iterator();
+    public boolean hasNext() {
+        return itr.hasNext();
     }
+
+    @Override
+    public T next() {
+        return itr.next();
+    }
+
+    @Override
+    public void close() {}
 }

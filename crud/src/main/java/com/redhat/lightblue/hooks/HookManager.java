@@ -33,6 +33,7 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.DocumentStream;
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -210,82 +211,89 @@ public class HookManager {
         LOGGER.debug("Hooks are resolved: {}", hooks);
         if (!hooks.isEmpty()) {
             DocumentStream<DocCtx> documents=ctx.getDocumentStream();
-            // We don't want to create a separate copy of every
-            // document for each hook. So, we share the only copy of
-            // the document between hooks.  First we create a list of
-            // DocHooks. Each element in this list contains a
-            // document, and all the hooks associated with that
-            // document. This step also creates copies of the
-            // documents. Then, we create another list, the HookDocs
-            // list where each element gives a hook, and all the
-            // documents that will be passed to that hook.
-            List<DocHooks> docHooksList = new ArrayList<>();
-            for (Iterator<DocCtx> itr=documents.getDocuments();itr.hasNext();) {
-                DocCtx doc=itr.next();
-                if(!doc.hasErrors()) {
-                    if (doc.getCRUDOperationPerformed() != null) {
-                        Map<Hook, CRUDHook> hooksList = null;
-                        for (Map.Entry<Hook, CRUDHook> hook : hooks.entrySet()) {
-                            boolean queue;
-                            switch (doc.getCRUDOperationPerformed()) {
-                            case INSERT:
-                                queue = hook.getKey().isInsert();
-                                break;
-                            case UPDATE:
-                                queue = hook.getKey().isUpdate();
-                                break;
-                            case DELETE:
-                                queue = hook.getKey().isDelete();
-                                break;
-                            case FIND:
-                                queue = hook.getKey().isFind();
-                                break;
-                            default:
-                                queue = false;
-                                break;
-                            }
-                            if (queue) {
-                                if (hooksList == null) {
-                                    hooksList = new HashMap<>();
+            if(documents instanceof ListDocumentStream) {
+                // If this is the case, then we have access to all the documents, and
+                // we can call hooks at once
+                
+                // We don't want to create a separate copy of every
+                // document for each hook. So, we share the only copy of
+                // the document between hooks.  First we create a list of
+                // DocHooks. Each element in this list contains a
+                // document, and all the hooks associated with that
+                // document. This step also creates copies of the
+                // documents. Then, we create another list, the HookDocs
+                // list where each element gives a hook, and all the
+                // documents that will be passed to that hook.
+                List<DocHooks> docHooksList = new ArrayList<>();
+                for (DocCtx doc:((ListDocumentStream<DocCtx>)documents).getDocuments()) {
+                    if(!doc.hasErrors()) {
+                        if (doc.getCRUDOperationPerformed() != null) {
+                            Map<Hook, CRUDHook> hooksList = null;
+                            for (Map.Entry<Hook, CRUDHook> hook : hooks.entrySet()) {
+                                boolean queue;
+                                switch (doc.getCRUDOperationPerformed()) {
+                                case INSERT:
+                                    queue = hook.getKey().isInsert();
+                                    break;
+                                case UPDATE:
+                                    queue = hook.getKey().isUpdate();
+                                    break;
+                                case DELETE:
+                                    queue = hook.getKey().isDelete();
+                                    break;
+                                case FIND:
+                                    queue = hook.getKey().isFind();
+                                    break;
+                                default:
+                                    queue = false;
+                                    break;
                                 }
-                                hooksList.put(hook.getKey(), hook.getValue());
+                                if (queue) {
+                                    if (hooksList == null) {
+                                        hooksList = new HashMap<>();
+                                    }
+                                    hooksList.put(hook.getKey(), hook.getValue());
+                                }
+                            }
+                            if (hooksList != null) {
+                                docHooksList.add(new DocHooks(doc, hooksList));
                             }
                         }
-                        if (hooksList != null) {
-                            docHooksList.add(new DocHooks(doc, hooksList));
+                    }
+                }
+                
+                LOGGER.debug("List of docs with hooks size={}", docHooksList.size());
+                // At this point, we have the list of documents, with each
+                // document containing its hooks. Now we process that, and
+                // create a list of hooks, each containing the documents
+                // it will get.
+                Map<Hook, HookDocs> hookCache = new HashMap<>();
+                for (DocHooks dh : docHooksList) {
+                    for (Map.Entry<Hook, CRUDHook> hook : dh.hooks.entrySet()) {
+                        HookDocs hd = hookCache.get(hook.getKey());
+                        if (hd == null) {
+                            hd = new HookDocs(hook.getKey(), hook.getValue(), md);
+                            hookCache.put(hook.getKey(), hd);
                         }
-                    }
-                }
-            }
-            LOGGER.debug("List of docs with hooks size={}", docHooksList.size());
-            // At this point, we have the list of documents, with each
-            // document containing its hooks. Now we process that, and
-            // create a list of hooks, each containing the documents
-            // it will get.
-            Map<Hook, HookDocs> hookCache = new HashMap<>();
-            for (DocHooks dh : docHooksList) {
-                for (Map.Entry<Hook, CRUDHook> hook : dh.hooks.entrySet()) {
-                    HookDocs hd = hookCache.get(hook.getKey());
-                    if (hd == null) {
-                        hd = new HookDocs(hook.getKey(), hook.getValue(), md);
-                        hookCache.put(hook.getKey(), hd);
-                    }
-
-                    // extract the who from the context if possible
-                    String who = null;
-                    if (ctx instanceof OperationContext && ((OperationContext) ctx).getRequest() != null
+                        
+                        // extract the who from the context if possible
+                        String who = null;
+                        if (ctx instanceof OperationContext && ((OperationContext) ctx).getRequest() != null
                             && ((OperationContext) ctx).getRequest().getClientId() != null) {
-                        who = ((OperationContext) ctx).getRequest().getClientId().getPrincipal();
+                            who = ((OperationContext) ctx).getRequest().getClientId().getPrincipal();
+                        }
+                        
+                        hd.docs.add(new HookDoc(
+                                                hd.md,
+                                                dh.pre, dh.post, dh.op, who));
                     }
-
-                    hd.docs.add(new HookDoc(
-                            hd.md,
-                            dh.pre, dh.post, dh.op, who));
                 }
+                LOGGER.debug("Queueing {} hooks", hookCache.size());
+                // Queue the hooks
+                queuedHooks.addAll(hookCache.values());
+            } else {
+                // TODO: Use a closure to tap into the stream
             }
-            LOGGER.debug("Queueing {} hooks", hookCache.size());
-            // Queue the hooks
-            queuedHooks.addAll(hookCache.values());
         }
     }
 

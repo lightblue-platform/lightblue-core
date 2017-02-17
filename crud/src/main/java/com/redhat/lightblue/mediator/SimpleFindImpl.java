@@ -19,6 +19,8 @@
  */
 package com.redhat.lightblue.mediator;
 
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +86,9 @@ public class SimpleFindImpl implements Finder {
                                                       req.getTo(),
                                                       doc);
             LOGGER.debug("Adding explain doc:{}",doc);
-            ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new DocCtx(doc)));
+            ArrayList<DocCtx> l=new ArrayList<>(1);
+            l.add(new DocCtx(doc));
+            ctx.setDocumentStream(new ListDocumentStream<DocCtx>(l));
         }
     }
 }

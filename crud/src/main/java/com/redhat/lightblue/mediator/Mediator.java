@@ -139,7 +139,7 @@ public class Mediator {
                     response.setModifiedCount(ir.getNumInserted());
                     List<DataError> dataErrors=setResponseResults(ctx,req,response);
                     response.getDataErrors().addAll(dataErrors);
-                    if (!ctx.hasErrors() && dataErrors.isEmpty() && ctx.getDocuments().size()==ir.getNumInserted()) {
+                    if (!ctx.hasErrors() && dataErrors.isEmpty() && ctx.getInputDocuments().size()==ir.getNumInserted()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
                     } else if (ir.getNumInserted()>0) {
                         ctx.setStatus(OperationStatus.PARTIAL);
@@ -204,7 +204,7 @@ public class Mediator {
                     response.setModifiedCount(sr.getNumSaved());
                     List<DataError> dataErrors=setResponseResults(ctx,req,response);
                     response.getDataErrors().addAll(dataErrors);
-                    if (!ctx.hasErrors() && dataErrors.isEmpty() && ctx.getDocuments().size()==sr.getNumSaved()) {
+                    if (!ctx.hasErrors() && dataErrors.isEmpty() && ctx.getInputDocuments().size()==sr.getNumSaved()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
                     } else if (sr.getNumSaved()>0) {
                         ctx.setStatus(OperationStatus.PARTIAL);
@@ -396,8 +396,8 @@ public class Mediator {
 
         // Now write a query
         List<QueryExpression> orq = new ArrayList<>();
-        for (Iterator<DocCtx> itr=docStream.getDocuments();itr.hasNext();) {
-            DocCtx doc=itr.next();
+        for (;docStream.hasNext();) {
+            DocCtx doc=docStream.next();
             if(!doc.hasErrors()) {
                 DocId id = docIdx.getDocId(doc);
                 List<QueryExpression> idList = new ArrayList<>(identityFields.length);
@@ -418,6 +418,7 @@ public class Mediator {
                 orq.add(idq);
             }
         }
+        docStream.close();
         if (orq.isEmpty()) {
             return null;
         } else if (orq.size() == 1) {
@@ -464,8 +465,8 @@ public class Mediator {
                 DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
                 List<ResultMetadata> rmd=new ArrayList<>();
                 response.setEntityData(factory.getNodeFactory().arrayNode());
-                for(Iterator<DocCtx> itr=docStream.getDocuments();itr.hasNext();) {
-                    DocCtx doc=itr.next();
+                for(;docStream.hasNext();) {
+                    DocCtx doc=docStream.next();
                     if(!doc.hasErrors()) {          
                         response.addEntityData(doc.getOutputDocument().getRoot());
                         rmd.add(doc.getResultMetadata());
@@ -475,6 +476,7 @@ public class Mediator {
                             response.getDataErrors().add(error);
                     }
                 }
+                docStream.close();
                 response.setResultMetadata(rmd);
                 if (!ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.COMPLETE);
@@ -532,12 +534,11 @@ public class Mediator {
             finder.explain(ctx, req.getCRUDFindRequest());
             
             DocumentStream<DocCtx> documentStream = ctx.getDocumentStream();
-            Iterator<DocCtx> itr=documentStream!=null?documentStream.getDocuments():null;
-            if(itr!=null&&itr.hasNext()) {
+            if(documentStream!=null&&documentStream.hasNext()) {
                 ctx.setStatus(OperationStatus.COMPLETE);
                 List<JsonDoc> resultList = new ArrayList<>();
-                while(itr.hasNext()) {
-                    resultList.add(itr.next().getOutputDocument());
+                while(documentStream.hasNext()) {
+                    resultList.add(documentStream.next().getOutputDocument());
                 }
                 response.setMatchCount(resultList.size());
                 response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
@@ -695,7 +696,7 @@ public class Mediator {
     }
 
     private void updatePredefinedFields(OperationContext ctx, CRUDController controller, String entity) {
-        for (JsonDoc doc : ctx.getDocuments()) {
+        for (JsonDoc doc : ctx.getInputDocuments()) {
             PredefinedFields.updateArraySizes(ctx.getTopLevelEntityMetadata(), factory.getNodeFactory(), doc);
             JsonNode node = doc.get(OBJECT_TYPE_PATH);
             if (node == null) {
@@ -746,8 +747,8 @@ public class Mediator {
         int ix=0;
         DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
         List<ResultMetadata> rmd=new ArrayList<>();
-        for(Iterator<DocCtx> itr=docStream.getDocuments();itr.hasNext();) {
-            DocCtx doc=itr.next();
+        for(;docStream.hasNext();) {
+            DocCtx doc=docStream.next();
             if(!doc.hasErrors()) {                
                 if(ix>=f&&ix<=t) {                
                     response.addEntityData(doc.getOutputDocument().getRoot());
@@ -760,6 +761,7 @@ public class Mediator {
                     dataErrors.add(error);
             }
         }
+        docStream.close();
         response.setResultMetadata(rmd);
         return dataErrors;
     }

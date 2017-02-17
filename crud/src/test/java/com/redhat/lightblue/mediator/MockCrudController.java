@@ -1,5 +1,7 @@
 package com.redhat.lightblue.mediator;
 
+import java.util.ArrayList;
+
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -7,6 +9,8 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.ListDocumentStream;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.extensions.Extension;
 import com.redhat.lightblue.extensions.ExtensionSupport;
 import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
@@ -42,6 +46,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
                                         Projection projection) {
         this.ctx = ctx;
         insertCb.cb(ctx);
+        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(ctx.getInputDocuments()==null?new ArrayList<>():ctx.getInputDocuments()));
         return insertResponse;
     }
 
@@ -51,6 +56,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
                                  Projection projection) {
         this.ctx = ctx;
         saveCb.cb(ctx);
+        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(ctx.getInputDocuments()==null?new ArrayList<>():ctx.getInputDocuments()));
         return saveResponse;
     }
 
@@ -61,6 +67,7 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
                                      Projection projection) {
         this.ctx = ctx;
         updateCb.cb(ctx);
+        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(ctx.getInputDocuments()==null?new ArrayList<>():ctx.getInputDocuments()));
         return updateResponse;
     }
 

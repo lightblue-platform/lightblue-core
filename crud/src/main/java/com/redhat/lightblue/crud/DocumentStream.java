@@ -19,11 +19,32 @@
 package com.redhat.lightblue.crud;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 /**
  * This interface is used to stream documents. A call to getDocuments
  * should return an iterator of the document resultset.
  */
-public interface DocumentStream<T> {
-    Iterator<T> getDocuments();
+public interface DocumentStream<T> extends Iterator<T>{
+    /**
+     * Close the document stream
+     */
+    void close();
+
+    public static <S,D> DocumentStream<D> map(final DocumentStream<S> source,final Function<S,D> map) {
+        return new DocumentStream<D>() {
+            @Override
+            public boolean hasNext() {
+                return source.hasNext();
+            }
+            @Override
+            public void close() {
+                source.close();
+            }
+            @Override
+            public D next() {
+                return map.apply(source.next());
+            }
+        };
+    }
 }

@@ -38,7 +38,6 @@ import com.redhat.lightblue.mediator.SimpleFindImpl;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.DocumentStream;
-import com.redhat.lightblue.crud.MapDocumentStream;
 import com.redhat.lightblue.crud.ListDocumentStream;
 
 import com.redhat.lightblue.util.JsonDoc;
@@ -57,7 +56,7 @@ public class Search extends AbstractSearchStep {
     }
     
     protected DocumentStream<ResultDocument> postProcess(OperationContext result, ExecutionContext ctx) {
-        return new MapDocumentStream<DocCtx,ResultDocument>(result.getDocumentStream(),x->new ResultDocument(block,x.getOutputDocument()));
+        return DocumentStream.map(result.getDocumentStream(),x->new ResultDocument(block,x.getOutputDocument()));
     }
 
     public OperationContext search(ExecutionContext ctx) {
@@ -96,13 +95,14 @@ public class Search extends AbstractSearchStep {
         OperationContext searchCtx = ctx.getOperationContext().
             getDerivedOperationContext(block.getMetadata().getName(), req);
         new SimpleFindImpl(block.getMetadata(), searchCtx.getFactory()).explain(searchCtx,req);
-        Iterator<DocCtx> itr=searchCtx.getDocumentStream().getDocuments();
+        DocumentStream<DocCtx> itr=searchCtx.getDocumentStream();
         List<JsonDoc> docs=new ArrayList<>();
         while(itr.hasNext()) {
             DocCtx doc=itr.next();
             if(!doc.hasErrors())
                 docs.add(doc.getOutputDocument());
         }
+        itr.close();
         if(!docs.isEmpty()) {
             if(docs.size()==1) {
                 node.set("implementation",docs.get(0).getRoot());

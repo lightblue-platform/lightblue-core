@@ -47,7 +47,7 @@ public class GeneratedFieldInterceptor implements CRUDDocInterceptor, MediatorIn
     @Override
     public void run(OperationContext ctx) {
         EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
-        for (DocCtx doc : ctx.getDocuments()) {
+        for (DocCtx doc : ctx.getInputDocuments()) {
             GeneratedFields.initializeGeneratedFields(ctx.getFactory(), md, doc);
         }
     }
