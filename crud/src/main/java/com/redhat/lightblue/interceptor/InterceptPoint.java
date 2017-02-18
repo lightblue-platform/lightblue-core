@@ -59,39 +59,24 @@ public class InterceptPoint implements Serializable {
     }
 
     public static final MediatorInterceptPoint PRE_MEDIATOR_INSERT = new MediatorInterceptPoint(0);
-    public static final MediatorInterceptPoint POST_MEDIATOR_INSERT = new MediatorInterceptPoint(1);
     public static final CRUDControllerInterceptPoint PRE_CRUD_INSERT = new CRUDControllerInterceptPoint(2);
     public static final CRUDDocInterceptPoint PRE_CRUD_INSERT_DOC = new CRUDDocInterceptPoint(3);
-    public static final CRUDDocInterceptPoint POST_CRUD_INSERT_DOC = new CRUDDocInterceptPoint(4);
-    public static final CRUDControllerInterceptPoint POST_CRUD_INSERT = new CRUDControllerInterceptPoint(5);
 
     public static final MediatorInterceptPoint PRE_MEDIATOR_SAVE = new MediatorInterceptPoint(10);
-    public static final MediatorInterceptPoint POST_MEDIATOR_SAVE = new MediatorInterceptPoint(11);
     public static final CRUDControllerInterceptPoint PRE_CRUD_SAVE = new CRUDControllerInterceptPoint(12);
-    public static final CRUDControllerInterceptPoint POST_CRUD_SAVE = new CRUDControllerInterceptPoint(13);
     public static final CRUDDocInterceptPoint PRE_CRUD_UPDATE_DOC_VALIDATION = new CRUDDocInterceptPoint(16);
     public static final CRUDDocInterceptPoint PRE_CRUD_UPDATE_DOC = new CRUDDocInterceptPoint(14);
-    public static final CRUDDocInterceptPoint POST_CRUD_UPDATE_DOC = new CRUDDocInterceptPoint(15);
 
     public static final MediatorInterceptPoint PRE_MEDIATOR_UPDATE = new MediatorInterceptPoint(20);
-    public static final MediatorInterceptPoint POST_MEDIATOR_UPDATE = new MediatorInterceptPoint(21);
     public static final CRUDControllerInterceptPoint PRE_CRUD_UPDATE = new CRUDControllerInterceptPoint(22);
-    public static final CRUDControllerInterceptPoint POST_CRUD_UPDATE = new CRUDControllerInterceptPoint(23);
     public static final CRUDControllerInterceptPoint PRE_CRUD_UPDATE_RESULTSET = new CRUDControllerInterceptPoint(24);
-    public static final CRUDControllerInterceptPoint POST_CRUD_UPDATE_RESULTSET = new CRUDControllerInterceptPoint(25);
 
     public static final MediatorInterceptPoint PRE_MEDIATOR_DELETE = new MediatorInterceptPoint(30);
-    public static final MediatorInterceptPoint POST_MEDIATOR_DELETE = new MediatorInterceptPoint(31);
     public static final CRUDControllerInterceptPoint PRE_CRUD_DELETE = new CRUDControllerInterceptPoint(32);
-    public static final CRUDControllerInterceptPoint POST_CRUD_DELETE = new CRUDControllerInterceptPoint(33);
     public static final CRUDDocInterceptPoint PRE_CRUD_DELETE_DOC = new CRUDDocInterceptPoint(34);
-    public static final CRUDDocInterceptPoint POST_CRUD_DELETE_DOC = new CRUDDocInterceptPoint(35);
 
     public static final MediatorInterceptPoint PRE_MEDIATOR_FIND = new MediatorInterceptPoint(40);
-    public static final MediatorInterceptPoint POST_MEDIATOR_FIND = new MediatorInterceptPoint(41);
     public static final CRUDControllerInterceptPoint PRE_CRUD_FIND = new CRUDControllerInterceptPoint(42);
-    public static final CRUDControllerInterceptPoint POST_CRUD_FIND = new CRUDControllerInterceptPoint(43);
-    public static final CRUDDocInterceptPoint POST_CRUD_FIND_DOC = new CRUDDocInterceptPoint(44);
 
     private final Class interceptorClass;
     private final int code;

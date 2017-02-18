@@ -149,7 +149,6 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.ERROR);
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_INSERT, ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -212,7 +211,6 @@ public class Mediator {
                         ctx.setStatus(OperationStatus.ERROR);
                     }
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_SAVE, ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -291,7 +289,6 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_UPDATE, ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -348,7 +345,6 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_DELETE, ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -485,7 +481,6 @@ public class Mediator {
                 }
                 
                 response.setMatchCount(result == null ? 0 : result.getSize());
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
             }
             // call any queued up hooks (regardless of status)
             ctx.getHookManager().queueMediatorHooks(ctx);
