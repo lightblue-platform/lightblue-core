@@ -27,11 +27,10 @@ import java.util.List;
 public class ListDocumentStream<T> implements DocumentStream<T> {
 
     private final List<T> documents;
-    private final Iterator<T> itr;
+    private Iterator<T> itr;
     
     public ListDocumentStream(List<T> list) {
         this.documents=list;
-        this.itr=documents.iterator();
     }
 
     /**
@@ -43,11 +42,19 @@ public class ListDocumentStream<T> implements DocumentStream<T> {
 
     @Override
     public boolean hasNext() {
+        // Lazy initialization, don't get the iterator until the last
+        // moment. This is to protect against concurrent modification
+        // exceptions if the list is modified between the creation of
+        // the iterator and the actual iteration
+        if(itr==null)
+            itr=documents.iterator();
         return itr.hasNext();
     }
 
     @Override
     public T next() {
+        if(itr==null)
+            itr=documents.iterator();
         return itr.next();
     }
 
