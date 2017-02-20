@@ -51,6 +51,7 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.ListDocumentStream;
 
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -86,7 +87,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     public static abstract class AbstractHook implements CRUDHook {
         private final String name;
         EntityMetadata md;
-        HookConfiguration cfg;
+         HookConfiguration cfg;
         List<HookDoc> processed;
 
         public AbstractHook(String n) {
@@ -321,6 +322,31 @@ public class HookManagerTest extends AbstractJsonNodeTest {
 
         //  hook2 should be called
         hooks.queueHooks(ctx);
+        hooks.callQueuedHooks();
+
+        Assert.assertNull(hook1.md);
+        Assert.assertEquals(ctx.md, hook2.md);
+        Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
+        Assert.assertNull(mediatorHook.md);
+    }
+
+
+    @Test
+    public void crudFindQueueTest_deferredProcessing() throws Exception {
+        HookManager hooks = new HookManager(resolver, nodeFactory);
+        TestOperationContext ctx = setupContext(CRUDOperation.FIND);
+
+        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(ctx.getInputDocuments()) {
+                @Override
+                public boolean canRewind() {return false;}
+            });
+        
+        //  hook2 should be called
+        hooks.queueHooks(ctx);
+        // Suck docs
+        while(ctx.getDocumentStream().hasNext())
+            ctx.getDocumentStream().next();
         hooks.callQueuedHooks();
 
         Assert.assertNull(hook1.md);

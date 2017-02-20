@@ -61,15 +61,14 @@ public class HookManager {
     private final HookResolver resolver;
     private final JsonNodeFactory factory;
 
-    private final List<HookDocs> queuedHooks = new ArrayList<>();
+    private final List<QueuedHook> queuedHooks = new ArrayList<>();
 
-    private static final class DocHooks {
+    private static final class HookDocInfo {
         private final JsonDoc pre;
         private final JsonDoc post;
         private final CRUDOperation op;
-        private final Map<Hook, CRUDHook> hooks;
 
-        public DocHooks(DocCtx doc, Map<Hook, CRUDHook> hooks) {
+        public HookDocInfo(DocCtx doc) {
             op = doc.getCRUDOperationPerformed();
             // Create a copy of the original version of the document, if non-null
             if (op == CRUDOperation.INSERT || op == CRUDOperation.FIND) {
@@ -92,25 +91,71 @@ public class HookManager {
             } else {
                 post = doc.copy();
             }
-            this.hooks = hooks;
         }
     }
 
-    private static final class HookDocs {
-        private final Hook hook;
-        private final CRUDHook crudHook;
-        private final EntityMetadata md;
-        private final List<HookDoc> docs = new ArrayList<>();
+    private class HookAndDocs {
+        final Hook hook;
+        final EntityMetadata md;
+        final CRUDHook resolvedHook;
+        final List<HookDocInfo> docList=new ArrayList<>();;
 
-        public HookDocs(Hook hook, CRUDHook crudHook, EntityMetadata md) {
-            this.hook = hook;
-            this.crudHook = crudHook;
-            this.md = md;
+        HookAndDocs(EntityMetadata md,
+                    Hook hook,
+                    CRUDHook resolvedHook) {
+            this.md=md;
+            this.hook=hook;
+            this.resolvedHook=resolvedHook;
         }
 
-        @Override
-        public String toString() {
-            return "HookDocs [hook=" + hook + ", crudHook=" + crudHook + ", md=" + md + ", docs=" + docs + "]";
+        void call(String who) {
+            List<HookDoc> processedDocuments = new ArrayList<>(docList.size());
+            if (hook.getProjection() != null) {
+                // Project the docs
+                Projector projector = Projector.getInstance(hook.getProjection(), md);
+                for (HookDocInfo doc : docList) {
+                    processedDocuments.add(new HookDoc(md,
+                                                       project(doc.pre, projector),
+                                                       project(doc.post, projector),
+                                                       doc.op,
+                                                       who));
+                }
+            } else {
+                for (HookDocInfo doc : docList) {
+                    processedDocuments.add(new HookDoc(md,
+                                                       doc.pre,
+                                                       doc.post,
+                                                       doc.op,
+                                                       who));
+                }
+            }
+            if(!processedDocuments.isEmpty()) {
+                try {
+                    resolvedHook.processHook(md, hook.getConfiguration(), processedDocuments);
+                } catch (RuntimeException e) {
+                    if (e.getClass().isAnnotationPresent(StopHookProcessing.class)) {
+                        throw e;
+                    } else {
+                        LOGGER.error("Exception while processing hook of type: " + resolvedHook.getClass(), e);
+                    }
+                }
+            }
+        }
+    }
+
+    private class QueuedHook {
+        final String who;
+        final List<HookAndDocs> hooks;
+
+        QueuedHook(String who,List<HookAndDocs> hooks) {
+            this.who=who;
+            this.hooks=hooks;
+        }
+
+        void call() {
+            for(HookAndDocs hook:hooks) {
+                hook.call(who);
+            }
         }
     }
 
@@ -178,34 +223,28 @@ public class HookManager {
      * hooks throws an exception with @StopHookProcessing annotation.
      */
     public void callQueuedHooks() {
-        for (HookDocs hd : queuedHooks) {
-            List<HookDoc> processedDocuments;
-            if (hd.hook.getProjection() != null) {
-                // Project the docs
-                processedDocuments = new ArrayList<>(hd.docs.size());
-                Projector projector = Projector.getInstance(hd.hook.getProjection(), hd.md);
-                for (HookDoc doc : hd.docs) {
-                    processedDocuments.add(new HookDoc(
-                            doc.getEntityMetadata(),
-                            project(doc.getPreDoc(), projector),
-                            project(doc.getPostDoc(), projector),
-                            doc.getCRUDOperation(),
-                            doc.getWho()));
+        for (QueuedHook q: queuedHooks) {
+            q.call();
+        }
+        clear();
+    }
+
+    
+    private void addDocument(List<HookAndDocs> hooks,DocCtx doc) {
+        if(!doc.hasErrors()) {
+            for(HookAndDocs hook:hooks) {
+                boolean queue=false;
+                switch(doc.getCRUDOperationPerformed()) {
+                case INSERT: queue=hook.hook.isInsert();break;
+                case UPDATE: queue=hook.hook.isUpdate();break;
+                case DELETE: queue=hook.hook.isDelete();break;
+                case FIND: queue=hook.hook.isFind();break;
                 }
-            } else {
-                processedDocuments = hd.docs;
-            }
-            try {
-                hd.crudHook.processHook(hd.md, hd.hook.getConfiguration(), processedDocuments);
-            } catch (RuntimeException e) {
-                if (e.getClass().isAnnotationPresent(StopHookProcessing.class)) {
-                    throw e;
-                } else {
-                    LOGGER.error("Exception while processing hook of type: " + hd.crudHook.getClass(), e);
+                if(queue) {
+                    hook.docList.add(new HookDocInfo(doc));
                 }
             }
         }
-        clear();
     }
 
     private void queueHooks(CRUDOperationContext ctx, boolean mediatorHooks) {
@@ -213,7 +252,7 @@ public class HookManager {
         EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
         List<Hook> mdHooks = md.getHooks().getHooks();
         LOGGER.debug("There are {} hooks in metadata", mdHooks.size());
-        Map<Hook, CRUDHook> hooks = new HashMap<>();
+        List<HookAndDocs> hookList=new ArrayList<>();
         for (Hook h : mdHooks) {
             CRUDHook crudHook = resolver.getHook(h.getName());
             if (crudHook == null) {
@@ -221,100 +260,31 @@ public class HookManager {
             }
             if ((mediatorHooks && crudHook instanceof MediatorHook)
                     || (!mediatorHooks && !(crudHook instanceof MediatorHook))) {
-                hooks.put(h, crudHook);
+                hookList.add(new HookAndDocs(md,h,crudHook));
             }
         }
-        LOGGER.debug("Hooks are resolved: {}", hooks);
-        if (!hooks.isEmpty()) {
+        if(!hookList.isEmpty()) {
+            // extract the who from the context if possible
+            String who = null;
+            if (ctx instanceof OperationContext && ((OperationContext) ctx).getRequest() != null
+                && ((OperationContext) ctx).getRequest().getClientId() != null) {
+                who = ((OperationContext) ctx).getRequest().getClientId().getPrincipal();
+            }
+            
             DocumentStream<DocCtx> documents=ctx.getDocumentStream();
             if(documents.canRewind()) {
-                // If this is the case, then we have access to all the documents, and
-                // we can call hooks at once
-                
-                // We don't want to create a separate copy of every
-                // document for each hook. So, we share the only copy of
-                // the document between hooks.  First we create a list of
-                // DocHooks. Each element in this list contains a
-                // document, and all the hooks associated with that
-                // document. This step also creates copies of the
-                // documents. Then, we create another list, the HookDocs
-                // list where each element gives a hook, and all the
-                // documents that will be passed to that hook.
-                List<DocHooks> docHooksList = new ArrayList<>();
-                for (DocumentStream<DocCtx> stream=documents.rewind();stream.hasNext();) {
-                    DocCtx doc=stream.next();
-                    if(!doc.hasErrors()) {
-                        if (doc.getCRUDOperationPerformed() != null) {
-                            Map<Hook, CRUDHook> hooksList = null;
-                            for (Map.Entry<Hook, CRUDHook> hook : hooks.entrySet()) {
-                                boolean queue;
-                                switch (doc.getCRUDOperationPerformed()) {
-                                case INSERT:
-                                    queue = hook.getKey().isInsert();
-                                    break;
-                                case UPDATE:
-                                    queue = hook.getKey().isUpdate();
-                                    break;
-                                case DELETE:
-                                    queue = hook.getKey().isDelete();
-                                    break;
-                                case FIND:
-                                    queue = hook.getKey().isFind();
-                                    break;
-                                default:
-                                    queue = false;
-                                    break;
-                                }
-                                if (queue) {
-                                    if (hooksList == null) {
-                                        hooksList = new HashMap<>();
-                                    }
-                                    hooksList.put(hook.getKey(), hook.getValue());
-                                }
-                            }
-                            if (hooksList != null) {
-                                docHooksList.add(new DocHooks(doc, hooksList));
-                            }
-                        }
-                    }
+                DocumentStream<DocCtx> stream=documents.rewind();
+                while(stream.hasNext()) {
+                    addDocument(hookList,stream.next());
                 }
-                
-                LOGGER.debug("List of docs with hooks size={}", docHooksList.size());
-                // At this point, we have the list of documents, with each
-                // document containing its hooks. Now we process that, and
-                // create a list of hooks, each containing the documents
-                // it will get.
-                Map<Hook, HookDocs> hookCache = new HashMap<>();
-                for (DocHooks dh : docHooksList) {
-                    for (Map.Entry<Hook, CRUDHook> hook : dh.hooks.entrySet()) {
-                        HookDocs hd = hookCache.get(hook.getKey());
-                        if (hd == null) {
-                            hd = new HookDocs(hook.getKey(), hook.getValue(), md);
-                            hookCache.put(hook.getKey(), hd);
-                        }
-                        
-                        // extract the who from the context if possible
-                        String who = null;
-                        if (ctx instanceof OperationContext && ((OperationContext) ctx).getRequest() != null
-                            && ((OperationContext) ctx).getRequest().getClientId() != null) {
-                            who = ((OperationContext) ctx).getRequest().getClientId().getPrincipal();
-                        }
-                        
-                        hd.docs.add(new HookDoc(
-                                                hd.md,
-                                                dh.pre, dh.post, dh.op, who));
-                    }
-                }
-                LOGGER.debug("Queueing {} hooks", hookCache.size());
-                // Queue the hooks
-                queuedHooks.addAll(hookCache.values());
             } else {
-                // Stream is one-way, and cannot be rewound
+                documents.tee(d->addDocument(hookList,d));
             }
-        }
+            queuedHooks.add(new QueuedHook(who,hookList));
+        }        
     }
 
-    private JsonDoc project(JsonDoc doc, Projector p) {
+    private  JsonDoc project(JsonDoc doc, Projector p) {
         if (doc == null) {
             return null;
         } else {
