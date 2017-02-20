@@ -33,7 +33,6 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.DocumentStream;
-import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -228,7 +227,7 @@ public class HookManager {
         LOGGER.debug("Hooks are resolved: {}", hooks);
         if (!hooks.isEmpty()) {
             DocumentStream<DocCtx> documents=ctx.getDocumentStream();
-            if(documents instanceof ListDocumentStream) {
+            if(documents.canRewind()) {
                 // If this is the case, then we have access to all the documents, and
                 // we can call hooks at once
                 
@@ -242,7 +241,8 @@ public class HookManager {
                 // list where each element gives a hook, and all the
                 // documents that will be passed to that hook.
                 List<DocHooks> docHooksList = new ArrayList<>();
-                for (DocCtx doc:((ListDocumentStream<DocCtx>)documents).getDocuments()) {
+                for (DocumentStream<DocCtx> stream=documents.rewind();stream.hasNext();) {
+                    DocCtx doc=stream.next();
                     if(!doc.hasErrors()) {
                         if (doc.getCRUDOperationPerformed() != null) {
                             Map<Hook, CRUDHook> hooksList = null;

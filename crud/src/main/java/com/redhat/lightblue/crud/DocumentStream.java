@@ -31,6 +31,16 @@ public interface DocumentStream<T> extends Iterator<T>{
      */
     void close();
 
+    /**
+     * returns true if rewind works
+     */
+    default boolean canRewind() { return false; }
+
+    /**
+     * returns a new stream that starts the same resultset from the beginning. Only works if canRewind() is true
+     */
+    default DocumentStream<T> rewind() { throw new UnsupportedOperationException(); }
+
     public static <S,D> DocumentStream<D> map(final DocumentStream<S> source,final Function<S,D> map) {
         return new DocumentStream<D>() {
             @Override

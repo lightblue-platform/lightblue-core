@@ -33,11 +33,14 @@ public class ListDocumentStream<T> implements DocumentStream<T> {
         this.documents=list;
     }
 
-    /**
-     * Return the underlying list
-     */
-    public List<T> getDocuments() {
-        return documents;
+    @Override
+    public boolean canRewind() {
+        return true;
+    }
+
+    @Override
+    public DocumentStream<T> rewind() {
+        return new ListDocumentStream<T>(documents);
     }
 
     @Override
