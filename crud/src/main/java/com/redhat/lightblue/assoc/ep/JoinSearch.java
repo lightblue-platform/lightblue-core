@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -71,6 +72,7 @@ public class JoinSearch extends AbstractSearchStep {
         private final int batchSize;
         private final ExecutionContext ctx;
         private final Iterator<JoinTuple> sourceStream;
+        private final ArrayList<Consumer<ResultDocument>> listeners=new ArrayList<>();
 
         private DocumentStream<DocCtx> currentIterator;
         private boolean done=false; // Are we still iterating, or are we done?
@@ -100,8 +102,12 @@ public class JoinSearch extends AbstractSearchStep {
             if(!done) {
                 if(currentIterator==null||!currentIterator.hasNext())
                     retrieveNextBatch();
-                if(currentIterator!=null)
-                    return new ResultDocument(block,currentIterator.next().getOutputDocument());
+                if(currentIterator!=null) {
+                    ResultDocument doc=new ResultDocument(block,currentIterator.next().getOutputDocument());
+                    for(Consumer<ResultDocument> l:listeners)
+                        l.accept(doc);
+                    return doc;
+                }
             }
             throw new NoSuchElementException();
         }
@@ -110,7 +116,12 @@ public class JoinSearch extends AbstractSearchStep {
         public void close() {
             if(currentIterator!=null)
                 currentIterator.close();
-        }            
+        }
+
+        @Override
+        public void tee(Consumer<ResultDocument> listener) {
+            listeners.add(listener);
+        }
         
         private void retrieveNextBatch() {
             do {

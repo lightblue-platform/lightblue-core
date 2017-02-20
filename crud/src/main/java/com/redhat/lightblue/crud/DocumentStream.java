@@ -19,7 +19,9 @@
 package com.redhat.lightblue.crud;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.function.Function;
+import java.util.function.Consumer;
 
 /**
  * This interface is used to stream documents. A call to getDocuments
@@ -32,6 +34,11 @@ public interface DocumentStream<T> extends Iterator<T>{
     void close();
 
     /**
+     * Adds a listener that will be called for each document of the stream when next() is called
+     */
+    void tee(Consumer<T> dest);
+
+    /**
      * returns true if rewind works
      */
     default boolean canRewind() { return false; }
@@ -42,19 +49,44 @@ public interface DocumentStream<T> extends Iterator<T>{
     default DocumentStream<T> rewind() { throw new UnsupportedOperationException(); }
 
     public static <S,D> DocumentStream<D> map(final DocumentStream<S> source,final Function<S,D> map) {
-        return new DocumentStream<D>() {
-            @Override
-            public boolean hasNext() {
-                return source.hasNext();
-            }
-            @Override
-            public void close() {
-                source.close();
-            }
-            @Override
-            public D next() {
-                return map.apply(source.next());
-            }
-        };
+        return new DocumentStreamMapper<S,D>(source,map);
     }
+
+    static final class DocumentStreamMapper<S,D> implements DocumentStream<D> {
+        private final ArrayList<Consumer<D>> listeners=new ArrayList<>();
+        private final DocumentStream<S> source;
+        private final Function<S,D> map;
+        DocumentStreamMapper(DocumentStream<S> source,Function<S,D> map) {
+            this.source=source;
+            this.map=map;
+        }
+        @Override
+        public boolean hasNext() {
+            return source.hasNext();
+        }
+        @Override
+        public void close() {
+            source.close();
+        }
+        @Override
+        public D next() {
+            D d=map.apply(source.next());
+            for(Consumer<D> c:listeners)
+                c.accept(d);
+            return d;
+        }
+        @Override
+        public boolean canRewind() {
+            return source.canRewind();
+        }
+        @Override
+        public DocumentStream<D> rewind() {
+            return new DocumentStreamMapper<S,D>(source.rewind(),map);
+        }
+        @Override
+        public void tee(Consumer<D> t) {
+            listeners.add(t);
+        }
+    }
+
 }

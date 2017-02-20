@@ -1,6 +1,8 @@
 package com.redhat.lightblue.assoc.ep;
 
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.redhat.lightblue.crud.DocCtx;
@@ -12,6 +14,7 @@ import com.redhat.lightblue.crud.DocumentStream;
 public class StepResultDocumentStream implements DocumentStream<DocCtx> {
 
     private final Iterator<DocCtx> itr;
+    private final ArrayList<Consumer<DocCtx>> listeners=new ArrayList<>();
 
     public StepResultDocumentStream(StepResult<DocCtx> result) {
         this.itr=result.stream().iterator();
@@ -24,9 +27,17 @@ public class StepResultDocumentStream implements DocumentStream<DocCtx> {
 
     @Override
     public DocCtx next() {
-        return itr.next();
+        DocCtx doc=itr.next();
+        for(Consumer<DocCtx> c:listeners)
+            c.accept(doc);
+        return doc;
     }
 
     @Override
     public void close() {}
+
+    @Override
+    public void tee(Consumer<DocCtx> listener) {
+        listeners.add(listener);
+    }
 }

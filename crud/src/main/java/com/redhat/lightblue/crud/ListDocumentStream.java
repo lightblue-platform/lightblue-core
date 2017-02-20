@@ -20,6 +20,8 @@ package com.redhat.lightblue.crud;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * Default trivial implementation of document stream that uses a list to hold its elements
@@ -28,6 +30,7 @@ public class ListDocumentStream<T> implements DocumentStream<T> {
 
     private final List<T> documents;
     private Iterator<T> itr;
+    private final ArrayList<Consumer<T>> listeners=new ArrayList<>();
     
     public ListDocumentStream(List<T> list) {
         this.documents=list;
@@ -58,9 +61,17 @@ public class ListDocumentStream<T> implements DocumentStream<T> {
     public T next() {
         if(itr==null)
             itr=documents.iterator();
-        return itr.next();
+        T doc=itr.next();
+        for(Consumer<T> c:listeners)
+            c.accept(doc);
+        return doc;
     }
 
     @Override
     public void close() {}
+
+    @Override
+    public void tee(Consumer<T> listener) {
+        listeners.add(listener);
+    }
 }

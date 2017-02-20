@@ -309,7 +309,7 @@ public class HookManager {
                 // Queue the hooks
                 queuedHooks.addAll(hookCache.values());
             } else {
-                // TODO: Use a closure to tap into the stream
+                // Stream is one-way, and cannot be rewound
             }
         }
     }
