@@ -147,6 +147,8 @@ public class Mediator {
                         ctx.setStatus(OperationStatus.ERROR);
                     }
                 } else {
+                    List<DataError> dataErrors=setResponseResults(ctx,req,response);
+                    response.getDataErrors().addAll(dataErrors);
                     ctx.setStatus(OperationStatus.ERROR);
                 }
             }
@@ -210,6 +212,9 @@ public class Mediator {
                     } else {
                         ctx.setStatus(OperationStatus.ERROR);
                     }
+                } else {
+                    List<DataError> dataErrors=setResponseResults(ctx,req,response);
+                    response.getDataErrors().addAll(dataErrors);
                 }
             }
             response.getErrors().addAll(ctx.getErrors());
