@@ -66,7 +66,7 @@ public class ListDocumentStream<T> implements RewindableDocumentStream<T> {
     public void close() {}
 
     @Override
-    public void tee(Consumer<T> listener) {
+    public void forEach(Consumer<T> listener) {
         listeners.add(listener);
     }
 }

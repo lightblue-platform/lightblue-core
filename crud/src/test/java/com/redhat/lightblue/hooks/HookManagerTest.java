@@ -366,7 +366,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         public void close() {}
         
         @Override
-        public void tee(Consumer<T> listener) {
+        public void forEach(Consumer<T> listener) {
             listeners.add(listener);
         }
     }

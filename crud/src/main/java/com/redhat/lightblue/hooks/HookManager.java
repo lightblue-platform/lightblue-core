@@ -279,7 +279,7 @@ public class HookManager {
                     addDocument(hookList,stream.next());
                 }
             } else {
-                documents.tee(d->addDocument(hookList,d));
+                documents.forEach(d->addDocument(hookList,d));
             }
             queuedHooks.add(new QueuedHook(who,hookList));
         }        
