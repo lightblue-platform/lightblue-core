@@ -38,7 +38,7 @@ public interface DocumentStream<T> extends Iterator<T>{
      */
     void tee(Consumer<T> dest);
 
-    public static <S,D> DocumentStream<D> map(final DocumentStream<S> source,final Function<S,D> map) {
+    static <S,D> DocumentStream<D> map(final DocumentStream<S> source,final Function<S,D> map) {
         if(source instanceof RewindableDocumentStream)
             return new RewindableDocumentStream.RewindableDocumentStreamMapper<S,D>((RewindableDocumentStream<S>)source,map);
         else
