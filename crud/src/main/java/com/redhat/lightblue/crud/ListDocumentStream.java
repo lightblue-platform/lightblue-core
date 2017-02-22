@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 /**
  * Default trivial implementation of document stream that uses a list to hold its elements
  */
-public class ListDocumentStream<T> implements DocumentStream<T> {
+public class ListDocumentStream<T> implements RewindableDocumentStream<T> {
 
     private final List<T> documents;
     private Iterator<T> itr;
@@ -37,12 +37,7 @@ public class ListDocumentStream<T> implements DocumentStream<T> {
     }
 
     @Override
-    public boolean canRewind() {
-        return true;
-    }
-
-    @Override
-    public DocumentStream<T> rewind() {
+    public RewindableDocumentStream<T> rewind() {
         return new ListDocumentStream<T>(documents);
     }
 

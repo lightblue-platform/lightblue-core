@@ -38,24 +38,17 @@ public interface DocumentStream<T> extends Iterator<T>{
      */
     void tee(Consumer<T> dest);
 
-    /**
-     * returns true if rewind works
-     */
-    default boolean canRewind() { return false; }
-
-    /**
-     * returns a new stream that starts the same resultset from the beginning. Only works if canRewind() is true
-     */
-    default DocumentStream<T> rewind() { throw new UnsupportedOperationException(); }
-
     public static <S,D> DocumentStream<D> map(final DocumentStream<S> source,final Function<S,D> map) {
-        return new DocumentStreamMapper<S,D>(source,map);
+        if(source instanceof RewindableDocumentStream)
+            return new RewindableDocumentStream.RewindableDocumentStreamMapper<S,D>((RewindableDocumentStream<S>)source,map);
+        else
+            return new DocumentStreamMapper<S,D>(source,map);
     }
 
-    static final class DocumentStreamMapper<S,D> implements DocumentStream<D> {
-        private final ArrayList<Consumer<D>> listeners=new ArrayList<>();
-        private final DocumentStream<S> source;
-        private final Function<S,D> map;
+    static class DocumentStreamMapper<S,D> implements DocumentStream<D> {
+        final ArrayList<Consumer<D>> listeners=new ArrayList<>();
+        final DocumentStream<S> source;
+        final Function<S,D> map;
         DocumentStreamMapper(DocumentStream<S> source,Function<S,D> map) {
             this.source=source;
             this.map=map;
@@ -74,14 +67,6 @@ public interface DocumentStream<T> extends Iterator<T>{
             for(Consumer<D> c:listeners)
                 c.accept(d);
             return d;
-        }
-        @Override
-        public boolean canRewind() {
-            return source.canRewind();
-        }
-        @Override
-        public DocumentStream<D> rewind() {
-            return new DocumentStreamMapper<S,D>(source.rewind(),map);
         }
         @Override
         public void tee(Consumer<D> t) {

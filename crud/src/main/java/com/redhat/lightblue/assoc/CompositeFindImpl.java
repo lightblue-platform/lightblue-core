@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import java.util.concurrent.Executors;
 
@@ -144,9 +145,7 @@ public class CompositeFindImpl implements Finder {
         initialize(ctx,req);
         ExecutionContext executionContext = new ExecutionContext(ctx,null);
         JsonDoc doc=new JsonDoc(executionPlan.explain(executionContext));
-        ArrayList<DocCtx> l=new ArrayList<>(1);
-        l.add(new DocCtx(doc));
-        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(l));
+        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(Arrays.asList(new DocCtx(doc))));
     }
     
     @Override

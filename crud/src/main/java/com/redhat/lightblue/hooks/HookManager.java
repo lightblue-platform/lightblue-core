@@ -33,6 +33,7 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.DocumentStream;
+import com.redhat.lightblue.crud.RewindableDocumentStream;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -272,8 +273,8 @@ public class HookManager {
             }
             
             DocumentStream<DocCtx> documents=ctx.getDocumentStream();
-            if(documents.canRewind()) {
-                DocumentStream<DocCtx> stream=documents.rewind();
+            if(documents instanceof RewindableDocumentStream) {
+                RewindableDocumentStream<DocCtx> stream=((RewindableDocumentStream<DocCtx>)documents).rewind();
                 while(stream.hasNext()) {
                     addDocument(hookList,stream.next());
                 }

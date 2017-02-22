@@ -21,6 +21,8 @@ package com.redhat.lightblue.hooks;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 import javax.management.RuntimeErrorException;
 
@@ -52,6 +54,7 @@ import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.ListDocumentStream;
+import com.redhat.lightblue.crud.DocumentStream;
 
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -332,15 +335,48 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     }
 
 
+    private static class NonRewindableDocumentStream<T> implements DocumentStream<T> {
+
+        private final List<T> documents;
+        private Iterator<T> itr;
+        private final ArrayList<Consumer<T>> listeners=new ArrayList<>();
+        
+        public NonRewindableDocumentStream(List<T> list) {
+            this.documents=list;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            if(itr==null)
+                itr=documents.iterator();
+            return itr.hasNext();
+        }
+        
+        @Override
+        public T next() {
+            if(itr==null)
+                itr=documents.iterator();
+            T doc=itr.next();
+            for(Consumer<T> c:listeners)
+                c.accept(doc);
+            return doc;
+        }
+        
+        @Override
+        public void close() {}
+        
+        @Override
+        public void tee(Consumer<T> listener) {
+            listeners.add(listener);
+        }
+    }
+
     @Test
     public void crudFindQueueTest_deferredProcessing() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
         TestOperationContext ctx = setupContext(CRUDOperation.FIND);
 
-        ctx.setDocumentStream(new ListDocumentStream<DocCtx>(ctx.getInputDocuments()) {
-                @Override
-                public boolean canRewind() {return false;}
-            });
+        ctx.setDocumentStream(new NonRewindableDocumentStream<DocCtx>(ctx.getInputDocuments()));
         
         //  hook2 should be called
         hooks.queueHooks(ctx);
