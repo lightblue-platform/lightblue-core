@@ -33,6 +33,7 @@ import com.redhat.lightblue.ResultMetadata;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Measure;
 
 /**
  * An implementation of this class is passed into CRUD operation
@@ -55,6 +56,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final ExecutionOptions executionOptions;
     private final Set<String> documentVersions=new HashSet<>();
     private boolean updateIfCurrent;
+
+    public final Measure measure=new Measure();
 
     /**
      * This is the constructor used to represent the context of an operation
