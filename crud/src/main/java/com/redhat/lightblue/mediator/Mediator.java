@@ -90,6 +90,7 @@ public class Mediator {
     public static final String CRUD_MSG_PREFIX = "CRUD controller={}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
+    private static final Logger METRICS = LoggerFactory.getLogger("metrics."+Mediator.class.getName());
 
     private static final Path OBJECT_TYPE_PATH = new Path("objectType");
 
@@ -115,8 +116,10 @@ public class Mediator {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
+        OperationContext ctx=null;
         try {
-            OperationContext ctx = newCtx(req, CRUDOperation.INSERT);
+            ctx = newCtx(req, CRUDOperation.INSERT);
+            ctx.measure.begin("insert");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
@@ -131,12 +134,14 @@ public class Mediator {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.insert(ctx, req.getReturnFields());
                     ctx.getHookManager().queueMediatorHooks(ctx);
+                    ctx.measure.begin("postProcessInsertedDocs");
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(applyRange(req, insertedDocuments), factory.getNodeFactory()));
                         response.setResultMetadata(ctx.getOutputDocumentMetadataWithoutErrors());
                         response.setModifiedCount(insertedDocuments.size());
                     }
+                    ctx.measure.end("postProcessInsertedDocs");
                     if (!ctx.hasErrors() && !ctx.hasDocumentErrors()
                             && insertedDocuments != null && insertedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
@@ -163,6 +168,10 @@ public class Mediator {
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
+            if(ctx!=null) {
+                ctx.measure.end("insert");
+                METRICS.debug("insert",ctx.measure);
+            }
             Error.pop();
         }
         return response;
@@ -184,8 +193,10 @@ public class Mediator {
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
+        OperationContext ctx=null;
         try {
-            OperationContext ctx = newCtx(req, CRUDOperation.SAVE);
+            ctx = newCtx(req, CRUDOperation.SAVE);
+            ctx.measure.begin("save");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
@@ -201,12 +212,14 @@ public class Mediator {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.save(ctx, req.isUpsert(), req.getReturnFields());
                     ctx.getHookManager().queueMediatorHooks(ctx);
+                    ctx.measure.begin("postProcessSavedDocs");
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
                         response.setResultMetadata(ctx.getOutputDocumentMetadataWithoutErrors());
                        response.setModifiedCount(updatedDocuments.size());
                     }
+                    ctx.measure.end("postProcessSavedDocs");
                     if (!ctx.hasErrors() && !ctx.hasDocumentErrors()
                             && updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
@@ -231,6 +244,10 @@ public class Mediator {
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
+            if(ctx!=null) {
+                ctx.measure.end("save");
+                METRICS.debug("save",ctx.measure);
+            }
             Error.pop();
         }
         return response;
@@ -253,8 +270,10 @@ public class Mediator {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
+        OperationContext ctx=null;
         try {
-            OperationContext ctx = newCtx(req, CRUDOperation.UPDATE);
+            ctx = newCtx(req, CRUDOperation.UPDATE);
+            ctx.measure.begin("update");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
@@ -284,7 +303,8 @@ public class Mediator {
                     }
                 }
                 ctx.getHookManager().queueMediatorHooks(ctx);
-                LOGGER.debug("# Updated", updateResponse.getNumUpdated());
+                ctx.measure.begin("postProcessUpdatedDocs");
+                LOGGER.debug("# Updated", updateResponse.getNumUpdated());                
                 response.setModifiedCount(updateResponse.getNumUpdated());
                 response.setMatchCount(updateResponse.getNumMatched());
                 List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
@@ -292,6 +312,7 @@ public class Mediator {
                     response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
                     response.setResultMetadata(ctx.getOutputDocumentMetadataWithoutErrors());
                 }
+                ctx.measure.end("postProcessUpdatedDocs");
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
                 } else if (ctx.hasDocumentErrors()) {
@@ -314,7 +335,11 @@ public class Mediator {
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
-            Error.pop();
+             if(ctx!=null) {
+                ctx.measure.end("update");
+                METRICS.debug("update",ctx.measure);
+            }
+           Error.pop();
         }
         return response;
     }
@@ -323,8 +348,10 @@ public class Mediator {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
+        OperationContext ctx=null;
         try {
-            OperationContext ctx = newCtx(req, CRUDOperation.DELETE);
+            ctx = newCtx(req, CRUDOperation.DELETE);
+            ctx.measure.begin("delete");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
@@ -371,6 +398,10 @@ public class Mediator {
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
+            if(ctx!=null) {
+                ctx.measure.end("delete");
+                METRICS.debug("delete",ctx.measure);
+            }
             Error.pop();
         }
         return response;
@@ -446,8 +477,10 @@ public class Mediator {
         Error.push("find(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
+        OperationContext ctx=null;
         try {
-            OperationContext ctx = newCtx(req, CRUDOperation.FIND);
+            ctx = newCtx(req, CRUDOperation.FIND);
+            ctx.measure.begin("find");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
@@ -467,8 +500,11 @@ public class Mediator {
                     ((CompositeFindImpl) finder).setParallelism(9);
                 }
 
+                ctx.measure.begin("finder.find");
                 CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
+                ctx.measure.end("finder.find");
 
+                ctx.measure.begin("postProcessFound");
                 List<JsonDoc> foundDocuments = ctx.getOutputDocumentsWithoutErrors();
                 if (foundDocuments != null && foundDocuments.size() == ctx.getDocuments().size()) {
                     ctx.setStatus(OperationStatus.COMPLETE);
@@ -490,6 +526,7 @@ public class Mediator {
                     response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
                     response.setResultMetadata(resultMetadata);
                 }
+                ctx.measure.end("postProcessFound");
 
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
             }
@@ -508,6 +545,10 @@ public class Mediator {
             LOGGER.debug("Exception during find:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
+            if(ctx!=null) {
+                ctx.measure.end("find");
+                METRICS.debug("find",ctx.measure);
+            }
             Error.pop();
         }
         return response;
@@ -687,6 +728,7 @@ public class Mediator {
      */
     private void runBulkConstraintValidation(OperationContext ctx) {
         LOGGER.debug("Bulk constraint validation");
+        ctx.measure.begin("runBulkConstraintValidation");
         EntityMetadata md = ctx.getTopLevelEntityMetadata();
         ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
         List<DocCtx> docs = ctx.getDocumentsWithoutErrors();
@@ -704,9 +746,11 @@ public class Mediator {
             ctx.addErrors(errors);
         }
         LOGGER.debug("Constraint validation complete");
+        ctx.measure.end("runBulkConstraintValidation");
     }
 
     private void updatePredefinedFields(OperationContext ctx, CRUDController controller, String entity) {
+        ctx.measure.begin("updatePredefinedFields");
         for (JsonDoc doc : ctx.getDocuments()) {
             PredefinedFields.updateArraySizes(ctx.getTopLevelEntityMetadata(), factory.getNodeFactory(), doc);
             JsonNode node = doc.get(OBJECT_TYPE_PATH);
@@ -717,6 +761,7 @@ public class Mediator {
             }
             controller.updatePredefinedFields(ctx, doc);
         }
+        ctx.measure.end("updatePredefinedFields");
     }
 
     /**
