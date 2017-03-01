@@ -170,7 +170,7 @@ public class Mediator {
         } finally {
             if(ctx!=null) {
                 ctx.measure.end("insert");
-                METRICS.debug("insert",ctx.measure);
+                METRICS.debug("insert: {}",ctx.measure);
             }
             Error.pop();
         }
@@ -246,7 +246,7 @@ public class Mediator {
         } finally {
             if(ctx!=null) {
                 ctx.measure.end("save");
-                METRICS.debug("save",ctx.measure);
+                METRICS.debug("save: {}",ctx.measure);
             }
             Error.pop();
         }
@@ -337,7 +337,7 @@ public class Mediator {
         } finally {
              if(ctx!=null) {
                 ctx.measure.end("update");
-                METRICS.debug("update",ctx.measure);
+                METRICS.debug("update: {}",ctx.measure);
             }
            Error.pop();
         }
@@ -400,7 +400,7 @@ public class Mediator {
         } finally {
             if(ctx!=null) {
                 ctx.measure.end("delete");
-                METRICS.debug("delete",ctx.measure);
+                METRICS.debug("delete: {}",ctx.measure);
             }
             Error.pop();
         }
@@ -547,7 +547,7 @@ public class Mediator {
         } finally {
             if(ctx!=null) {
                 ctx.measure.end("find");
-                METRICS.debug("find",ctx.measure);
+                METRICS.debug("find: {}",ctx.measure);
             }
             Error.pop();
         }
