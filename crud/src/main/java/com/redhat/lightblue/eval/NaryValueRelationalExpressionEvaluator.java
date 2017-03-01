@@ -18,8 +18,8 @@
  */
 package com.redhat.lightblue.eval;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class NaryValueRelationalExpressionEvaluator extends QueryEvaluator {
     private final Path field;
     private final FieldTreeNode fieldMd;
     private final NaryRelationalOperator operator;
-    private final List<Object> values;
+    private final Set<Object> values;
 
     public NaryValueRelationalExpressionEvaluator(NaryValueRelationalExpression expr, FieldTreeNode context) {
         field = expr.getField();
@@ -49,12 +49,9 @@ public class NaryValueRelationalExpressionEvaluator extends QueryEvaluator {
             throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + field);
         }
         operator = expr.getOp();
-        List<Value> l = expr.getValues();
-        values = new ArrayList<>(l.size());
-        for (Value x : l) {
-            if (x != null) {
-                values.add(x.getValue());
-            }
+        values = new HashSet<>();
+        for (Value x : expr.getValues()) {
+            values.add(fieldMd.getType().cast(x.getValue()));
         }
         LOGGER.debug("ctor {} {} {}", expr.getField(), operator, values);
     }
@@ -67,25 +64,9 @@ public class NaryValueRelationalExpressionEvaluator extends QueryEvaluator {
         while (cursor.hasNext()) {
             cursor.next();
             JsonNode valueNode = cursor.getCurrentValue();
-            Object docValue;
-            if (valueNode != null) {
-                docValue = fieldMd.getType().fromJson(valueNode);
-            } else {
-                docValue = null;
-            }
+            Object docValue = fieldMd.getType().fromJson(valueNode);
             LOGGER.debug(" value={}", valueNode);
-            boolean in = false;
-            for (Object x : values) {
-                if (docValue == null) {
-                    if (x == null) {
-                        in = true;
-                        break;
-                    }
-                } else if (x != null && fieldMd.getType().compare(docValue, x) == 0) {
-                    in = true;
-                    break;
-                }
-            }
+            boolean in = values.contains(docValue);
             LOGGER.debug(" result={}", in);
             if (in) {
                 ret = true;
