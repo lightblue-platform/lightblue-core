@@ -99,7 +99,7 @@ public class HookManager {
         final Hook hook;
         final EntityMetadata md;
         final CRUDHook resolvedHook;
-        final List<HookDocInfo> docList=new ArrayList<>();;
+        final List<HookDocInfo> docList=new ArrayList<>();
 
         HookAndDocs(EntityMetadata md,
                     Hook hook,
@@ -279,7 +279,7 @@ public class HookManager {
                     addDocument(hookList,stream.next());
                 }
             } else {
-                documents.forEach(d->addDocument(hookList,d));
+                documents.addListener(d->addDocument(hookList,d));
             }
             queuedHooks.add(new QueuedHook(who,hookList));
         }        

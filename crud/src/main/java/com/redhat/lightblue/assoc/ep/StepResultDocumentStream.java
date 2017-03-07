@@ -37,7 +37,7 @@ public class StepResultDocumentStream implements DocumentStream<DocCtx> {
     public void close() {}
 
     @Override
-    public void forEach(Consumer<DocCtx> listener) {
+    public void addListener(Consumer<DocCtx> listener) {
         listeners.add(listener);
     }
 }

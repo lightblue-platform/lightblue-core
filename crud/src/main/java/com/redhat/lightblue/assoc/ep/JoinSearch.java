@@ -119,7 +119,7 @@ public class JoinSearch extends AbstractSearchStep {
         }
 
         @Override
-        public void forEach(Consumer<ResultDocument> listener) {
+        public void addListener(Consumer<ResultDocument> listener) {
             listeners.add(listener);
         }
         

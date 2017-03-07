@@ -36,7 +36,7 @@ public interface DocumentStream<T> extends Iterator<T>{
     /**
      * Adds a listener that will be called for each document of the stream when next() is called
      */
-    void forEach(Consumer<T> dest);
+    void addListener(Consumer<T> dest);
 
     static <S,D> DocumentStream<D> map(final DocumentStream<S> source,final Function<S,D> map) {
         if(source instanceof RewindableDocumentStream)
@@ -69,7 +69,7 @@ public interface DocumentStream<T> extends Iterator<T>{
             return d;
         }
         @Override
-        public void forEach(Consumer<D> t) {
+        public void addListener(Consumer<D> t) {
             listeners.add(t);
         }
     }
