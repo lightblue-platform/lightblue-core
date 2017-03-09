@@ -321,14 +321,32 @@ public abstract class Projection extends JsonObject {
         LOGGER.debug("Checking if a projection list projects {}", field);
         Inclusion lastResult = Inclusion.undecided;
         List<Projection> items = p.getItems();
+        // Iterate projection list backwards. This way, the last projection expression that makes a decision on the field wins
+        // There are exceptions to this below
         ListIterator<Projection> itemsItr = items.listIterator(items.size());
         while (itemsItr.hasPrevious()) {
             Inclusion ret = itemsItr.previous().getFieldInclusion(field, context);
             if (ret != Inclusion.undecided) {
-                lastResult = ret;
-                break;
+                // This projection expression makes a decision on the field
+                // If the decision is explicit, then return it
+                if(ret == Inclusion.explicit_inclusion||
+                   ret == Inclusion.explicit_exclusion) {
+                    lastResult=ret;
+                    break;
+                }
+
+                // Here, ret is implicit inclusion or implicit exclusion
+                // If lastResult is undecided, then keep this decision
+                // If lastResult is not undecided, then it is an implicit decision, and that stays
+                if(lastResult==Inclusion.undecided) {
+                    lastResult = ret;
+                }
             }
         }
+        // Here: if we have a projection list with:
+        //  [ explicit_inclusion, implicit_inclusion ]
+        // we return explicit_inclusion. Same with
+        //  [ implicit_inclusion, explicit_inclusion]
         LOGGER.debug("Projection list projects {}: {}", field, lastResult);
         return lastResult;
     }
