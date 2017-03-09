@@ -147,4 +147,10 @@ public class ProjectionFieldReferenceTest {
         Assert.assertFalse(p.isFieldRequiredToEvaluateProjection(new Path("field.y.q")));
         Assert.assertFalse(p.isFieldRequiredToEvaluateProjection(new Path("field.t")));
     }
+
+    @Test
+    public void explicit_inclusion_override() throws Exception {
+        Projection p=Projection.fromJson(JsonUtils.json("[{\"field\":\"x\"},{\"field\":\"*\",\"recursive\":true}]"));
+        Assert.assertEquals(Projection.Inclusion.explicit_inclusion, p.getFieldInclusion(new Path("x")));
+    }
 }
