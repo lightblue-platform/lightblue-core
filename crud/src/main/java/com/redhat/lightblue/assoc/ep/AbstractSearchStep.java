@@ -20,6 +20,11 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Spliterator;
+import java.util.Spliterators;
+
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +45,7 @@ import com.redhat.lightblue.mediator.SimpleFindImpl;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.DocumentStream;
 import com.redhat.lightblue.assoc.Conjunct;
 
 /**
@@ -90,11 +96,15 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        List<ResultDocument> list = getSearchResults(ctx);
-        return new ListStepResult(list);
+        return new StepResult<ResultDocument>() {
+            @Override
+            public Stream<ResultDocument> stream() {
+                return StreamSupport.stream(Spliterators.spliteratorUnknownSize(getSearchResults(ctx),Spliterator.IMMUTABLE),false);
+            }
+        };
     }
 
-    protected abstract List<ResultDocument> getSearchResults(ExecutionContext ctx);
+    protected abstract DocumentStream<ResultDocument> getSearchResults(ExecutionContext ctx);
 
     public OperationContext search(ExecutionContext ctx, CRUDFindRequest req) {
         return search(block, ctx, req);
@@ -125,7 +135,7 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
             }
             LOGGER.debug("execute {}: returning {} documents",
                     block.getQueryPlanNode().getName(),
-                    searchCtx.getDocuments().size());
+                         response.getSize());
         }
         return searchCtx;
     }

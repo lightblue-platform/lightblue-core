@@ -21,6 +21,8 @@ package com.redhat.lightblue.hooks;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 import javax.management.RuntimeErrorException;
 
@@ -51,6 +53,8 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.ListDocumentStream;
+import com.redhat.lightblue.crud.DocumentStream;
 
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -71,7 +75,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
             this.md = md;
             if (CRUDOperation.UPDATE.equals(op) || CRUDOperation.DELETE.equals(op)) {
                 // for update and delete setup the original document so pre isn't null in hooks
-                for (DocCtx dc : getDocuments()) {
+                for (DocCtx dc : getInputDocuments()) {
                     dc.startModifications();
                 }
             }
@@ -86,7 +90,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     public static abstract class AbstractHook implements CRUDHook {
         private final String name;
         EntityMetadata md;
-        HookConfiguration cfg;
+         HookConfiguration cfg;
         List<HookDoc> processed;
 
         public AbstractHook(String n) {
@@ -247,7 +251,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                 op,
                 new Factory(),
                 getSomeDocs(10));
-        for (DocCtx doc : ctx.getDocuments()) {
+        for (DocCtx doc : ctx.getInputDocuments()) {
             doc.setCRUDOperationPerformed(op);
         }
         return ctx;
@@ -264,7 +268,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(ctx.md, hook1.md);
         Assert.assertTrue(hook1.cfg instanceof TestHook1Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook1.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook1.processed.size());
         Assert.assertNull(hook2.md);
         Assert.assertNull(mediatorHook.md);
     }
@@ -280,7 +284,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(ctx.md, hook1.md);
         Assert.assertTrue(hook1.cfg instanceof TestHook1Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook1.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook1.processed.size());
         for (HookDoc doc : hook1.processed) {
             Assert.assertNotNull(doc.getPreDoc());
             Assert.assertNotNull(doc.getPostDoc());
@@ -289,7 +293,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(ctx.md, hook2.md);
         Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook2.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
         Assert.assertNull(mediatorHook.md);
         for (HookDoc doc : hook2.processed) {
             Assert.assertNotNull(doc.getPreDoc());
@@ -310,7 +314,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         Assert.assertNull(hook1.md);
         Assert.assertEquals(ctx.md, hook2.md);
         Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook2.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
         Assert.assertNull(mediatorHook.md);
     }
 
@@ -326,7 +330,65 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         Assert.assertNull(hook1.md);
         Assert.assertEquals(ctx.md, hook2.md);
         Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook2.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
+        Assert.assertNull(mediatorHook.md);
+    }
+
+
+    private static class NonRewindableDocumentStream<T> implements DocumentStream<T> {
+
+        private final List<T> documents;
+        private Iterator<T> itr;
+        private final ArrayList<Consumer<T>> listeners=new ArrayList<>();
+        
+        public NonRewindableDocumentStream(List<T> list) {
+            this.documents=list;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            if(itr==null)
+                itr=documents.iterator();
+            return itr.hasNext();
+        }
+        
+        @Override
+        public T next() {
+            if(itr==null)
+                itr=documents.iterator();
+            T doc=itr.next();
+            for(Consumer<T> c:listeners)
+                c.accept(doc);
+            return doc;
+        }
+        
+        @Override
+        public void close() {}
+        
+        @Override
+        public void addListener(Consumer<T> listener) {
+            listeners.add(listener);
+        }
+    }
+
+    @Test
+    public void crudFindQueueTest_deferredProcessing() throws Exception {
+        HookManager hooks = new HookManager(resolver, nodeFactory);
+        TestOperationContext ctx = setupContext(CRUDOperation.FIND);
+
+        ctx.setDocumentStream(new NonRewindableDocumentStream<DocCtx>(ctx.getInputDocuments()));
+        
+        //  hook2 should be called
+        hooks.queueHooks(ctx);
+        // Suck docs
+        while(ctx.getDocumentStream().hasNext())
+            ctx.getDocumentStream().next();
+        hooks.callQueuedHooks();
+
+        Assert.assertNull(hook1.md);
+        Assert.assertEquals(ctx.md, hook2.md);
+        Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
         Assert.assertNull(mediatorHook.md);
     }
 
@@ -334,9 +396,9 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     public void crudMixedQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
         TestOperationContext ctx = setupContext(CRUDOperation.FIND);
-        ctx.getDocuments().get(0).setCRUDOperationPerformed(CRUDOperation.INSERT);
-        ctx.getDocuments().get(1).setCRUDOperationPerformed(CRUDOperation.UPDATE);
-        ctx.getDocuments().get(2).setCRUDOperationPerformed(CRUDOperation.DELETE);
+        ctx.getInputDocuments().get(0).setCRUDOperationPerformed(CRUDOperation.INSERT);
+        ctx.getInputDocuments().get(1).setCRUDOperationPerformed(CRUDOperation.UPDATE);
+        ctx.getInputDocuments().get(2).setCRUDOperationPerformed(CRUDOperation.DELETE);
 
         hooks.queueHooks(ctx);
         hooks.callQueuedHooks();
@@ -356,9 +418,9 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     public void mediatorMixedQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
         TestOperationContext ctx = setupContext(CRUDOperation.FIND);
-        ctx.getDocuments().get(0).setCRUDOperationPerformed(CRUDOperation.INSERT);
-        ctx.getDocuments().get(1).setCRUDOperationPerformed(CRUDOperation.UPDATE);
-        ctx.getDocuments().get(2).setCRUDOperationPerformed(CRUDOperation.DELETE);
+        ctx.getInputDocuments().get(0).setCRUDOperationPerformed(CRUDOperation.INSERT);
+        ctx.getInputDocuments().get(1).setCRUDOperationPerformed(CRUDOperation.UPDATE);
+        ctx.getInputDocuments().get(2).setCRUDOperationPerformed(CRUDOperation.DELETE);
 
         hooks.queueMediatorHooks(ctx);
         hooks.callQueuedHooks();
@@ -387,7 +449,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         // hook1 only should have field1 projected
         Assert.assertEquals(ctx.md, hook1.md);
         Assert.assertTrue(hook1.cfg instanceof TestHook1Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook1.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook1.processed.size());
         for (HookDoc h : hook1.processed) {
             Assert.assertNull(h.getPreDoc());
             Assert.assertTrue(h.getPostDoc().get(new Path("field1")) != null);
@@ -412,7 +474,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         // hook1 only should have field1 projected
         Assert.assertEquals(ctx.md, hook1.md);
         Assert.assertTrue(hook1.cfg instanceof TestHook1Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook1.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook1.processed.size());
         for (HookDoc h : hook1.processed) {
             Assert.assertNotNull(h.getPreDoc());
             Assert.assertTrue(h.getPostDoc().get(new Path("field1")) != null);
@@ -422,7 +484,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         // hook2 should have field1 and others
         Assert.assertEquals(ctx.md, hook2.md);
         Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
-        Assert.assertEquals(ctx.getDocuments().size(), hook2.processed.size());
+        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
         for (HookDoc h : hook2.processed) {
             Assert.assertNotNull(h.getPreDoc());
             Assert.assertTrue(h.getPostDoc().get(new Path("field1")) != null);

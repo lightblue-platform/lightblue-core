@@ -39,6 +39,7 @@ import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.BulkResponse;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.metadata.Metadata;
@@ -102,6 +103,8 @@ public class BulkTest extends AbstractMediatorTest {
         FindRequest freq = new FindRequest();
         freq.setEntityVersion(new EntityVersion("test", "1.0"));
         breq.add(freq);
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(1);
 
         BulkResponse bresp = mediator.bulkRequest(breq);
 

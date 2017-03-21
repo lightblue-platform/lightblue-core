@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.ExecutionOptions;
@@ -48,7 +50,9 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final Factory factory;
     private final String entityName;
     private final Set<String> callerRoles;
+    // We are going to use DocumentStream instead of list of documents for find results
     private List<DocCtx> documents;
+    private DocumentStream<DocCtx> documentStream;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
     private final CRUDOperation CRUDOperation;
@@ -70,8 +74,9 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        // can assume are adding to an empty DocCtx list
-        addDocuments(docs);
+        if(docs!=null) {
+        	setInputDocuments(docs.stream().map(x->new DocCtx(x)).collect(Collectors.toList()));
+        }
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
         this.callerRoles = new HashSet<>();
         this.executionOptions = eo;
@@ -87,7 +92,9 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        addDocuments(docs);
+        if(docs!=null) {
+        	setInputDocuments(docs.stream().map(x->new DocCtx(x)).collect(Collectors.toList()));
+        }
         this.callerRoles = callerRoles;
         this.hookManager = hookManager;
         this.executionOptions = eo;
@@ -107,7 +114,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        this.documents = docs;
+        setInputDocuments(docs);
         this.callerRoles = callerRoles;
         this.hookManager = hookManager;
         this.executionOptions = eo;
@@ -142,15 +149,6 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     /**
-     * Resets the operation context. Clears errors, sets the given document list
-     * as the new document list.
-     */
-    public void reset(List<DocCtx> docList) {
-        errors.clear();
-        setDocuments(docList);
-    }
-
-    /**
      * Returns the entity name in the context
      */
     public String getEntityName() {
@@ -179,56 +177,32 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         return callerRoles;
     }
 
+    public void setDocumentStream(DocumentStream<DocCtx> stream) {
+        this.documentStream=stream;
+    }
+
     /**
-     * Returns the list of documents in the context
+     * Returns the documents as a stream. This will be used for result retrieval
+     * only. If the back-end sets the documet stream, then it will be used.
+     * If the back-end sets the document list, a ListDocumentStream will be returned
+     * to iterate through those documents.
      */
-    public List<DocCtx> getDocuments() {
+    public DocumentStream<DocCtx> getDocumentStream() {
+        return documentStream;
+    }
+
+    /**
+     * Returns the list of input documents in the context.
+     */
+    public List<DocCtx> getInputDocuments() {
         return documents;
     }
 
-    public void setDocuments(List<DocCtx> docs) {
+    public void setInputDocuments(List<DocCtx> docs) {
         documents = docs;
-    }
-
-    /**
-     * Adds a new document to the context
-     *
-     * @return Returns the new document
-     */
-    @Deprecated
-    public DocCtx addDocument(JsonDoc doc) {
-        return addDocument(doc,null);
-    }
-    
-    /**
-     * Adds a new document to the context with metadata
-     *
-     * @return Returns the new document
-     */
-    public DocCtx addDocument(JsonDoc doc,ResultMetadata rmd) {
-        if (documents == null) {
-            documents = new ArrayList<>();
-        }
-        DocCtx x = new DocCtx(doc,rmd);
-        documents.add(x);
-        return x;
-    }
-
-    /**
-     * Adds new documents to the context
-     */
-    public void addDocuments(Collection<JsonDoc> docs) {
-        if (documents == null) {
-            if (docs != null) {
-                documents = new ArrayList<>(docs.size());
-            } else {
-                documents = new ArrayList<>();
-            }
-        }
-        if (docs != null) {
-            for (JsonDoc x : docs) {
-                documents.add(new DocCtx(x));
-            }
+        if(documents!=null) {
+            // Set the documentStream to input documents. A later call to setDocumentStream may set the output stream
+            documentStream=new ListDocumentStream(documents);
         }
     }
 
@@ -242,7 +216,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     /**
      * Returns a list of documents with no errors
      */
-    public List<DocCtx> getDocumentsWithoutErrors() {
+    public List<DocCtx> getInputDocumentsWithoutErrors() {
         if (documents != null) {
             List<DocCtx> list = new ArrayList<>(documents.size());
             for (DocCtx doc : documents) {
@@ -255,39 +229,19 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
             return null;
         }
     }
-
+    
     /**
-     * Returns a list of output documents with no errors
+     * Returns if there are documents with no errors
      */
-    public List<JsonDoc> getOutputDocumentsWithoutErrors() {
+    public boolean hasInputDocumentsWithoutErrors() {
         if (documents != null) {
-            List<JsonDoc> list = new ArrayList<>(documents.size());
-            for (DocCtx doc : documents) {
-                if (!doc.hasErrors() && doc.getOutputDocument() != null) {
-                    list.add(doc.getOutputDocument());
+            for (DocCtx x : documents) {
+                if (!x.hasErrors()) {
+                    return true;
                 }
             }
-            return list;
-        } else {
-            return null;
         }
-    }
-
-    /**
-     * Returns a list of output document metadata with no errors
-     */
-    public List<ResultMetadata> getOutputDocumentMetadataWithoutErrors() {
-        if (documents != null) {
-            List<ResultMetadata> list = new ArrayList<>(documents.size());
-            for (DocCtx doc : documents) {
-                if (!doc.hasErrors() && doc.getOutputDocument() != null) {
-                    list.add(doc.getResultMetadata());
-                }
-            }
-            return list;
-        } else {
-            return null;
-        }
+        return false;
     }
 
     /**
@@ -309,51 +263,6 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public List<Error> getErrors() {
         return errors;
-    }
-
-    /**
-     * Returns all the data errors in the context. If there are none, returns an
-     * empty list.
-     */
-    public List<DataError> getDataErrors() {
-        List<DataError> list = new ArrayList<>();
-        if (documents != null) {
-            for (DocCtx doc : documents) {
-                DataError err = doc.getDataError();
-                if (err != null) {
-                    list.add(err);
-                }
-            }
-        }
-        return list;
-    }
-
-    /**
-     * Returns if there are any document errors
-     */
-    public boolean hasDocumentErrors() {
-        if (documents != null) {
-            for (DocCtx x : documents) {
-                if (x.hasErrors()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns if there are documents with no errors
-     */
-    public boolean hasDocumentsWithoutErrors() {
-        if (documents != null) {
-            for (DocCtx x : documents) {
-                if (!x.hasErrors()) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**

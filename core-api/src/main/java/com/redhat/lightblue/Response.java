@@ -211,6 +211,24 @@ public class Response extends JsonObject {
     }
 
     /**
+     * Adds a document, or array of documents to the entity data
+     */
+    public void addEntityData(JsonNode doc) {
+        if(doc!=null) {
+            if(entityData==null) {
+                entityData=JsonNodeFactory.instance.arrayNode();
+            } 
+            if(doc instanceof ArrayNode) {
+                for(Iterator<JsonNode> itr=doc.elements();itr.hasNext();) {
+                    ((ArrayNode)entityData).add(itr.next());
+                }
+            } else {
+                ((ArrayNode)entityData).add(doc);
+            }
+        }
+    }
+
+    /**
      * Metadata list for documents in entityData. If there are more
      * than one documents, the entitydata and metadata indexes match.
      */

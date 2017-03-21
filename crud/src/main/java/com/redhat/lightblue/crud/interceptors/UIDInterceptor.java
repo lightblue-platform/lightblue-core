@@ -48,7 +48,7 @@ public class UIDInterceptor implements CRUDDocInterceptor, MediatorInterceptor {
     public void run(OperationContext ctx) {
         JsonNodeFactory nodeFactory = ctx.getFactory().getNodeFactory();
         EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
-        for (DocCtx doc : ctx.getDocuments()) {
+        for (DocCtx doc : ctx.getInputDocuments()) {
             UIDFields.initializeUIDFields(nodeFactory, md, doc);
         }
     }

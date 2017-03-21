@@ -20,6 +20,7 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import java.util.stream.Collectors;
 
@@ -36,6 +37,8 @@ import com.redhat.lightblue.mediator.SimpleFindImpl;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.DocumentStream;
+import com.redhat.lightblue.crud.ListDocumentStream;
 
 import com.redhat.lightblue.util.JsonDoc;
 
@@ -51,11 +54,9 @@ public class Search extends AbstractSearchStep {
     public Search(ExecutionBlock block) {
         super(block);
     }
-
-    protected List<ResultDocument> postProcess(OperationContext result, ExecutionContext ctx) {
-        return result.getDocuments().stream().
-                map(doc -> new ResultDocument(block, doc.getOutputDocument())).
-                collect(Collectors.toList());
+    
+    protected DocumentStream<ResultDocument> postProcess(OperationContext result, ExecutionContext ctx) {
+        return DocumentStream.map(result.getDocumentStream(),x->new ResultDocument(block,x.getOutputDocument()));
     }
 
     public OperationContext search(ExecutionContext ctx) {
@@ -78,12 +79,12 @@ public class Search extends AbstractSearchStep {
     }
 
     @Override
-    protected List<ResultDocument> getSearchResults(ExecutionContext ctx) {
+    protected DocumentStream<ResultDocument> getSearchResults(ExecutionContext ctx) {
         OperationContext result = search(ctx);
         if (result != null) {
             return postProcess(result, ctx);
         } else {
-            return new ArrayList<>();
+            return new ListDocumentStream<ResultDocument>(new ArrayList<>());
         }
     }
 
@@ -94,8 +95,15 @@ public class Search extends AbstractSearchStep {
         OperationContext searchCtx = ctx.getOperationContext().
             getDerivedOperationContext(block.getMetadata().getName(), req);
         new SimpleFindImpl(block.getMetadata(), searchCtx.getFactory()).explain(searchCtx,req);
-        List<JsonDoc> docs = searchCtx.getOutputDocumentsWithoutErrors();
-        if(docs!=null&&!docs.isEmpty()) {
+        DocumentStream<DocCtx> itr=searchCtx.getDocumentStream();
+        List<JsonDoc> docs=new ArrayList<>();
+        while(itr.hasNext()) {
+            DocCtx doc=itr.next();
+            if(!doc.hasErrors())
+                docs.add(doc.getOutputDocument());
+        }
+        itr.close();
+        if(!docs.isEmpty()) {
             if(docs.size()==1) {
                 node.set("implementation",docs.get(0).getRoot());
             } else {

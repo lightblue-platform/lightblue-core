@@ -142,7 +142,9 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
             CRUDFindResponse r=new CRUDFindResponse();
             if(foundDocs!=null) {
                 r.setSize(foundDocs.size());
-                foundDocs.stream().forEach(d->ctx.addDocument(d));
+                ctx.setDocumentStream(DocumentStream.map(new ListDocumentStream<JsonDoc>(foundDocs),d->new DocCtx(d)));
+            } else {
+                ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
             }
             return r;
         }

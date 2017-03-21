@@ -44,6 +44,8 @@ import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.WithRange;
+import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldProjection;
@@ -78,7 +80,8 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
         req.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
-
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(1);
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
@@ -101,8 +104,9 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
         req.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
-        mockCrudController.insertCb=ctx->{ctx.getDocuments().get(0).setResultMetadata(getRmd("1"));};
-
+        mockCrudController.insertCb=ctx->{ctx.getInputDocuments().get(0).setResultMetadata(getRmd("1"));};
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(1);
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
@@ -121,6 +125,8 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
         req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(1);
 
         Response response = mediator.insert(req);
 
@@ -142,6 +148,8 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));
         // lastUpdatedBy is required, set that to null
         ((ObjectNode) req.getEntityData()).set("lastUpdatedBy", JsonNodeFactory.instance.nullNode());
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(1);
 
         Response response = mediator.insert(req);
         // there should be no errors
@@ -156,6 +164,8 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(1);
 
         mdManager.md.getAccess().getInsert().setRoles("role1");
         Response response = mediator.insert(req);
@@ -184,6 +194,8 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
+        mockCrudController.saveResponse=new CRUDSaveResponse();
+        mockCrudController.saveResponse.setNumSaved(1);
 
         mdManager.md.getAccess().getInsert().setRoles("role1");
         mdManager.md.getAccess().getUpdate().setRoles("role1");
@@ -214,7 +226,9 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
-        mockCrudController.saveCb=ctx->{ctx.getDocuments().get(0).setResultMetadata(getRmd("1"));};
+        mockCrudController.saveResponse=new CRUDSaveResponse();
+        mockCrudController.saveResponse.setNumSaved(1);
+        mockCrudController.saveCb=ctx->{ctx.getInputDocuments().get(0).setResultMetadata(getRmd("1"));};
 
         mdManager.md.getAccess().getInsert().setRoles("anyone");
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
@@ -322,6 +336,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityVersion(new EntityVersion("test", "1.0"));
 
         mdManager.md.getAccess().getFind().setRoles("role1");
+        mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
         mockCrudController.findResponse = new CRUDFindResponse();
         Response response = mediator.find(req);
 
@@ -354,8 +369,10 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.findResponse = new CRUDFindResponse();
         mockCrudController.findResponse.setSize(10);
         mockCrudController.findCb=ctx->{
+            ArrayList<DocCtx> docs=new ArrayList<>();
             for(int i=0;i<10;i++)
-                ctx.addDocument(new JsonDoc(JsonNodeFactory.instance.objectNode()),getRmd(Integer.toString(i)));
+                docs.add(new DocCtx(new JsonDoc(JsonNodeFactory.instance.objectNode()),getRmd(Integer.toString(i))));
+            ctx.setDocumentStream(new ListDocumentStream(docs));
         };
         Response response = mediator.find(req);
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
@@ -374,6 +391,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
 
         mockCrudController.findResponse = new CRUDFindResponse();
+        mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
         Response response = mediator.find(req);
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
 
@@ -389,6 +407,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
 
         mockCrudController.findResponse = new CRUDFindResponse();
+        mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
         Response response = mediator.find(req);
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
     }
@@ -404,7 +423,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.insertResponse = new CRUDInsertionResponse();
         Response response = mediator.insert(req);
         System.out.println(response.getDataErrors());
-        JsonDoc doc = mockCrudController.ctx.getDocuments().get(0);
+        JsonDoc doc = mockCrudController.ctx.getInputDocuments().get(0);
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
         System.out.println(doc);
@@ -441,7 +460,7 @@ public class MediatorTest extends AbstractMediatorTest {
         String id = docNode.get("_id").asText();
 
         Response response = mediator.insert(req);
-        JsonDoc doc = mockCrudController.ctx.getDocuments().get(0);
+        JsonDoc doc = mockCrudController.ctx.getInputDocuments().get(0);
         System.out.println(doc);
 
         Assert.assertEquals(id, doc.get(new Path("_id")).asText());
@@ -461,7 +480,7 @@ public class MediatorTest extends AbstractMediatorTest {
         System.out.println(response.getDataErrors());
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
-        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+        System.out.println(mockCrudController.ctx.getInputDocuments().get(0));
     }
 
     @Test
@@ -477,7 +496,7 @@ public class MediatorTest extends AbstractMediatorTest {
         System.out.println(response.getErrors());
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
-        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+        System.out.println(mockCrudController.ctx.getInputDocuments().get(0));
     }
 
     @Test
@@ -493,137 +512,7 @@ public class MediatorTest extends AbstractMediatorTest {
         System.out.println(response.getErrors());
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
-        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+        System.out.println(mockCrudController.ctx.getInputDocuments().get(0));
     }
 
-    @Test
-    public void testApplyRange_FromNull_ToNull() {
-        List<JsonDoc> responseDocuments = new ArrayList<>();
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
-
-        List<JsonDoc> modified = mediator.applyRange(
-                new WithRange() {
-            @Override
-            public Long getFrom() {
-                return null;
-            }
-
-            @Override
-            public Long getTo() {
-                return null;
-            }
-        }, responseDocuments);
-
-        Assert.assertNotNull(modified);
-        Assert.assertEquals(3, modified.size());
-        Assert.assertEquals(1, modified.get(0).getRoot().asInt());
-        Assert.assertEquals(2, modified.get(1).getRoot().asInt());
-        Assert.assertEquals(3, modified.get(2).getRoot().asInt());
-    }
-
-    @Test
-    public void testApplyRange_FromNull_ToOne() {
-        List<JsonDoc> responseDocuments = new ArrayList<>();
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
-
-        List<JsonDoc> modified = mediator.applyRange(
-                new WithRange() {
-            @Override
-            public Long getFrom() {
-                return null;
-            }
-
-            @Override
-            public Long getTo() {
-                return 1L;
-            }
-        }, responseDocuments);
-
-        Assert.assertNotNull(modified);
-        Assert.assertEquals(2, modified.size());
-        Assert.assertEquals(1, modified.get(0).getRoot().asInt());
-        Assert.assertEquals(2, modified.get(1).getRoot().asInt());
-    }
-
-    @Test
-    public void testApplyRange_FromZero_ToOne() {
-        List<JsonDoc> responseDocuments = new ArrayList<>();
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
-
-        List<JsonDoc> modified = mediator.applyRange(
-                new WithRange() {
-            @Override
-            public Long getFrom() {
-                return 0L;
-            }
-
-            @Override
-            public Long getTo() {
-                return 1L;
-            }
-        }, responseDocuments);
-
-        Assert.assertNotNull(modified);
-        Assert.assertEquals(2, modified.size());
-        Assert.assertEquals(1, modified.get(0).getRoot().asInt());
-        Assert.assertEquals(2, modified.get(1).getRoot().asInt());
-    }
-
-    @Test
-    public void testApplyRange_FromOne_ToNull() {
-        List<JsonDoc> responseDocuments = new ArrayList<>();
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
-
-        List<JsonDoc> modified = mediator.applyRange(
-                new WithRange() {
-            @Override
-            public Long getFrom() {
-                return 1L;
-            }
-
-            @Override
-            public Long getTo() {
-                return null;
-            }
-        }, responseDocuments);
-
-        Assert.assertNotNull(modified);
-        Assert.assertEquals(2, modified.size());
-        Assert.assertEquals(2, modified.get(0).getRoot().asInt());
-        Assert.assertEquals(3, modified.get(1).getRoot().asInt());
-    }
-
-    @Test
-    public void testApplyRange_FromOne_ToTwo() {
-        List<JsonDoc> responseDocuments = new ArrayList<>();
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
-        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
-
-        List<JsonDoc> modified = mediator.applyRange(
-                new WithRange() {
-            @Override
-            public Long getFrom() {
-                return 1L;
-            }
-
-            @Override
-            public Long getTo() {
-                return 2L;
-            }
-        }, responseDocuments);
-
-        Assert.assertNotNull(modified);
-        Assert.assertEquals(2, modified.size());
-        Assert.assertEquals(2, modified.get(0).getRoot().asInt());
-        Assert.assertEquals(3, modified.get(1).getRoot().asInt());
-    }
 }

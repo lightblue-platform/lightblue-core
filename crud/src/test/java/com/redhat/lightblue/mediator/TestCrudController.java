@@ -34,7 +34,7 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.DocCtx;
-
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
@@ -125,7 +125,7 @@ public class TestCrudController implements CRUDController {
             }
             output = output.subList(f, t);
         }
-        ctx.setDocuments(output);
+        ctx.setDocumentStream(new ListDocumentStream(output));
         return ret;
     }
 

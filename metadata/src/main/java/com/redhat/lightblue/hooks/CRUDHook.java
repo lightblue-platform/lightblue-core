@@ -36,8 +36,7 @@ public interface CRUDHook {
     /**
      * Process the hook
      *
-     * @param ctx The operation context. This contains the operation performed
-     * on the entity, and the complete list of documents
+     * @param md Entity metadata
      * @param cfg The hook configuration as specified in the metadata
      * @param processedDocuments Contains the list of documents that are
      * operated on. If the hook specifies a projection in metadata, the input
