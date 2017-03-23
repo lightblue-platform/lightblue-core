@@ -53,6 +53,8 @@ import com.redhat.lightblue.metadata.EnumValue;
 import com.redhat.lightblue.metadata.Enums;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Fields;
@@ -628,6 +630,22 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         ObjectNode props = (ObjectNode) obj.get("configuration");
         Assert.assertEquals("seq", props.get("name").asText());
         Assert.assertEquals("1000", props.get("initialValue").asText());
+    }
+
+    @Test
+    public void testParseConvertArrayConstraints() throws IOException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-array.json");
+        EntitySchema em = parser.parseEntitySchema(object);
+        ArrayField field = (ArrayField) em.resolve(new Path("name"));
+        Assert.assertNotNull(field);
+        Assert.assertEquals(1,((SimpleArrayElement)field.getElement()).getConstraints().size());
+
+        Fields fields=new Fields(null);
+        fields.put(field);
+
+        ObjectNode obj=(ObjectNode)parser.convert(fields);
+        System.out.println("array:"+obj);
+        Assert.assertTrue(obj.get("name").get("items").get("constraints").get("required").booleanValue());
     }
 
     @Test

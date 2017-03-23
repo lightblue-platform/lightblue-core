@@ -445,6 +445,8 @@ public class CompositeMetadata extends EntityMetadata {
                         path.pop();
                     } else {
                         newElement = new SimpleArrayElement(((SimpleArrayElement) sourceEl).getType());
+                        ((SimpleArrayElement)newElement).setConstraints( ((SimpleArrayElement)sourceEl).getConstraints());
+                        LOGGER.debug("Constraints:{}",((SimpleArrayElement)newElement).getConstraints());
                     }
                     newElement.getProperties().putAll(sourceEl.getProperties());
                     ArrayField newField = new ArrayField(field.getName(), newElement);

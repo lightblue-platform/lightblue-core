@@ -1,9 +1,10 @@
 {
     "entityInfo": {
-        "name": "test",
+        "name": "testEnum",
         "datastore": {
             "backend":"mongo",
-            "collection": "test"
+            "datasource":"mongodata",
+"collection":"testEnum"
         },
         "enums":[
             {
@@ -13,9 +14,14 @@
         ]
     },
     "schema": {
-    	"name": "validationTest",
+        "access":{
+ "insert":["anyone"],
+ "find":["anyone"],
+"update":["anyone"]
+        },
+    	"name": "testEnum",
     	"version": {
-            "value": "1.0",
+            "value": "1.0.0-SNAPSHOT",
             "changelog": "blahblah"
         },
         "status": {

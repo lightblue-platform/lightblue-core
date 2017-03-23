@@ -1489,8 +1489,11 @@ public abstract class MetadataParser<T> {
         putString(items, STR_TYPE, el.getType().getName());
         if (el instanceof ObjectArrayElement) {
             convertObjectArrayElement((ObjectArrayElement) el, items);
+        } else {
+            convertFieldConstraints(items, ((SimpleArrayElement)el).getConstraints());
         }
-    }
+        convertProperties(field, fieldObject);
+   }
 
     private void convertReferenceField(ReferenceField field, T fieldObject) {
         putString(fieldObject, STR_ENTITY, field.getEntityName());
