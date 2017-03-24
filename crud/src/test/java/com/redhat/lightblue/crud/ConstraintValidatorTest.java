@@ -36,9 +36,7 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.TestDataStoreParser;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
-import com.redhat.lightblue.crud.validator.StringLengthChecker;
+import com.redhat.lightblue.crud.validator.*;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -46,11 +44,7 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.constraints.*;
 import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
-import com.redhat.lightblue.metadata.parser.StringLengthConstraintParser;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.parser.*;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.DefaultRegistry;
 import com.redhat.lightblue.util.Error;
@@ -269,6 +263,27 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
         doc = new JsonDoc(loadJsonNode("crud/validator/invalid-simple-array-constraint-doc.json"));
         validator.validateDoc(doc);
         Assert.assertTrue(validator.hasErrors());
+    }
+
+    @Test
+    public void testSimpleArrayEnum() throws IOException {
+        JsonNode node = loadJsonNode("crud/validator/testSimpleArrayEnum.json");
+        Map<String, FieldConstraintParser<JsonNode>> fcp = new HashMap<>();
+        fcp.put(EnumConstraint.ENUM, new EnumConstraintParser<JsonNode>());
+        EntityMetadata md = createEntityMetadata(node, null, fcp);
+
+        Assert.assertEquals(1, ((SimpleArrayElement) md.resolve(new Path("array1.*"))).getConstraints().size());
+
+        Map<String, FieldConstraintChecker> fcc = new HashMap<>();
+        fcc.put(EnumConstraint.ENUM, new EnumChecker());
+        ConstraintValidator validator = createConstraintValidator(md, fcc, null);
+
+        JsonDoc doc = new JsonDoc(loadJsonNode("crud/validator/simple-array-enum-constraint-doc.json"));
+        validator.validateDoc(doc);
+        List<Error> errors=validator.getDocErrors().get(doc);
+        Assert.assertEquals(1,errors.size());
+        Assert.assertEquals("crud:InvalidEnum",errors.get(0).getErrorCode());
+        System.out.println(errors);
     }
 
     /**

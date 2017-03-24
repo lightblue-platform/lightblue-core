@@ -231,7 +231,7 @@ public class ConstraintValidator {
                     skip=currentFieldNode.getFullPath();
             } 
             if(skip==null) {
-                LOGGER.debug("checking field {}", currentFieldPath);
+                LOGGER.debug("checking field {} for {} - {}", currentFieldPath,currentFieldNode);
                 Error.push(currentFieldPath.toString());
                 try {
                     List<FieldConstraint> constraints = null;
@@ -240,6 +240,7 @@ public class ConstraintValidator {
                     } else if (currentFieldNode instanceof SimpleArrayElement) {
                         constraints = ((SimpleArrayElement) currentFieldNode).getConstraints();
                     }
+                    LOGGER.debug("Constraints:{}",constraints);
                     if (constraints != null && !constraints.isEmpty()) {
                         checkFieldConstraints(doc, constraints, currentValuePath, currentValue);
                     }

@@ -1,0 +1,42 @@
+{
+    "entityInfo": {
+        "name": "testEnum",
+        "datastore": {
+            "backend":"mongo",
+            "datasource":"mongodata",
+"collection":"testEnum"
+        },
+        "enums":[
+            {
+                "name":"testEnum",
+                "values":["v1","v2"]
+            }
+        ]
+    },
+    "schema": {
+        "access":{
+ "insert":["anyone"],
+ "find":["anyone"],
+"update":["anyone"]
+        },
+    	"name": "testEnum",
+    	"version": {
+            "value": "1.0.0-SNAPSHOT",
+            "changelog": "blahblah"
+        },
+        "status": {
+            "value": "active"
+        },
+        "fields": {
+            "array1": {
+                "type":"array",
+                "items" : {
+                    "type":"string",
+                    "constraints": {
+                        "enum":"testEnum"
+                    }
+                }
+            }
+        }
+    }
+}
