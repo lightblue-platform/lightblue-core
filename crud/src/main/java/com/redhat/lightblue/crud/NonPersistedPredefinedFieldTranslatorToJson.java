@@ -27,6 +27,7 @@ import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.Path;
@@ -56,7 +57,7 @@ public abstract class NonPersistedPredefinedFieldTranslatorToJson<S> extends Tra
     protected void appendToJsonNode(S source, ObjectNode targetNode, FieldCursor fieldCursor){
         FieldTreeNode field = fieldCursor.getCurrentNode();
 
-        if(LightblueUtil.isFieldAnArrayCount(field.getName(), currentFields)){
+        if(PredefinedFields.isFieldAnArrayCount(field.getName(), currentFields)){
             /*
              * This case will be handled by the array itself, allowing this to
              * process runs the risk of nulling out the correct value.
@@ -67,7 +68,7 @@ public abstract class NonPersistedPredefinedFieldTranslatorToJson<S> extends Tra
         Path fieldPath = fieldCursor.getCurrentPath();
         currentTargetObjectNode = targetNode;
 
-        if(LightblueUtil.isFieldObjectType(fieldPath.toString())){
+        if(PredefinedFields.isFieldObjectType(fieldPath.toString())){
             targetNode.set(fieldPath.toString(), toJson(StringType.TYPE, entityMetadata.getEntityInfo().getName()));
         }
         else{
@@ -79,8 +80,8 @@ public abstract class NonPersistedPredefinedFieldTranslatorToJson<S> extends Tra
     @Override
     protected JsonNode translate(ArrayField field, Object o, FieldCursor fieldCursor){
         currentTargetObjectNode.set(
-                LightblueUtil.createArrayCountFieldName(field.getName()),
-                toJson(IntegerType.TYPE, getSizeOf(o)));
+            PredefinedFields.createArrayCountFieldName(field.getName()),
+            toJson(IntegerType.TYPE, getSizeOf(o)));
         return super.translate(field, o, fieldCursor);
     }
 

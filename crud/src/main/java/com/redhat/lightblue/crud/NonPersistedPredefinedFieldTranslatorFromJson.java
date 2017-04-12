@@ -23,6 +23,7 @@ import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
 
@@ -53,8 +54,8 @@ public abstract class NonPersistedPredefinedFieldTranslatorFromJson<T> extends T
                 fields = ((ObjectField) fieldNode).getFields();
             }
 
-            if(LightblueUtil.isFieldObjectType(datasourceFieldName)
-                    || LightblueUtil.isFieldAnArrayCount(datasourceFieldName, fields)){
+            if(PredefinedFields.isFieldObjectType(datasourceFieldName)
+                    || PredefinedFields.isFieldAnArrayCount(datasourceFieldName, fields)){
                 /*
                  * Indicates the field is auto-generated for lightblue purposes. These fields
                  * should not be inserted into the data store.
