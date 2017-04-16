@@ -38,6 +38,7 @@ import com.redhat.lightblue.Request;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.JsonTranslator;
 import com.redhat.lightblue.config.LightblueFactory;
+import com.redhat.lightblue.config.MediatorClient;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 
@@ -77,6 +78,10 @@ public abstract class LightblueTestHarness {
      */
     protected static LightblueFactory getLightblueFactory() {
         return lightblueFactory;
+    }
+
+    protected MediatorClient getMediatorClient() {
+        return new MediatorClient(lightblueFactory);
     }
 
     /**
@@ -329,8 +334,7 @@ public abstract class LightblueTestHarness {
      * @return a {@link Request} based on the passed in {@link JsonNode}
      */
     protected static <T extends Request> T createRequest(Class<T> type, JsonNode node) {
-        JsonTranslator tx = getLightblueFactory().getJsonTranslator();
-        return tx.parse(type, node);
+        return getLightblueFactory().getJsonTranslator().parse(type, node);
     }
 
 }

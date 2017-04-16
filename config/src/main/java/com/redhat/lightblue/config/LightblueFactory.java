@@ -375,11 +375,13 @@ public final class LightblueFactory implements Serializable {
     }
 
     void injectDependencies(Object o) {
-
         if (o instanceof LightblueFactoryAware) {
             ((LightblueFactoryAware) o).setLightblueFactory(this);
         }
 
+        if (o instanceof MediatorClientAware) {
+            ((MediatorClientAware) o).setMediatorClient(new MediatorClient(this));
+        }
     }
 
 }
