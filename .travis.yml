@@ -20,6 +20,9 @@ notifications:
         channels:
             - chat.freenode.net#lightblue
     on_success: always
+    webhooks:
+        # trigger Buildtime Trend Service to parse Travis CI log
+        - https://buildtimetrend.herokuapp.com/travis
 env:
     global:
         - secure: KUsWgSyKeNX8dIs/lKdxsgsXub98d1pqSqEFuEGMEvrxGoFaB63B1zoIwYI5uzv67Ir36N0H7GVgeqYsELKaU8mMcRevd/FXkALuGyUdS8/pbiXVEYtDDdWZP1VYF/p4cm3+ZzvEIhqj8ZgLWeIlXpIRYm4WAsnDzrTEG93INgk=
