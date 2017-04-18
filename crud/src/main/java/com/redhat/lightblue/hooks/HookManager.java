@@ -235,14 +235,16 @@ public class HookManager {
         if(!doc.hasErrors()) {
             for(HookAndDocs hook:hooks) {
                 boolean queue=false;
-                switch(doc.getCRUDOperationPerformed()) {
-                case INSERT: queue=hook.hook.isInsert();break;
-                case UPDATE: queue=hook.hook.isUpdate();break;
-                case DELETE: queue=hook.hook.isDelete();break;
-                case FIND: queue=hook.hook.isFind();break;
-                }
-                if(queue) {
-                    hook.docList.add(new HookDocInfo(doc));
+                if(doc.getCRUDOperationPerformed()!=null) {
+                    switch(doc.getCRUDOperationPerformed()) {
+                    case INSERT: queue=hook.hook.isInsert();break;
+                    case UPDATE: queue=hook.hook.isUpdate();break;
+                    case DELETE: queue=hook.hook.isDelete();break;
+                    case FIND: queue=hook.hook.isFind();break;
+                    }
+                    if(queue) {
+                        hook.docList.add(new HookDocInfo(doc));
+                    }
                 }
             }
         }
