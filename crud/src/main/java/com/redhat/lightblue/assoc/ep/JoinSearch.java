@@ -145,10 +145,12 @@ public class JoinSearch extends AbstractSearchStep {
                     findRequest.setFrom(from);
                     findRequest.setTo(to);
                     OperationContext opctx = search(ctx, findRequest);
-                    currentIterator=opctx.getDocumentStream();
-                    if(!currentIterator.hasNext()) {
-                        currentIterator.close();
-                        currentIterator=null;
+                    if(opctx!=null) {
+                        currentIterator=opctx.getDocumentStream();
+                        if(!currentIterator.hasNext()) {
+                            currentIterator.close();
+                            currentIterator=null;
+                        }
                     }
                 } else {
                     done=true;

@@ -183,10 +183,10 @@ public class HookManager {
         List<Hook> mdHooks = md.getHooks().getHooks();
         for (Hook h : mdHooks) {
             switch (op) {
-            case INSERT: if(h.isInsert()) return true;
-            case UPDATE: if(h.isUpdate()) return true;
-            case DELETE: if(h.isDelete()) return true;
-            case FIND: if(h.isFind()) return true;
+            case INSERT: if(h.isInsert()) return true;break;
+            case UPDATE: if(h.isUpdate()) return true;break;
+            case DELETE: if(h.isDelete()) return true;break;
+            case FIND: if(h.isFind()) return true;break;
             }
         }
         return false;

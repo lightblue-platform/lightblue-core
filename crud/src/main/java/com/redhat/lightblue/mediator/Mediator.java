@@ -721,18 +721,20 @@ public class Mediator {
         EntityMetadata md = ctx.getTopLevelEntityMetadata();
         ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
         List<DocCtx> docs = ctx.getInputDocumentsWithoutErrors();
-        constraintValidator.validateDocs(docs);
-        Map<JsonDoc, List<Error>> docErrors = constraintValidator.getDocErrors();
-        for (Map.Entry<JsonDoc, List<Error>> entry : docErrors.entrySet()) {
-            JsonDoc doc = entry.getKey();
-            List<Error> errors = entry.getValue();
-            if (errors != null && !errors.isEmpty()) {
-                ((DocCtx) doc).addErrors(errors);
+        if(docs!=null) {
+            constraintValidator.validateDocs(docs);
+            Map<JsonDoc, List<Error>> docErrors = constraintValidator.getDocErrors();
+            for (Map.Entry<JsonDoc, List<Error>> entry : docErrors.entrySet()) {
+                JsonDoc doc = entry.getKey();
+                List<Error> errors = entry.getValue();
+                if (errors != null && !errors.isEmpty()) {
+                    ((DocCtx) doc).addErrors(errors);
+                }
             }
-        }
-        List<Error> errors = constraintValidator.getErrors();
-        if (errors != null && !errors.isEmpty()) {
-            ctx.addErrors(errors);
+            List<Error> errors = constraintValidator.getErrors();
+            if (errors != null && !errors.isEmpty()) {
+                ctx.addErrors(errors);
+            }
         }
         LOGGER.debug("Constraint validation complete");
         ctx.measure.end("runBulkConstraintValidation");
