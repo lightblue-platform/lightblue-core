@@ -328,6 +328,16 @@ public abstract class MetadataParser<T> {
                 }
                 parseProperties(index, object, INDEX_ELEMENTS);
 
+                // parse arbitrary index options, can be backend specific
+                T options = getMapProperty(object, "options");
+                if (options != null) {
+                    Set<String> optionNames = getMapPropertyNames(options);
+                    for (String optionName : optionNames) {
+                        Object optionValue = asValue(getMapProperty(options, optionName));
+                        index.getOptions().put(optionName, optionValue);
+                    }
+                }
+
                 return index;
             } else {
                 return null;
