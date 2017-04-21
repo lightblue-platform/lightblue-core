@@ -158,10 +158,10 @@ public abstract class TranslatorToJson<S> {
 
         List<? extends Object> values;
         if (arrayElement instanceof SimpleArrayElement) {
-            values = getSimpleArrayValues(o);
+            values = getSimpleArrayValues(o, arrayElement.getType());
         }
         else if(arrayElement instanceof ObjectArrayElement){
-            values = getObjectArrayValues(o);
+            values = getObjectArrayValues(o, fieldCursor);
         }
         else{
             throw new UnsupportedOperationException("ArrayElement type is not supported: " + node.getClass().getName());
@@ -179,7 +179,7 @@ public abstract class TranslatorToJson<S> {
     protected abstract JsonNode translate(SimpleField field, Object o);
 
     protected abstract Object getValueFor(S source, Path path);
-    protected abstract List<? extends Object> getSimpleArrayValues(Object o);
-    protected abstract List<? extends Object> getObjectArrayValues(Object o);
+    protected abstract List<? extends Object> getSimpleArrayValues(Object o, Type type);
+    protected abstract List<? extends Object> getObjectArrayValues(Object o, FieldCursor fieldCursor);
 
 }
