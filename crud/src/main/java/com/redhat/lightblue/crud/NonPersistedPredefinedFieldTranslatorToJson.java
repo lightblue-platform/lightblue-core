@@ -78,11 +78,11 @@ public abstract class NonPersistedPredefinedFieldTranslatorToJson<S> extends Tra
     }
 
     @Override
-    protected JsonNode translate(ArrayField field, Object o, FieldCursor fieldCursor){
+    protected JsonNode translate(S source, ArrayField field, Object o, FieldCursor fieldCursor){
         currentTargetObjectNode.set(
             PredefinedFields.createArrayCountFieldName(field.getName()),
             toJson(IntegerType.TYPE, getSizeOf(o)));
-        return super.translate(field, o, fieldCursor);
+        return super.translate(source, field, o, fieldCursor);
     }
 
     @Override

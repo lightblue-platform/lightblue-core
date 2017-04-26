@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.crud;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -94,43 +95,43 @@ public abstract class TranslatorToJson<S> {
         } while(cursor.nextSibling());
     }
 
-    protected void appendToJsonNode(S source, ObjectNode targetNode, FieldCursor fieldCursor){
+    void appendToJsonNode(S source, ObjectNode targetNode, FieldCursor fieldCursor){
+        targetNode.set(fieldCursor.getCurrentNode().getName(), translate(source, fieldCursor));
+    }
+
+    private JsonNode translate(S source, FieldCursor fieldCursor) {
         FieldTreeNode field = fieldCursor.getCurrentNode();
-        String fieldName = field.getName();
-        Path path = fieldCursor.getCurrentPath();
 
         Error.push(field.getFullPath().getLast());
 
         try{
-            JsonNode newJsonNode = null;
-            Object value = getValueFor(source, path);
+            Object value = getValueFor(source, fieldCursor.getCurrentPath());
 
             if (field instanceof ObjectField) {
-                newJsonNode = translate(source, (ObjectField)field, fieldCursor);
+                return translate(source, (ObjectField)field, fieldCursor);
             }
             else if(value != null){
                 if (field instanceof SimpleField) {
-                    newJsonNode = translate((SimpleField)field, value);
+                    return translate((SimpleField)field, value);
                 }
                 else if (field instanceof ArrayField){
-                    newJsonNode = translate((ArrayField)field, value, fieldCursor);
+                    return translate(source, (ArrayField)field, value, fieldCursor);
                 }
                 else if (field instanceof ReferenceField) {
-                    newJsonNode = translate((ReferenceField)field, value);
+                    return translate((ReferenceField)field, value);
                 }
                 else{
                     throw new UnsupportedOperationException("Unknown Field type: " + field.getClass().getName());
                 }
             }
-
-            targetNode.set(fieldName, newJsonNode);
         }
         finally{
             Error.pop();
         }
+        return null;
     }
 
-    protected JsonNode translate(S source, ObjectField field, FieldCursor fieldCursor){
+    JsonNode translate(S source, ObjectField field, FieldCursor fieldCursor){
         if(!fieldCursor.firstChild()){
             //TODO: Should an exception be thrown here?
             return null;
@@ -145,7 +146,7 @@ public abstract class TranslatorToJson<S> {
         return node;
     }
 
-    protected JsonNode translate(ArrayField field, Object o, FieldCursor fieldCursor){
+    JsonNode translate(S source, ArrayField field, Object o, FieldCursor fieldCursor){
         if(!fieldCursor.firstChild()){
             //TODO: Should an exception be thrown here?
             return null;
@@ -158,17 +159,19 @@ public abstract class TranslatorToJson<S> {
 
         List<? extends Object> values;
         if (arrayElement instanceof SimpleArrayElement) {
-            values = getSimpleArrayValues(o, arrayElement.getType());
+            values = getSimpleArrayValues(o, (SimpleArrayElement) arrayElement);
         }
         else if(arrayElement instanceof ObjectArrayElement){
-            values = getObjectArrayValues(o, fieldCursor);
+            values = getObjectArrayValues(source, fieldCursor);
         }
         else{
             throw new UnsupportedOperationException("ArrayElement type is not supported: " + node.getClass().getName());
         }
 
-        for(Object value : values){
-            valueNode.add(toJson(node.getType(), value));
+        if (values != null) {
+            for(Object value : values){
+                valueNode.add(toJson(node.getType(), value));
+            }
         }
 
         fieldCursor.parent();
@@ -179,7 +182,22 @@ public abstract class TranslatorToJson<S> {
     protected abstract JsonNode translate(SimpleField field, Object o);
 
     protected abstract Object getValueFor(S source, Path path);
-    protected abstract List<? extends Object> getSimpleArrayValues(Object o, Type type);
-    protected abstract List<? extends Object> getObjectArrayValues(Object o, FieldCursor fieldCursor);
+    protected abstract List<? extends Object> getSimpleArrayValues(Object o, SimpleArrayElement simpleArrayElement);
+
+    List<? extends Object> getObjectArrayValues(S source, FieldCursor fieldCursor) {
+        if(!fieldCursor.firstChild()){
+            //TODO: Should an exception be thrown here?
+            return null;
+        }
+
+        List<JsonNode> values = new ArrayList<>();
+
+        do {
+            values.add(translate(source, fieldCursor));
+        } while(fieldCursor.nextSibling());
+
+        fieldCursor.parent();
+        return values;
+    }
 
 }
