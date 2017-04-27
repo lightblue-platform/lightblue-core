@@ -219,10 +219,6 @@ public final class PredefinedFields {
      * @return <code>true</code> if the passed in field name is the object type, otherwise <code>false</code>.
      */
     public static boolean isFieldObjectType(String fieldName){
-        if(fieldName == null){
-            return false;
-        }
-
         return OBJECTTYPE_FIELD.equalsIgnoreCase(fieldName);
     }
 
@@ -250,6 +246,11 @@ public final class PredefinedFields {
 
         return false;
     }
+    
+    public static boolean isPredefinedField(String fieldName, Fields fields) {
+      return PredefinedFields.isFieldObjectType(fieldName)
+          || PredefinedFields.isFieldAnArrayCount(fieldName, fields);
+    }
 
     /**
      * Creates and returns the array field name for the passed in array count field name.
@@ -257,13 +258,10 @@ public final class PredefinedFields {
      * @return the array field name for the passed in array count field name.
      */
     public static String createArrayFieldNameFromCountField(String countField){
-        if(countField == null){
-            return null;
+        if(doesFieldNameMatchArrayCountPattern(countField)){
+            return countField.substring(0, countField.length() - 1);
         }
-        if(!doesFieldNameMatchArrayCountPattern(countField)){
-            return countField;
-        }
-        return countField.substring(0, countField.length() - 1);
+        return countField;
     }
 
     /**

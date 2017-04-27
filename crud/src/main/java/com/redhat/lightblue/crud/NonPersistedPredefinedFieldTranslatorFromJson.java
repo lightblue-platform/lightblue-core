@@ -47,15 +47,14 @@ public abstract class NonPersistedPredefinedFieldTranslatorFromJson<T> extends T
         Path path = cursor.getCurrentPath();
         FieldTreeNode fieldNode = entityMetadata.resolve(path);
         if(fieldNode instanceof Field){
-            String datasourceFieldName = ((Field) fieldNode).getName();
+            String fieldName = ((Field) fieldNode).getName();
 
             Fields fields = entityMetadata.getFields();
             if(fieldNode instanceof ObjectField){
                 fields = ((ObjectField) fieldNode).getFields();
             }
 
-            if(PredefinedFields.isFieldObjectType(datasourceFieldName)
-                    || PredefinedFields.isFieldAnArrayCount(datasourceFieldName, fields)){
+            if(PredefinedFields.isPredefinedField(fieldName, fields)){
                 /*
                  * Indicates the field is auto-generated for lightblue purposes. These fields
                  * should not be inserted into the data store.

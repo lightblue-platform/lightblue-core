@@ -102,7 +102,7 @@ public abstract class TranslatorToJson<S> {
     private JsonNode translate(S source, FieldCursor fieldCursor) {
         FieldTreeNode field = fieldCursor.getCurrentNode();
 
-        Error.push(field.getFullPath().getLast());
+        Error.push(field.getName());
 
         try{
             Object value = getValueFor(source, fieldCursor.getCurrentPath());
