@@ -178,11 +178,20 @@ public abstract class TranslatorToJson<S> {
         return valueNode;
     }
 
-    protected abstract JsonNode translate(ReferenceField field, Object o);
-    protected abstract JsonNode translate(SimpleField field, Object o);
-
     protected abstract Object getValueFor(S source, Path path);
+    protected abstract JsonNode translate(ReferenceField field, Object o);
     protected abstract List<? extends Object> getSimpleArrayValues(Object o, SimpleArrayElement simpleArrayElement);
+
+    /**
+     * Converts a Object to a {@link JsonNode}. This is a default implementation, but it will likely
+     * need to be overridden by implementing classes depending on the specifics of the source Object.
+     * @param field - {@link SimpleField}
+     * @param o - Source {@link Object} to be converted
+     * @return {@link JsonNode} representation of {@link Object}.
+     */
+    protected JsonNode translate(SimpleField field, Object o) {
+        return toJson(field.getType(), o);
+    }
 
     List<? extends Object> getObjectArrayValues(S source, FieldCursor fieldCursor) {
         if(!fieldCursor.firstChild()){
