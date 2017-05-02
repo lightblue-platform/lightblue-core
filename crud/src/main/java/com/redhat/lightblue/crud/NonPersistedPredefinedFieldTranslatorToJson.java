@@ -18,7 +18,8 @@
  */
 package com.redhat.lightblue.crud;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.ArrayField;
@@ -26,6 +27,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.types.IntegerType;
@@ -54,8 +56,8 @@ public abstract class NonPersistedPredefinedFieldTranslatorToJson<S> extends Tra
     }
 
     @Override
-    protected void appendToJsonNode(S source, ObjectNode targetNode, FieldCursor fieldCursor){
-        FieldTreeNode field = fieldCursor.getCurrentNode();
+    protected void appendToJsonNode(Object value, ContainerNode<?> targetNode, FieldCursor cursor) {
+        FieldTreeNode field = cursor.getCurrentNode();
 
         if(PredefinedFields.isFieldAnArrayCount(field.getName(), currentFields)){
             /*
@@ -65,33 +67,45 @@ public abstract class NonPersistedPredefinedFieldTranslatorToJson<S> extends Tra
             return;
         }
 
-        Path fieldPath = fieldCursor.getCurrentPath();
-        currentTargetObjectNode = targetNode;
+        Path fieldPath = cursor.getCurrentPath();
+        if (targetNode instanceof ObjectNode) {
+            currentTargetObjectNode = (ObjectNode) targetNode;
+        }
 
         if(PredefinedFields.isFieldObjectType(fieldPath.toString())){
-            targetNode.set(fieldPath.toString(), toJson(StringType.TYPE, entityMetadata.getEntityInfo().getName()));
+            ((ObjectNode) targetNode).set(fieldPath.toString(), toJson(StringType.TYPE, entityMetadata.getEntityInfo().getName()));
         }
         else{
-            super.appendToJsonNode(source, targetNode, fieldCursor);
+            super.appendToJsonNode(value, targetNode, cursor);
         }
 
     }
 
     @Override
-    protected JsonNode translate(S source, ArrayField field, Object o, FieldCursor fieldCursor){
+    ArrayNode translateToArrayNode(ArrayField field, Object value, FieldCursor cursor) {
         currentTargetObjectNode.set(
             PredefinedFields.createArrayCountFieldName(field.getName()),
-            toJson(IntegerType.TYPE, getSizeOf(o)));
-        return super.translate(source, field, o, fieldCursor);
+            toJson(IntegerType.TYPE, getSizeOf(value)));
+        return super.translateToArrayNode(field, value, cursor);
     }
 
     @Override
-    protected JsonNode translate(S source, ObjectField field, FieldCursor fieldCursor){
+    ObjectNode translateToObjectNode(Object value, FieldCursor cursor) {
+        FieldTreeNode field = cursor.getCurrentNode();
+
         //Store the current fields so that they can be put back after this operation is complete.
         Fields storeFieldsUntilLater = currentFields;
-        currentFields = field.getFields();
+        if (field instanceof ObjectField) {
+            currentFields = ((ObjectField) field).getFields();
+        }
+        else if (field instanceof ObjectArrayElement) {
+            currentFields = ((ObjectArrayElement) field).getFields();
+        }
+        else {
+            throw new IllegalArgumentException("Only Object Field/Element types are supported: " + field.getClass());
+        }
 
-        JsonNode node = super.translate(source, field, fieldCursor);
+        ObjectNode node = super.translateToObjectNode(value, cursor);
 
         currentFields = storeFieldsUntilLater;
 

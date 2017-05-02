@@ -18,11 +18,12 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.ArrayElement;
@@ -89,124 +90,123 @@ public abstract class TranslatorToJson<S> {
         return null;
     }
 
-    private void iterateOverNodes(S source, ObjectNode targetNode, FieldCursor cursor){
+    private void iterateOverNodes(Object value, ContainerNode<?> targetNode, FieldCursor cursor) {
         do {
-            appendToJsonNode(source, targetNode, cursor);
+            appendToJsonNode(value, targetNode, cursor);
         } while(cursor.nextSibling());
     }
 
-    void appendToJsonNode(S source, ObjectNode targetNode, FieldCursor fieldCursor){
-        targetNode.set(fieldCursor.getCurrentNode().getName(), translate(source, fieldCursor));
-    }
-
-    private JsonNode translate(S source, FieldCursor fieldCursor) {
-        FieldTreeNode field = fieldCursor.getCurrentNode();
+    protected void appendToJsonNode(Object value, ContainerNode<?> targetNode, FieldCursor cursor) {
+        FieldTreeNode field = cursor.getCurrentNode();
 
         Error.push(field.getName());
-
         try{
-            Object value = getValueFor(source, fieldCursor.getCurrentPath());
+            JsonNode newJsonNode = null;
+            Object newValue = null;
 
-            if (field instanceof ObjectField) {
-                return translate(source, (ObjectField)field, fieldCursor);
+            if (field instanceof ObjectField || field instanceof ObjectArrayElement) {
+                newJsonNode = translateToObjectNode(value, cursor);
             }
-            else if(value != null){
+            else if((newValue = getValueFor(value, cursor.getCurrentPath())) != null){
                 if (field instanceof SimpleField) {
-                    return translate((SimpleField)field, value);
+                    newJsonNode = translate((SimpleField)field, newValue);
                 }
                 else if (field instanceof ArrayField){
-                    return translate(source, (ArrayField)field, value, fieldCursor);
+                    newJsonNode = translateToArrayNode((ArrayField) field, newValue, cursor);
                 }
                 else if (field instanceof ReferenceField) {
-                    return translate((ReferenceField)field, value);
+                    newJsonNode = translate((ReferenceField)field, newValue);
                 }
                 else{
                     throw new UnsupportedOperationException("Unknown Field type: " + field.getClass().getName());
                 }
             }
+
+            if (targetNode instanceof ObjectNode) {
+                ((ObjectNode) targetNode).set(cursor.getCurrentNode().getName(), newJsonNode);
+            }
+            else {
+                ((ArrayNode) targetNode).add(newJsonNode);
+            }
         }
         finally{
             Error.pop();
         }
-        return null;
     }
 
-    JsonNode translate(S source, ObjectField field, FieldCursor fieldCursor){
-        if(!fieldCursor.firstChild()){
+    ObjectNode translateToObjectNode(Object value, FieldCursor cursor) {
+        if (!cursor.firstChild()) {
             //TODO: Should an exception be thrown here?
             return null;
         }
 
         ObjectNode node = factory.objectNode();
 
-        iterateOverNodes(source, node, fieldCursor);
+        iterateOverNodes(value, node, cursor);
 
-        fieldCursor.parent();
+        cursor.parent();
 
         return node;
     }
 
-    JsonNode translate(S source, ArrayField field, Object o, FieldCursor fieldCursor){
-        if(!fieldCursor.firstChild()){
+    ArrayNode translateToArrayNode(ArrayField field, Object value, FieldCursor cursor) {
+        if (!cursor.firstChild()) {
             //TODO: Should an exception be thrown here?
             return null;
         }
 
-        FieldTreeNode node = fieldCursor.getCurrentNode();
-
+        FieldTreeNode node = cursor.getCurrentNode();
         ArrayElement arrayElement = field.getElement();
-        ArrayNode valueNode = factory.arrayNode();
 
-        List<? extends Object> values;
+        ArrayNode valueNode = factory.arrayNode();
         if (arrayElement instanceof SimpleArrayElement) {
-            values = getSimpleArrayValues(o, (SimpleArrayElement) arrayElement);
+            List<? extends Object> values = getSimpleArrayValues(value, (SimpleArrayElement) arrayElement);
+            if (values != null) {
+                for(Object v : values){
+                    valueNode.add(toJson(node.getType(), v));
+                }
+            }
         }
         else if(arrayElement instanceof ObjectArrayElement){
-            values = getObjectArrayValues(source, fieldCursor);
+            Iterable<?> iter;
+            if(value instanceof Iterable<?>) {
+                iter = (Iterable<?>) value;
+            }
+            else if (value.getClass().isArray()) {
+                iter = Arrays.asList((Object[]) value);
+            }
+            else {
+                throw new IllegalArgumentException("Object must be convertable to an Iterable: " + value.getClass());
+            }
+
+            for (Object o : iter) {
+                FieldCursor iterFieldCursor = new FieldCursor(cursor.getCurrentPath(), field);
+                if (iterFieldCursor.firstChild()) {
+                    iterateOverNodes(o, valueNode, iterFieldCursor);
+                }
+            }
         }
         else{
             throw new UnsupportedOperationException("ArrayElement type is not supported: " + node.getClass().getName());
         }
 
-        if (values != null) {
-            for(Object value : values){
-                valueNode.add(toJson(node.getType(), value));
-            }
-        }
-
-        fieldCursor.parent();
+        cursor.parent();
         return valueNode;
     }
 
-    protected abstract Object getValueFor(S source, Path path);
-    protected abstract JsonNode translate(ReferenceField field, Object o);
-    protected abstract List<? extends Object> getSimpleArrayValues(Object o, SimpleArrayElement simpleArrayElement);
+    protected abstract Object getValueFor(Object source, Path path);
+    protected abstract JsonNode translate(ReferenceField field, Object value);
+    protected abstract List<? extends Object> getSimpleArrayValues(Object value, SimpleArrayElement simpleArrayElement);
 
     /**
      * Converts a Object to a {@link JsonNode}. This is a default implementation, but it will likely
      * need to be overridden by implementing classes depending on the specifics of the source Object.
      * @param field - {@link SimpleField}
-     * @param o - Source {@link Object} to be converted
+     * @param value - Source {@link Object} to be converted
      * @return {@link JsonNode} representation of {@link Object}.
      */
-    protected JsonNode translate(SimpleField field, Object o) {
-        return toJson(field.getType(), o);
-    }
-
-    List<? extends Object> getObjectArrayValues(S source, FieldCursor fieldCursor) {
-        if(!fieldCursor.firstChild()){
-            //TODO: Should an exception be thrown here?
-            return null;
-        }
-
-        List<JsonNode> values = new ArrayList<>();
-
-        do {
-            values.add(translate(source, fieldCursor));
-        } while(fieldCursor.nextSibling());
-
-        fieldCursor.parent();
-        return values;
+    protected JsonNode translate(SimpleField field, Object value) {
+        return toJson(field.getType(), value);
     }
 
 }
