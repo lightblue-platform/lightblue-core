@@ -788,7 +788,7 @@ public class Mediator {
                                                Response response) {
         List<DataError> dataErrors=new ArrayList<>();
         Long from = requestWithRange.getFrom();
-        Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo() + 1;
+        Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo();
         int f=from==null?0:from.intValue();
         int t=to==null?Integer.MAX_VALUE:to.intValue();
         int ix=0;
