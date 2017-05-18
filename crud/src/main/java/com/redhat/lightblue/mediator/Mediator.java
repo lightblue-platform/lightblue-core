@@ -499,25 +499,25 @@ public class Mediator {
                 CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
                 ctx.measure.end("finder.find");
 
-                ctx.measure.begin("postProcessFound");
-                DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
-                List<ResultMetadata> rmd=new ArrayList<>();
-                response.setEntityData(factory.getNodeFactory().arrayNode());
-                for(;docStream.hasNext();) {
-                    DocCtx doc=docStream.next();
-                    if(!doc.hasErrors()) {          
-                        response.addEntityData(doc.getOutputDocument().getRoot());
-                        rmd.add(doc.getResultMetadata());
+                if(!ctx.hasErrors()) {
+                    ctx.measure.begin("postProcessFound");
+                    DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
+                    List<ResultMetadata> rmd=new ArrayList<>();
+                    response.setEntityData(factory.getNodeFactory().arrayNode());
+                    for(;docStream.hasNext();) {
+                        DocCtx doc=docStream.next();
+                        if(!doc.hasErrors()) {          
+                            response.addEntityData(doc.getOutputDocument().getRoot());
+                            rmd.add(doc.getResultMetadata());
                     } else {
-                        DataError error=doc.getDataError();
-                        if(error!=null)
-                            response.getDataErrors().add(error);
+                            DataError error=doc.getDataError();
+                            if(error!=null)
+                                response.getDataErrors().add(error);
+                        }
                     }
-                }
-                docStream.close();
-                response.setResultMetadata(rmd);
-                ctx.measure.end("postProcessFound");
-                if (!ctx.hasErrors()) {
+                    docStream.close();
+                    response.setResultMetadata(rmd);
+                    ctx.measure.end("postProcessFound");
                     ctx.setStatus(OperationStatus.COMPLETE);
                 } else {
                     ctx.setStatus(OperationStatus.ERROR);

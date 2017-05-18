@@ -53,6 +53,7 @@ import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class MediatorTest extends AbstractMediatorTest {
 
@@ -381,6 +382,22 @@ public class MediatorTest extends AbstractMediatorTest {
         for(int i=0;i<10;i++) {
             Assert.assertEquals(Integer.toString(i),response.getResultMetadata().get(i).getDocumentVersion());
         }
+    }
+
+    @Test
+    public void queryTimeoutTest() throws Exception {
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        
+        mdManager.md.getAccess().getFind().setRoles("anyone");
+        mockCrudController.findResponse = new CRUDFindResponse();
+        mockCrudController.findCb=ctx->{
+            ctx.addError(Error.get(CrudConstants.ERR_DATASOURCE_TIMEOUT,"timeout"));
+        };
+        Response response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(1,response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_DATASOURCE_TIMEOUT,response.getErrors().get(0).getErrorCode());
     }
 
     @Test
