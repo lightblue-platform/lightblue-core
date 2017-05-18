@@ -139,7 +139,9 @@ public class SetExpressionEvaluator extends Updater {
             } else if (mdNode instanceof ArrayField) {
                 data = initializeArray(rvalue, refMdNode, mdNode, field, refPath);
             }
-            setValues.add(data);
+            if (data != null) {
+                setValues.add(data);
+            }
         }
     }
 
