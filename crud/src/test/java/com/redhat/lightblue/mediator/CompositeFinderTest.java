@@ -773,14 +773,14 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         errorEntity = "U";
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(0, response.getEntityData().size());
+        Assert.assertTrue(response.getEntityData()==null||response.getEntityData().size()==0);
         Assert.assertEquals(1, response.getErrors().size());
 
         findError = Error.get("NoAccess", "blah");
         errorEntity = "L";
         response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(0, response.getEntityData().size());
+        Assert.assertTrue(response.getEntityData()==null||response.getEntityData().size()==0);
         Assert.assertEquals(1, response.getErrors().size());
 
     }

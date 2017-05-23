@@ -424,40 +424,45 @@ public class Mediator {
         CompositeFindImpl finder = new CompositeFindImpl(md);
         finder.setParallelism(9);
         CRUDFindResponse response = finder.find(findCtx, freq.getCRUDFindRequest());
-        DocumentStream<DocCtx> docStream = findCtx.getDocumentStream();
-
-        // Now write a query
-        List<QueryExpression> orq = new ArrayList<>();
-        for (;docStream.hasNext();) {
-            DocCtx doc=docStream.next();
-            if(!doc.hasErrors()) {
-                DocId id = docIdx.getDocId(doc);
-                List<QueryExpression> idList = new ArrayList<>(identityFields.length);
-                for (int ix = 0; ix < identityFields.length; ix++) {
-                    if (!identityFields[ix].equals(PredefinedFields.OBJECTTYPE_PATH)) {
-                        Object value = id.getValue(ix);
-                        idList.add(new ValueComparisonExpression(identityFields[ix],
-                                                                 BinaryComparisonOperator._eq,
-                                                                 new Value(value)));
+        if(findCtx.hasErrors()) {
+            ctx.addErrors(findCtx.getErrors());
+        } else {
+            DocumentStream<DocCtx> docStream = findCtx.getDocumentStream();
+            
+            // Now write a query
+            List<QueryExpression> orq = new ArrayList<>();
+            for (;docStream.hasNext();) {
+                DocCtx doc=docStream.next();
+                if(!doc.hasErrors()) {
+                    DocId id = docIdx.getDocId(doc);
+                    List<QueryExpression> idList = new ArrayList<>(identityFields.length);
+                    for (int ix = 0; ix < identityFields.length; ix++) {
+                        if (!identityFields[ix].equals(PredefinedFields.OBJECTTYPE_PATH)) {
+                            Object value = id.getValue(ix);
+                            idList.add(new ValueComparisonExpression(identityFields[ix],
+                                                                     BinaryComparisonOperator._eq,
+                                                                     new Value(value)));
+                        }
                     }
+                    QueryExpression idq;
+                    if (idList.size() == 1) {
+                        idq = idList.get(0);
+                    } else {
+                        idq = new NaryLogicalExpression(NaryLogicalOperator._and, idList);
+                    }
+                    orq.add(idq);
                 }
-                QueryExpression idq;
-                if (idList.size() == 1) {
-                    idq = idList.get(0);
-                } else {
-                    idq = new NaryLogicalExpression(NaryLogicalOperator._and, idList);
-                }
-                orq.add(idq);
+            }
+            docStream.close();
+            if (orq.isEmpty()) {
+                return null;
+            } else if (orq.size() == 1) {
+                return orq.get(0);
+            } else {
+                return new NaryLogicalExpression(NaryLogicalOperator._or, orq);
             }
         }
-        docStream.close();
-        if (orq.isEmpty()) {
-            return null;
-        } else if (orq.size() == 1) {
-            return orq.get(0);
-        } else {
-            return new NaryLogicalExpression(NaryLogicalOperator._or, orq);
-        }
+        return null;
     }
 
     /**
@@ -499,25 +504,25 @@ public class Mediator {
                 CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
                 ctx.measure.end("finder.find");
 
-                ctx.measure.begin("postProcessFound");
-                DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
-                List<ResultMetadata> rmd=new ArrayList<>();
-                response.setEntityData(factory.getNodeFactory().arrayNode());
-                for(;docStream.hasNext();) {
-                    DocCtx doc=docStream.next();
-                    if(!doc.hasErrors()) {          
-                        response.addEntityData(doc.getOutputDocument().getRoot());
-                        rmd.add(doc.getResultMetadata());
+                if(!ctx.hasErrors()) {
+                    ctx.measure.begin("postProcessFound");
+                    DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
+                    List<ResultMetadata> rmd=new ArrayList<>();
+                    response.setEntityData(factory.getNodeFactory().arrayNode());
+                    for(;docStream.hasNext();) {
+                        DocCtx doc=docStream.next();
+                        if(!doc.hasErrors()) {          
+                            response.addEntityData(doc.getOutputDocument().getRoot());
+                            rmd.add(doc.getResultMetadata());
                     } else {
-                        DataError error=doc.getDataError();
-                        if(error!=null)
-                            response.getDataErrors().add(error);
+                            DataError error=doc.getDataError();
+                            if(error!=null)
+                                response.getDataErrors().add(error);
+                        }
                     }
-                }
-                docStream.close();
-                response.setResultMetadata(rmd);
-                ctx.measure.end("postProcessFound");
-                if (!ctx.hasErrors()) {
+                    docStream.close();
+                    response.setResultMetadata(rmd);
+                    ctx.measure.end("postProcessFound");
                     ctx.setStatus(OperationStatus.COMPLETE);
                 } else {
                     ctx.setStatus(OperationStatus.ERROR);
@@ -793,23 +798,25 @@ public class Mediator {
         int t=to==null?Integer.MAX_VALUE:to.intValue();
         int ix=0;
         DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
-        List<ResultMetadata> rmd=new ArrayList<>();
-        for(;docStream.hasNext();) {
-            DocCtx doc=docStream.next();
-            if(!doc.hasErrors()) {                
-                if(ix>=f&&ix<=t) {                
-                    response.addEntityData(doc.getOutputDocument().getRoot());
-                    rmd.add(doc.getResultMetadata());
+        if(docStream!=null) {
+            List<ResultMetadata> rmd=new ArrayList<>();
+            for(;docStream.hasNext();) {
+                DocCtx doc=docStream.next();
+                if(!doc.hasErrors()) {                
+                    if(ix>=f&&ix<=t) {                
+                        response.addEntityData(doc.getOutputDocument().getRoot());
+                        rmd.add(doc.getResultMetadata());
+                    }
+                    ix++;
+                } else {
+                    DataError error=doc.getDataError();
+                    if(error!=null)
+                        dataErrors.add(error);
                 }
-                ix++;
-            } else {
-                DataError error=doc.getDataError();
-                if(error!=null)
-                    dataErrors.add(error);
             }
+            docStream.close();
+            response.setResultMetadata(rmd);
         }
-        docStream.close();
-        response.setResultMetadata(rmd);
         return dataErrors;
     }
 }
