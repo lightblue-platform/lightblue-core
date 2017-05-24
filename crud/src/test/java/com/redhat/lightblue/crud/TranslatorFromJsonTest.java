@@ -5,7 +5,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -37,7 +39,9 @@ public class TranslatorFromJsonTest {
                 if (target instanceof SingleFieldObject) {
                     ((SingleFieldObject<String>) target).value = fromJson(field.getType(), node).toString();
                 }
-                throw new RuntimeException("Unexpected");
+                else {
+                    throw new RuntimeException("Unexpected");
+                }
             }
 
         };
@@ -58,14 +62,16 @@ public class TranslatorFromJsonTest {
 
             @SuppressWarnings("unchecked")
             @Override
-            protected void translateSimpleArray(ArrayField field, List<Object> items, Object target) {
+            protected void translate(ArrayField field, List<Object> items, Object target) {
                 if (target instanceof SingleFieldObject) {
                     List<String> translatedItems = new ArrayList<>();
                     items.forEach(item -> translatedItems.add(item.toString()));
 
                     ((SingleFieldObject<String[]>) target).value = translatedItems.toArray(new String[0]);
                 }
-                throw new RuntimeException("Unexpected");
+                else {
+                    throw new RuntimeException("Unexpected");
+                }
             }
 
         };
@@ -99,7 +105,9 @@ public class TranslatorFromJsonTest {
 
                     thing.value.value = fromJson(field.getType(), node).toString();
                 }
-                throw new RuntimeException("Unexpected");
+                else {
+                    throw new RuntimeException("Unexpected");
+                }
             }
 
         };
@@ -116,34 +124,32 @@ public class TranslatorFromJsonTest {
     public void testTranslateObjectArrayField() throws Exception{
         ObjectArrayElement oae = new ObjectArrayElement();
         oae.getFields().addNew(new SimpleField("uid", StringType.TYPE));
+        oae.getFields().addNew(new SimpleField("name", StringType.TYPE));
         EntityMetadata md = fakeEntityMetadata("fakeMetadata",
                 new ArrayField("objArr", oae));
 
-        FakeTranslatorFromJson<SingleFieldObject<List<SingleFieldObject<String>>>> translator = new FakeTranslatorFromJson<SingleFieldObject<List<SingleFieldObject<String>>>>(md) {
+        FakeTranslatorFromJson<SingleFieldObject<List<Map<String, String>>>> translator = new FakeTranslatorFromJson<SingleFieldObject<List<Map<String, String>>>>(md) {
 
+            @SuppressWarnings("unchecked")
             @Override
-            protected void translateObjectArray(ArrayField field, List<JsonNode> items, Object target) {
-                if (target instanceof SingleFieldObject) {
-                    @SuppressWarnings("unchecked")
-                    SingleFieldObject<List<Object>> thing = (SingleFieldObject<List<Object>>) target;
-
-                    if (thing.value == null) {
-                        thing.value = new ArrayList<>();
-                    }
-
-                    translate((ObjectArrayElement) field.getElement(), items, thing.value);
-                }
-                else {
-                    throw new RuntimeException("Unexpected");
+            protected void translate(SimpleField field, JsonNode node, Object target) {
+                switch(field.getFullPath().toString()) {
+                    case "objArr.*.uid":
+                        ((Map<String, String>) target).put("uid", fromJson(field.getType(), node).toString());
+                        break;
+                    case "objArr.*.name":
+                        ((Map<String, String>) target).put("name", fromJson(field.getType(), node).toString());
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected");
                 }
             }
 
             @SuppressWarnings("unchecked")
             @Override
-            protected void translate(SimpleField field, JsonNode node, Object target) {
-                Path p = field.getFullPath();
-                if (p.toString().startsWith("objArr.*.uid")) {
-                    ((SingleFieldObject<String>) target).value = fromJson(field.getType(), node).toString();
+            protected void translate(ArrayField field, List<Object> items, Object target) {
+                if (field.getFullPath().toString().equals("objArr")) {
+                    ((SingleFieldObject<List<?>>) target).value = items;
                 }
                 else {
                     throw new RuntimeException("Unexpected");
@@ -152,20 +158,27 @@ public class TranslatorFromJsonTest {
 
             @Override
             protected Object createInstanceFor(Path path) {
-                if (path.toString().equals("objArr.*")) {
-                    return new SingleFieldObject<String>();
+                switch (path.toString()) {
+                    case "objArr.*":
+                        return new HashMap<>();
+                    default:
+                        throw new RuntimeException("Unexpected");
                 }
-                throw new RuntimeException("Unexpected");
+
             }
 
         };
 
-        SingleFieldObject<List<SingleFieldObject<String>>> response = new SingleFieldObject<>();
-        translator.translate(new JsonDoc(json("{\"objArr\":[{\"uid\":\"fake value1\"},{\"uid\":\"fake value2\"}]}")), response);
+        SingleFieldObject<List<Map<String, String>>> response = new SingleFieldObject<>();
+        translator.translate(new JsonDoc(json("{\"objArr\":[{\"uid\":\"fake value1\",\"name\":\"name1\"},{\"uid\":\"fake value2\",\"name\":\"name2\"}]}")), response);
 
         assertNotNull(response);
         assertNotNull(response.value);
         assertEquals(2, response.value.size());
+        assertEquals("fake value1", response.value.get(0).get("uid"));
+        assertEquals("name1", response.value.get(0).get("name"));
+        assertEquals("fake value2", response.value.get(1).get("uid"));
+        assertEquals("name2", response.value.get(1).get("name"));
     }
 
     protected EntityMetadata fakeEntityMetadata(String name, Field... fields) {
@@ -196,12 +209,7 @@ public class TranslatorFromJsonTest {
         }
 
         @Override
-        protected void translateSimpleArray(ArrayField field, List<Object> items, Object target) {
-            throw new RuntimeException("Method was not expected to be called");
-        }
-
-        @Override
-        protected void translateObjectArray(ArrayField field, List<JsonNode> items, Object target) {
+        protected void translate(ArrayField field, List<Object> items, Object target) {
             throw new RuntimeException("Method was not expected to be called");
         }
 

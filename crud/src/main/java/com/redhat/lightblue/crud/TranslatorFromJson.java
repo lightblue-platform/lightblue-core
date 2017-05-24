@@ -135,14 +135,16 @@ public abstract class TranslatorFromJson<T> {
             do {
                 items.add(fromJson(arrayElement.getType(), cursor.getCurrentNode()));
             } while (cursor.nextSibling());
-            translateSimpleArray(field, items, target);
+            translate(field, items, target);
         }
         else if(arrayElement instanceof ObjectArrayElement){
-            List<JsonNode> items = new ArrayList<>();
+            List<Object> items = new ArrayList<>();
             do {
-                items.add(cursor.getCurrentNode());
+                Object item = createInstanceFor(arrayElement.getFullPath());
+                translate((ObjectArrayElement) arrayElement, cursor.getCurrentNode(), item);
+                items.add(item);
             } while (cursor.nextSibling());
-            translateObjectArray(field, items, target);
+            translate(field, items, target);
         }
         else{
             throw Error.get(CrudConstants.ERR_UNSUPPORTED_FEATURE + arrayElement.getClass().getName(), field.getFullPath().toString());
@@ -163,20 +165,16 @@ public abstract class TranslatorFromJson<T> {
         cursor.parent();
     }
 
-    protected void translate(final ObjectArrayElement objectArrayElement, final List<JsonNode> items, List<Object> target) {
-        items.forEach(item -> {
-            JsonNodeCursor cursor = new JsonNodeCursor(objectArrayElement.getFullPath(), item);
+    protected void translate(final ObjectArrayElement objectArrayElement, JsonNode node, Object target) {
+        JsonNodeCursor cursor = new JsonNodeCursor(objectArrayElement.getFullPath(), node);
 
-            if(!cursor.firstChild()){
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, cursor.getCurrentPath().toString());
-            }
+        if(!cursor.firstChild()){
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, cursor.getCurrentPath().toString());
+        }
 
-            Object o = createInstanceFor(objectArrayElement.getFullPath());
-            do {
-                translate(cursor, o);
-            } while (cursor.nextSibling());
-            target.add(o);
-        });
+        do {
+            translate(cursor, target);
+        } while (cursor.nextSibling());
     }
 
     protected void translate(ReferenceField field, JsonNode node, Object target){
@@ -185,9 +183,7 @@ public abstract class TranslatorFromJson<T> {
 
     protected abstract void translate(SimpleField field, JsonNode node, Object target);
 
-    protected abstract void translateSimpleArray(ArrayField field, List<Object> items, Object target);
-
-    protected abstract void translateObjectArray(ArrayField field, List<JsonNode> items, Object target);
+    protected abstract void translate(ArrayField field, List<Object> items, Object target);
 
     protected abstract Object createInstanceFor(Path path);
 
