@@ -37,6 +37,7 @@ import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonNodeCursor;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Defines a class that translates lightblue json nodes into
@@ -94,7 +95,7 @@ public abstract class TranslatorFromJson<T> {
      * @param cursor - {@link JsonNodeCursor}
      * @param target - T
      */
-    protected void translate(JsonNodeCursor cursor, T target){
+    protected void translate(JsonNodeCursor cursor, Object target) {
         JsonNode node = cursor.getCurrentNode();
         FieldTreeNode fieldNode = entityMetadata.resolve(cursor.getCurrentPath());
 
@@ -122,7 +123,7 @@ public abstract class TranslatorFromJson<T> {
         }
     }
 
-    private void translate(ArrayField field, JsonNodeCursor cursor, T target){
+    private void translate(ArrayField field, JsonNodeCursor cursor, Object target) {
         if(!cursor.firstChild()){
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, cursor.getCurrentPath().toString());
         }
@@ -137,7 +138,11 @@ public abstract class TranslatorFromJson<T> {
             translateSimpleArray(field, items, target);
         }
         else if(arrayElement instanceof ObjectArrayElement){
-            translateObjectArray(field, cursor, target);
+            List<JsonNode> items = new ArrayList<>();
+            do {
+                items.add(cursor.getCurrentNode());
+            } while (cursor.nextSibling());
+            translateObjectArray(field, items, target);
         }
         else{
             throw Error.get(CrudConstants.ERR_UNSUPPORTED_FEATURE + arrayElement.getClass().getName(), field.getFullPath().toString());
@@ -146,7 +151,7 @@ public abstract class TranslatorFromJson<T> {
         cursor.parent();
     }
 
-    protected void translate(ObjectField field, JsonNodeCursor cursor, T target){
+    protected void translate(ObjectField field, JsonNodeCursor cursor, Object target) {
         if(!cursor.firstChild()){
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, cursor.getCurrentPath().toString());
         }
@@ -158,12 +163,32 @@ public abstract class TranslatorFromJson<T> {
         cursor.parent();
     }
 
-    protected void translate(ReferenceField field, JsonNode node, T target){
+    protected void translate(final ObjectArrayElement objectArrayElement, final List<JsonNode> items, List<Object> target) {
+        items.forEach(item -> {
+            JsonNodeCursor cursor = new JsonNodeCursor(objectArrayElement.getFullPath(), item);
+
+            if(!cursor.firstChild()){
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, cursor.getCurrentPath().toString());
+            }
+
+            Object o = createInstanceFor(objectArrayElement.getFullPath());
+            do {
+                translate(cursor, o);
+            } while (cursor.nextSibling());
+            target.add(o);
+        });
+    }
+
+    protected void translate(ReferenceField field, JsonNode node, Object target){
         //Do nothing by default!
     }
 
-    protected abstract void translate(SimpleField field, JsonNode node, T target);
-    protected abstract void translateSimpleArray(ArrayField field, List<Object> items, T target);
-    protected abstract void translateObjectArray(ArrayField field, JsonNodeCursor cursor, T target);
+    protected abstract void translate(SimpleField field, JsonNode node, Object target);
+
+    protected abstract void translateSimpleArray(ArrayField field, List<Object> items, Object target);
+
+    protected abstract void translateObjectArray(ArrayField field, List<JsonNode> items, Object target);
+
+    protected abstract Object createInstanceFor(Path path);
 
 }

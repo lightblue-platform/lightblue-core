@@ -43,7 +43,7 @@ public abstract class NonPersistedPredefinedFieldTranslatorFromJson<T> extends T
     }
 
     @Override
-    protected void translate(JsonNodeCursor cursor, T target){
+    protected void translate(JsonNodeCursor cursor, Object target) {
         Path path = cursor.getCurrentPath();
         FieldTreeNode fieldNode = entityMetadata.resolve(path);
         if(fieldNode instanceof Field){
