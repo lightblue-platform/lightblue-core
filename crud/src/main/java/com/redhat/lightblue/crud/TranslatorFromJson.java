@@ -30,7 +30,6 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
-import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
@@ -111,9 +110,6 @@ public abstract class TranslatorFromJson<T> {
             else if (fieldNode instanceof ArrayField) {
                 translate((ArrayField) fieldNode, cursor, target);
             }
-            else if (fieldNode instanceof ReferenceField) {
-                translate((ReferenceField) fieldNode, node, target);
-            }
             else{
                 throw Error.get(CrudConstants.ERR_UNSUPPORTED_FEATURE + fieldNode.getClass().getName(), fieldNode.getFullPath().toString());
             }
@@ -175,10 +171,6 @@ public abstract class TranslatorFromJson<T> {
         do {
             translate(cursor, target);
         } while (cursor.nextSibling());
-    }
-
-    protected void translate(ReferenceField field, JsonNode node, Object target){
-        //Do nothing by default!
     }
 
     protected abstract void translate(SimpleField field, JsonNode node, Object target);

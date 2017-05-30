@@ -8,14 +8,12 @@ import java.util.List;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
-import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.types.StringType;
@@ -180,11 +178,6 @@ public class TranslatorToJsonTest {
 
         public FakeTranslatorToJson(JsonNodeFactory factory, EntityMetadata entityMetadata) {
             super(factory, entityMetadata);
-        }
-
-        @Override
-        protected JsonNode translate(ReferenceField field, Object o) {
-            throw new RuntimeException("Method was not expected to be called");
         }
 
         @Override

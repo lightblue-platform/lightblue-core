@@ -33,7 +33,6 @@ import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
-import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
@@ -114,9 +113,6 @@ public abstract class TranslatorToJson<S> {
                 else if (field instanceof ArrayField){
                     newJsonNode = translateToArrayNode((ArrayField) field, newValue, cursor);
                 }
-                else if (field instanceof ReferenceField) {
-                    newJsonNode = translate((ReferenceField)field, newValue);
-                }
                 else{
                     throw new UnsupportedOperationException("Unknown Field type: " + field.getClass().getName());
                 }
@@ -195,7 +191,6 @@ public abstract class TranslatorToJson<S> {
     }
 
     protected abstract Object getValueFor(Object source, Path path);
-    protected abstract JsonNode translate(ReferenceField field, Object value);
     protected abstract List<? extends Object> getSimpleArrayValues(Object value, SimpleArrayElement simpleArrayElement);
 
     /**
