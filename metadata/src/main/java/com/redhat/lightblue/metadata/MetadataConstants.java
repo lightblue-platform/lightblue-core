@@ -75,6 +75,9 @@ public final class MetadataConstants {
 
     public static final String ERR_DATASOURCE_UNKNOWN = "metadata:DataSourceUnknown";
 
+    /** An unsupported feature was used. */
+    public static final String ERR_UNSUPPORTED_FEATURE = "metadata:UnsupportedFeature:";
+
     private MetadataConstants() {
     }
 

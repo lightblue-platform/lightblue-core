@@ -29,6 +29,12 @@ import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -243,4 +249,88 @@ public class PredefinedFieldsTest {
 
         Assert.assertEquals(0,doc.get(new Path("obj1.nested.objArr#")).intValue());
     }
+
+    @Test
+    public void testIsFieldObjectType_True(){
+        assertTrue(PredefinedFields.isFieldObjectType(PredefinedFields.OBJECTTYPE_FIELD));
+    }
+
+    @Test
+    public void testIsFieldObjectType_False(){
+        assertFalse(PredefinedFields.isFieldObjectType("NOT " + PredefinedFields.OBJECTTYPE_FIELD));
+    }
+
+    @Test
+    public void testIsFieldObjectType_NullValue(){
+        assertFalse(PredefinedFields.isFieldObjectType(null));
+    }
+
+    @Test
+    public void testDoesFieldNameMatchArrayCountPattern_True(){
+        assertTrue(PredefinedFields.doesFieldNameMatchArrayCountPattern("somearray" + PredefinedFields.FIELD_ARRAY_COUNT_POSTFIX));
+    }
+
+    @Test
+    public void testDoesFieldNameMatchArrayCountPattern_NullValue(){
+        assertFalse(PredefinedFields.doesFieldNameMatchArrayCountPattern(null));
+    }
+
+    @Test
+    public void testDoesFieldNameMatchArrayCountPattern_False(){
+        assertFalse(PredefinedFields.doesFieldNameMatchArrayCountPattern("somearray"));
+    }
+
+    @Test
+    public void testCreateArrayCountFieldName(){
+        assertEquals("somearray#", PredefinedFields.createArrayCountFieldName("somearray"));
+    }
+
+    @Test
+    public void testCreateArrayFieldNameFromCountField_NullValue(){
+        assertNull(PredefinedFields.createArrayFieldNameFromCountField(null));
+    }
+
+    @Test
+    public void testCreateArrayFieldNameFromCountField_NotArrayCountField(){
+        String nonArrayCountFieldName = "notarraycount";
+        assertEquals(nonArrayCountFieldName, PredefinedFields.createArrayFieldNameFromCountField(nonArrayCountFieldName));
+    }
+
+    @Test
+    public void testCreateArrayFieldNameFromCountField_ArrayCountField(){
+        String arrayFieldName = "arrayFieldName";
+        String arrayCountFieldName = arrayFieldName + PredefinedFields.FIELD_ARRAY_COUNT_POSTFIX;
+        assertEquals(arrayFieldName, PredefinedFields.createArrayFieldNameFromCountField(arrayCountFieldName));
+    }
+
+    @Test
+    public void testIsFieldAnArrayCount_DoesNotMatchArrayCountPattern(){
+        assertFalse(PredefinedFields.isFieldAnArrayCount("someField", null));
+    }
+
+    @Test
+    public void testIsFieldAnArrayCount_DoesNotHaveMatchingArrayField(){
+        assertFalse(PredefinedFields.isFieldAnArrayCount("someField" + PredefinedFields.FIELD_ARRAY_COUNT_POSTFIX, new Fields(null)));
+    }
+
+    @Test
+    public void testIsFieldAnArrayCount_True(){
+        String arrayFieldName = "arrayField";
+
+        Fields fields = new Fields(null);
+        fields.addNew(new ArrayField(arrayFieldName));
+
+        assertTrue(PredefinedFields.isFieldAnArrayCount(arrayFieldName + PredefinedFields.FIELD_ARRAY_COUNT_POSTFIX, fields));
+    }
+
+    @Test
+    public void testIsFieldAnArrayCount_Exists_ButNotArrayField(){
+        String arrayFieldName = "arrayField";
+
+        Fields fields = new Fields(null);
+        fields.addNew(new SimpleField(arrayFieldName));
+
+        assertFalse(PredefinedFields.isFieldAnArrayCount(arrayFieldName + PredefinedFields.FIELD_ARRAY_COUNT_POSTFIX, fields));
+    }
+
 }
