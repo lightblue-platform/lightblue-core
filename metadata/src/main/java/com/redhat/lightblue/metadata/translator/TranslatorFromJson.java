@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.metadata.translator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +111,7 @@ public abstract class TranslatorFromJson<T> {
                 translate((ArrayField) fieldNode, cursor, target);
             }
             else{
-                throw Error.get(CrudConstants.ERR_UNSUPPORTED_FEATURE + fieldNode.getClass().getName(), fieldNode.getFullPath().toString());
+                throw Error.get(MetadataConstants.ERR_UNSUPPORTED_FEATURE + fieldNode.getClass().getName(), fieldNode.getFullPath().toString());
             }
         }
         finally{
@@ -143,7 +143,7 @@ public abstract class TranslatorFromJson<T> {
             translate(field, items, target);
         }
         else{
-            throw Error.get(CrudConstants.ERR_UNSUPPORTED_FEATURE + arrayElement.getClass().getName(), field.getFullPath().toString());
+            throw Error.get(MetadataConstants.ERR_UNSUPPORTED_FEATURE + arrayElement.getClass().getName(), field.getFullPath().toString());
         }
 
         cursor.parent();

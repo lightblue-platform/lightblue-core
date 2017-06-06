@@ -78,9 +78,6 @@ public final class CrudConstants {
 
     public static final String ERR_DATASOURCE_UNKNOWN = "crud:DataSourceUnknown";
 
-    /** An unsupported feature was used. */
-    public static final String ERR_UNSUPPORTED_FEATURE = "crud:UnsupportedFeature:";
-
     private CrudConstants() {
 
     }

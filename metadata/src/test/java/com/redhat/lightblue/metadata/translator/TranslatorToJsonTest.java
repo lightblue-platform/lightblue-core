@@ -1,4 +1,4 @@
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.metadata.translator;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -16,6 +16,7 @@ import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.translator.TranslatorToJson;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;

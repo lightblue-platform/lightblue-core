@@ -1,4 +1,4 @@
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.metadata.translator;
 
 import static com.redhat.lightblue.util.JsonUtils.json;
 import static org.junit.Assert.assertEquals;
@@ -19,6 +19,7 @@ import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.translator.TranslatorFromJson;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
