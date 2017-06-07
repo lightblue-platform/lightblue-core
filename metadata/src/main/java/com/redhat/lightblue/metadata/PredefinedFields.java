@@ -19,16 +19,11 @@
 package com.redhat.lightblue.metadata;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 import com.redhat.lightblue.metadata.types.IntegerType;
@@ -52,6 +47,7 @@ import com.redhat.lightblue.util.Path;
 public final class PredefinedFields {
 
     public static final String OBJECTTYPE_FIELD = "objectType";
+    public static final String FIELD_ARRAY_COUNT_POSTFIX = "#";
 
     public static final Path OBJECTTYPE_PATH = new Path(OBJECTTYPE_FIELD);
 
@@ -84,7 +80,7 @@ public final class PredefinedFields {
         FieldCursor cursor = md.getFieldCursor();
         while (cursor.next()) {
             FieldTreeNode f = cursor.getCurrentNode();
-            if (f.getName().endsWith("#")) {
+            if (doesFieldNameMatchArrayCountPattern(f.getName())) {
                 Path lengthField = cursor.getCurrentPath();
                 String ls = lengthField.toString();
                 Path arrField = new Path(ls.substring(0, ls.length() - 1));
@@ -191,7 +187,7 @@ public final class PredefinedFields {
         } else {
             fields = md.getFields();
         }
-        String fieldName = arr.getName() + "#";
+        String fieldName = createArrayCountFieldName(arr.getName());
         Field f = fields.getField(fieldName);
         ParentNewChild ret;
         if (f == null) {
@@ -215,6 +211,80 @@ public final class PredefinedFields {
             throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE, fieldName + ":" + f.getType().getName());
         }
         return ret;
+    }
+
+    /**
+     * Returns <code>true</code> if the passed in field name is the object type, otherwise <code>false</code>.
+     * @param fieldName - field name to test.
+     * @return <code>true</code> if the passed in field name is the object type, otherwise <code>false</code>.
+     */
+    public static boolean isFieldObjectType(String fieldName){
+        return OBJECTTYPE_FIELD.equalsIgnoreCase(fieldName);
+    }
+
+    /**
+     * Returns <code>true</code> if the passed in field name is the count field for an array field,
+     * otherwise <code>false</code>.
+     * @param fieldName - field name to test.
+     * @param metadataFields - {@link Fields} from entity metadata.
+     * @return <code>true</code> if the passed in field name is the count field for an array field,
+     * otherwise <code>false</code>.
+     */
+    public static boolean isFieldAnArrayCount(String fieldName, Fields metadataFields){
+        if(!doesFieldNameMatchArrayCountPattern(fieldName)){
+            return false;
+        }
+
+        /*
+         * Ensure that the actual array field exists also, otherwise it might be a field
+         * that simply ends with a '#' character.
+         */
+        Field field = metadataFields.getField(createArrayFieldNameFromCountField(fieldName));
+        if((field != null) && (field instanceof ArrayField)){
+            return true;
+        }
+
+        return false;
+    }
+    
+    public static boolean isPredefinedField(String fieldName, Fields fields) {
+      return PredefinedFields.isFieldObjectType(fieldName)
+          || PredefinedFields.isFieldAnArrayCount(fieldName, fields);
+    }
+
+    /**
+     * Creates and returns the array field name for the passed in array count field name.
+     * @param countField - array count field.
+     * @return the array field name for the passed in array count field name.
+     */
+    public static String createArrayFieldNameFromCountField(String countField){
+        if(doesFieldNameMatchArrayCountPattern(countField)){
+            return countField.substring(0, countField.length() - 1);
+        }
+        return countField;
+    }
+
+    /**
+     * Created and returns the name of the array count field for the passed in array field name.
+     * @param arrayFieldName - array field name.
+     * @return name of the array count field for the passed in array field name.
+     */
+    public static String createArrayCountFieldName(String arrayFieldName){
+        return arrayFieldName + FIELD_ARRAY_COUNT_POSTFIX;
+    }
+
+    /**
+     * Returns <code>true</code> if the passed in field name matches the array count field name pattern,
+     * otherwise <code>false</code>.
+     * @param fieldName - field name to test.
+     * @return <code>true</code> if the passed in field name matches the array count field name pattern,
+     * otherwise <code>false</code>.
+     */
+    static boolean doesFieldNameMatchArrayCountPattern(String fieldName){
+        if(fieldName == null){
+            return false;
+        }
+        return fieldName.endsWith(FIELD_ARRAY_COUNT_POSTFIX);
     }
 
     private PredefinedFields() {
