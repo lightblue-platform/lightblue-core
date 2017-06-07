@@ -100,4 +100,20 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         Assert.assertEquals("[1,2]", jsonDoc.get(new Path("field6.nf10")).toString());
 
     }
+
+    @Test
+    public void setting_reference_to_null_is_ignored() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$set': {'ref': null } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertFalse(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+    }
+
+    @Test(expected=EvaluationError.class)
+    public void setting_reference_to_non_null_throws_exception() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$set': {'ref': 'foo' } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertFalse(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+    }
 }
