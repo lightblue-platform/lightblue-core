@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.LightblueHealth;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
@@ -106,5 +107,11 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
             return null;
         }
     }
+
+	@Override
+	public LightblueHealth checkHealth() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

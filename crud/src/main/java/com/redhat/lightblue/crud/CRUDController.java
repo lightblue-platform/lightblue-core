@@ -18,16 +18,11 @@
  */
 package com.redhat.lightblue.crud;
 
+import com.redhat.lightblue.metadata.MetadataListener;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
-
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.MetadataListener;
-
 import com.redhat.lightblue.util.JsonDoc;
 
 public interface CRUDController {
@@ -125,4 +120,9 @@ public interface CRUDController {
      * The back end should update the predefined fields of the document
      */
     void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc);
+    
+    /**
+     * Checks the health
+     */
+    LightblueHealth checkHealth();
 }
