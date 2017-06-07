@@ -61,6 +61,7 @@ public class Factory implements Serializable {
 
     private JsonNodeFactory nodeFactory;
     private int bulkParallelExecutions = 3;
+    private int memoryIndexThreshold = 16;
 
     /**
      * Adds a field constraint validator
@@ -217,5 +218,13 @@ public class Factory implements Serializable {
 
     public ValueGeneratorSupport getValueGenerator(ValueGenerator generatorMd, String backend) {
         return generators.getValueGenerator(generatorMd, backend);
+    }
+
+    public int getMemoryIndexThreshold() {
+        return memoryIndexThreshold;
+    }
+
+    public void setMemoryIndexThreshold(int memoryIndexThreshold) {
+        this.memoryIndexThreshold = memoryIndexThreshold;
     }
 }

@@ -135,7 +135,8 @@ public class CompositeFindImpl implements Finder {
                                               req.getTo(),
                                               root,
                                               searchQPlan,
-                                              retrievalQPlan);
+                                              retrievalQPlan,
+                                              ctx);
         }
     }
     
