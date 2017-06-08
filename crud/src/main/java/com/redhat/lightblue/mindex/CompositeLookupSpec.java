@@ -18,7 +18,10 @@
  */
 package com.redhat.lightblue.mindex;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import com.redhat.lightblue.util.Tuples;
 
@@ -31,11 +34,27 @@ public class CompositeLookupSpec extends LookupSpec {
     
     @Override
     public Key buildKey() {
-        Key[] keys=new Key[values.length];
-        for(int i=0;i<keys.length;i++) {
-            keys[i]=values[i].buildKey();
+
+        List<Key> keys = new ArrayList<>();
+
+        for(int i=0;i<values.length;i++) {
+            addKeyFlat(values[i].buildKey(), keys);
         }
-        return new ArrayKey(keys);
+        return new ArrayKey(keys.toArray(new Key[keys.size()]));
+    }
+
+    /**
+     *
+     * @param key if ArrayKey, add it's elements instead of the key itself to prevent nesting
+     * @param keys a list of keys to add to
+     */
+    private void addKeyFlat(Key key, List<Key> keys) {
+        if (key instanceof ArrayKey) {
+            keys.addAll(Arrays.asList(((ArrayKey)key).values));
+
+        } else {
+            keys.add(key);
+        }
     }
     
     @Override

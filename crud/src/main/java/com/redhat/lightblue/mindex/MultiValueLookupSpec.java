@@ -18,10 +18,12 @@
  */
 package com.redhat.lightblue.mindex;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import com.redhat.lightblue.util.Tuples;
 
@@ -31,6 +33,18 @@ import com.redhat.lightblue.util.Tuples;
 public class MultiValueLookupSpec extends SimpleKeyLookupSpec {
     final Set<Object> values;
     
+    @Override
+    public Key buildKey() {
+        Key[] keys=new Key[values.size()];
+        List<Object> valuesList = new ArrayList<>(values);
+
+        for(int i=0;i<keys.length;i++) {
+            keys[i]=new SimpleKey(valuesList.get(i));
+        }
+
+        return new ArrayKey(keys);
+    }
+
     public MultiValueLookupSpec(SimpleKeySpec keyField,Collection<Object> values) {
         super(keyField);
         this.values=new HashSet<Object>();
