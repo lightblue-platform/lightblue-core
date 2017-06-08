@@ -48,13 +48,13 @@ public class GetIndexLookupSpec extends IndexQueryProcessorBase<LookupSpec> {
     protected LookupSpec processValueComparisonExpression(ValueComparisonExpression q) {
         switch(q.getOp()) {
         case _eq:
-            return new ValueLookupSpec(simpleKeySpec(findFieldInfo(q.getField(),q)),q.getRvalue());
+            return new ValueLookupSpec(simpleKeySpec(findFieldInfo(q.getField(),q)),q.getRvalue().getValue());
         case _lte:
         case _lt:
-            return new RangeLookupSpec(simpleKeySpec(findFieldInfo(q.getField(),q)),null,q.getRvalue());
+            return new RangeLookupSpec(simpleKeySpec(findFieldInfo(q.getField(),q)),null,q.getRvalue().getValue());
         case _gte:
         case _gt:
-            return new RangeLookupSpec(simpleKeySpec(findFieldInfo(q.getField(),q)),q.getRvalue(),null);
+            return new RangeLookupSpec(simpleKeySpec(findFieldInfo(q.getField(),q)),q.getRvalue().getValue(),null);
         }
         return null;
     }
