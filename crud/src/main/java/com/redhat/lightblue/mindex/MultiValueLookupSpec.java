@@ -47,7 +47,7 @@ public class MultiValueLookupSpec extends SimpleKeyLookupSpec {
         }
     }
     
-    @Override protected boolean needsScan() {return false;}
+    @Override protected boolean needsScan() {return true;}
     @Override protected boolean multiValued() {return values.size()>1;}
     
     @Override
