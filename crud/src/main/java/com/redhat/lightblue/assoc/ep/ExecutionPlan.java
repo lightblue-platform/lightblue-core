@@ -54,8 +54,8 @@ import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryFieldInfo;
 
+import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.eval.SortFieldInfo;
-import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.util.Path;
 
 /**
@@ -104,7 +104,7 @@ public class ExecutionPlan {
                          CompositeMetadata rootMd,
                          QueryPlan searchQueryPlan,
                          QueryPlan retrievalQueryPlan,
-                         OperationContext ctx) {
+                         CRUDOperationContext ctx) {
 
         // Specifies if a filtering layer is needed at the end of the
         // pipeline.  This is needed if searchplan returns more than

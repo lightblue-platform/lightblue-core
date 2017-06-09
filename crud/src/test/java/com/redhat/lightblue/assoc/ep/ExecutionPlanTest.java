@@ -1,40 +1,38 @@
 package com.redhat.lightblue.assoc.ep;
 
-import java.util.List;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
-import org.junit.Test;
 import org.junit.Assert;
-
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonUtils;
-
-import com.redhat.lightblue.query.*;
-
-import com.redhat.lightblue.assoc.*;
-
-import com.redhat.lightblue.metadata.CompositeMetadata;
+import com.redhat.lightblue.TestDataStoreParser;
+import com.redhat.lightblue.assoc.QueryPlan;
+import com.redhat.lightblue.assoc.QueryPlanChooser;
+import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
+import com.redhat.lightblue.assoc.iterators.First;
+import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
+import com.redhat.lightblue.assoc.scorers.SimpleScorer;
+import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.metadata.AbstractGetMetadata;
+import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.TestDataStoreParser;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
-import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
-import com.redhat.lightblue.assoc.scorers.SimpleScorer;
-import com.redhat.lightblue.assoc.iterators.First;
 
 public class ExecutionPlanTest extends AbstractJsonNodeTest {
 
@@ -53,6 +51,18 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private CRUDOperationContext ctx;
+
+    @Before
+    public void setupOperationContext() {
+        ctx = Mockito.mock(CRUDOperationContext.class);
+        Factory factory = Mockito.mock(Factory.class);
+
+        Mockito.when(factory.getMemoryIndexThreshold()).thenReturn(0);
+        Mockito.when(ctx.getFactory()).thenReturn(factory);
+
     }
 
     private EntityMetadata getMd(String fname) {
@@ -94,7 +104,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 new IndexedFieldScorer(),
                 q,
                 minimalTree).choose();
-        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, null, searchQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, null, searchQP, ctx);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("retrieveAandBonly");
@@ -129,7 +139,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 q,
                 minimalTree).choose();
         QueryPlan retrievalQP = new QueryPlanChooser(md, new First(), new SimpleScorer(), null, minimalTree).choose();
-        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP, ctx);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("retrieveABC");
@@ -172,7 +182,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 q,
                 minimalTree).choose();
 
-        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP, ctx);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("retrieveAandConly_CFirst");
@@ -226,7 +236,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                 q,
                 minimalTree).choose();
 
-        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP);
+        ExecutionPlan ep = new ExecutionPlan(q,p, null, null, null, md, searchQP, retrievalQP, ctx);
         ObjectNode j = (ObjectNode) ep.toJson();
 
         System.out.println("rev_search_with_arraycond");
