@@ -21,46 +21,45 @@ package com.redhat.lightblue.mediator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
-
-import java.util.concurrent.Future;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.ResultMetadata;
+import com.redhat.lightblue.assoc.AnalyzeQuery;
+import com.redhat.lightblue.assoc.CompositeFindImpl;
+import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.BulkResponse;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
-import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.CRUDSaveResponse;
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperation;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.DocumentStream;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.DocumentStream;
+import com.redhat.lightblue.crud.WithIfCurrent;
 import com.redhat.lightblue.crud.WithQuery;
 import com.redhat.lightblue.crud.WithRange;
-import com.redhat.lightblue.crud.WithIfCurrent;
-import com.redhat.lightblue.assoc.AnalyzeQuery;
-import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.metadata.CompositeMetadata;
@@ -81,8 +80,7 @@ import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.assoc.CompositeFindImpl;
+import com.redhat.lightblue.util.stopwatch.StopWatch;
 
 /**
  * The mediator looks at a request, performs basic validation, and passes the
@@ -117,6 +115,7 @@ public class Mediator {
      * that pass the validation to the CRUD implementation for that entity. CRUD
      * implementation can perform further validations.
      */
+    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
@@ -190,6 +189,7 @@ public class Mediator {
      * implementation can perform further validations.
      *
      */
+    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
@@ -264,6 +264,7 @@ public class Mediator {
      * implementation must perform all constraint validations and process only
      * the documents that pass those validations.
      */
+    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response update(UpdateRequest req) {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
@@ -337,6 +338,7 @@ public class Mediator {
         return response;
     }
 
+    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response delete(DeleteRequest req) {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
@@ -472,6 +474,7 @@ public class Mediator {
      *
      * The implementation passes the request to the back-end.
      */
+    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response find(FindRequest req) {
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");
@@ -557,6 +560,7 @@ public class Mediator {
      * the core level, and then passed to the backend to fill in
      * back-end specifics
      */
+    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response explain(FindRequest req) {
         LOGGER.debug("explain {}", req.getEntityVersion());
         Error.push("explain(" + req.getEntityVersion().toString() + ")");
