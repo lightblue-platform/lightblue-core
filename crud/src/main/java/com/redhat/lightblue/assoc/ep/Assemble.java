@@ -209,8 +209,8 @@ public class Assemble extends Step<ResultDocument> {
                 }
                 List<ResultDocument> destResults = dest.getResultList(combinedQuery, ctx);
                 int numSlots=0;
-                for(ResultDocument doc:destResults) {
-                    List<ChildSlot> slots=doc.getSlots().get(aq.getReference());
+                for (DocAndQ parentDocAndQ : docs) {
+                    List<ChildSlot> slots=parentDocAndQ.doc.getSlots().get(aq.getReference());
                     if(slots!=null)
                         numSlots+=slots.size();
                 }
