@@ -21,9 +21,9 @@ package com.redhat.lightblue.mediator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Callable;
@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jcabi.aspects.Loggable;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.Response;
@@ -117,6 +118,7 @@ public class Mediator {
      * that pass the validation to the CRUD implementation for that entity. CRUD
      * implementation can perform further validations.
      */
+    @Loggable(limit=5, unit=TimeUnit.SECONDS, trim=false, skipResult=true, name="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
@@ -190,6 +192,7 @@ public class Mediator {
      * implementation can perform further validations.
      *
      */
+    @Loggable(limit=5, unit=TimeUnit.SECONDS, trim=false, skipResult=true, name="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
@@ -264,6 +267,7 @@ public class Mediator {
      * implementation must perform all constraint validations and process only
      * the documents that pass those validations.
      */
+    @Loggable(limit=5, unit=TimeUnit.SECONDS, trim=false, skipResult=true, name="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response update(UpdateRequest req) {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
@@ -337,6 +341,7 @@ public class Mediator {
         return response;
     }
 
+    @Loggable(limit=5, unit=TimeUnit.SECONDS, trim=false, skipResult=true, name="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response delete(DeleteRequest req) {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
@@ -472,6 +477,7 @@ public class Mediator {
      *
      * The implementation passes the request to the back-end.
      */
+    @Loggable(limit=5, unit=TimeUnit.SECONDS, trim=false, skipResult=true, name="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response find(FindRequest req) {
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");
@@ -557,6 +563,7 @@ public class Mediator {
      * the core level, and then passed to the backend to fill in
      * back-end specifics
      */
+    @Loggable(limit=5, unit=TimeUnit.SECONDS, trim=false, skipResult=true, name="stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response explain(FindRequest req) {
         LOGGER.debug("explain {}", req.getEntityVersion());
         Error.push("explain(" + req.getEntityVersion().toString() + ")");
