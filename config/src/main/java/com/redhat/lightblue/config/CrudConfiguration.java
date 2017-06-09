@@ -48,6 +48,7 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
     private SavedSearchConfiguration savedSearch;
     private boolean validateRequests = false;
     private int bulkParallelExecutions = 3;
+    private int memoryIndexThreshold = 16;
 
     public boolean isValidateRequests() {
         return validateRequests;
@@ -129,6 +130,19 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
                 savedSearch=new SavedSearchConfiguration();
                 savedSearch.initializeFromJson(x);
             }
+
+            x = node.get("memoryIndexThreshold");
+            if (x != null) {
+                memoryIndexThreshold = x.intValue();
+            }
         }
+    }
+
+    public int getMemoryIndexThreshold() {
+        return memoryIndexThreshold;
+    }
+
+    void setMemoryIndexThreshold(int memoryIndexThreshold) {
+        this.memoryIndexThreshold = memoryIndexThreshold;
     }
 }

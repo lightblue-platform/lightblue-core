@@ -159,6 +159,7 @@ public final class LightblueFactory implements Serializable {
 
             Factory f = new Factory();
             f.setBulkParallelExecutions(crudConfiguration.getBulkParallelExecutions());
+            f.setMemoryIndexThreshold(crudConfiguration.getMemoryIndexThreshold());
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
 
             // Add default interceptors

@@ -54,8 +54,8 @@ import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryFieldInfo;
 
+import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.eval.SortFieldInfo;
-
 import com.redhat.lightblue.util.Path;
 
 /**
@@ -103,7 +103,8 @@ public class ExecutionPlan {
                          Long to,
                          CompositeMetadata rootMd,
                          QueryPlan searchQueryPlan,
-                         QueryPlan retrievalQueryPlan) {
+                         QueryPlan retrievalQueryPlan,
+                         CRUDOperationContext ctx) {
 
         // Specifies if a filtering layer is needed at the end of the
         // pipeline.  This is needed if searchplan returns more than
@@ -320,7 +321,7 @@ public class ExecutionPlan {
                 fields.addAll(getIncludedFieldsOfEntityForProjection(block, rootMd, requestProjection));
                 search.setProjection(writeProjection(fields));
                 search.setQueries(node.getData().getConjuncts());
-                resultStep = new Assemble(block, last, destinationBlocks);
+                resultStep = new Assemble(block, last, destinationBlocks, ctx.getFactory().getMemoryIndexThreshold());
                 if(needsFinalFiltering) {
                     resultStep = new Filter(block, new Source<>(resultStep), requestQuery);
                     ((Filter)resultStep).setRecordResultSetSize(true);
@@ -352,7 +353,7 @@ public class ExecutionPlan {
                 Set<Path> fields = getIncludedFieldsOfEntityForSearch(block, qfi);
                 fields.addAll(getIncludedFieldsOfEntityForProjection(block, rootMd, requestProjection));
                 search.setProjection(writeProjection(fields));
-                block.setResultStep(new Assemble(block, new Source<>(search), destinationBlocks));
+                block.setResultStep(new Assemble(block, new Source<>(search), destinationBlocks, ctx.getFactory().getMemoryIndexThreshold()));
             }
         }
 
