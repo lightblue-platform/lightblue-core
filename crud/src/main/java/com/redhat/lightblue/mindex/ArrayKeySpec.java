@@ -29,6 +29,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.assoc.QueryFieldInfo;
 
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.Type;
+
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Tuples;
@@ -41,10 +46,12 @@ import com.redhat.lightblue.util.KeyValueCursor;
 public class ArrayKeySpec implements KeySpec,Comparator<ArrayKey> {
     final KeySpec[] keyFields;
     final Path arrayName;
+    final ArrayElement element;
     
     public ArrayKeySpec(QueryFieldInfo array,KeySpec[] fields) {
         this.keyFields=fields;
         this.arrayName=array.getEntityRelativeFieldNameWithContext();
+        this.element=((ArrayField)array.getFieldMd()).getElement();
     }
 
     @Override
@@ -66,21 +73,35 @@ public class ArrayKeySpec implements KeySpec,Comparator<ArrayKey> {
     public Set<Key> extract(JsonDoc doc,Set<Key> set) {
         if(set==null)
             set=new HashSet<>();
+        // If simple array elements, then we build the keys from those here
+        Type elementType;
+        if(element instanceof SimpleArrayElement) {
+            elementType=element.getType();
+        } else {
+            elementType=null;
+        }
         KeyValueCursor<Path,JsonNode> arrayCursor=doc.getAllNodes(arrayName);
         while(arrayCursor.hasNext()) {
             arrayCursor.next();
             ArrayNode arrayNode=(ArrayNode)arrayCursor.getCurrentValue();
             for(Iterator<JsonNode> itr=arrayNode.elements();itr.hasNext();) {
                 JsonNode element=itr.next();
-                JsonDoc nestedDoc=new JsonDoc(element);
-                Tuples<Key> tuples=new Tuples<>();
-                for(KeySpec keyField:keyFields) {
-                    tuples.add(keyField.extract(nestedDoc,null));
-                }
-                Iterator<List<Key>> tupleItr=tuples.tuples();
-                while(tupleItr.hasNext()) {
-                    List<Key> t=tupleItr.next();
-                    set.add(new ArrayKey(t.toArray(new Key[t.size()])));
+                if(elementType==null) {
+                    // Object array element
+                    JsonDoc nestedDoc=new JsonDoc(element);
+                    Tuples<Key> tuples=new Tuples<>();
+                    for(KeySpec keyField:keyFields) {
+                        tuples.add(keyField.extract(nestedDoc,null));
+                    }
+                    Iterator<List<Key>> tupleItr=tuples.tuples();
+                    while(tupleItr.hasNext()) {
+                        List<Key> t=tupleItr.next();
+                        set.add(new ArrayKey(t.toArray(new Key[t.size()])));
+                    }
+                } else {
+                    // Simple array element
+                    Key sk=new SimpleKey(elementType.fromJson(element));
+                    set.add(new ArrayKey(new Key[] {sk}));
                 }
             }
         }
