@@ -70,7 +70,7 @@ public class Assemble extends Step<ResultDocument> {
      * of slots above which we'll use the memory indexing. If we have
      * slots fewer than this, then we don't use in-memory index.
      */
-    public static int MEM_INDEX_THRESHOLD=16;
+    private int memoryIndexThreshold;
 
     private final ExecutionBlock[] destinationBlocks;
     private final Source<ResultDocument> source;
@@ -78,10 +78,12 @@ public class Assemble extends Step<ResultDocument> {
 
     public Assemble(ExecutionBlock block,
                     Source<ResultDocument> source,
-                    ExecutionBlock[] destinationBlocks) {
+                    ExecutionBlock[] destinationBlocks,
+                    int memoryIndexThreshold) {
         super(block);
         this.source = source;
         this.destinationBlocks = destinationBlocks;
+        this.memoryIndexThreshold = memoryIndexThreshold;
     }
 
     public List<ResultDocument> getResultList(QueryExpression q, ExecutionContext ctx) {
@@ -209,14 +211,14 @@ public class Assemble extends Step<ResultDocument> {
                 }
                 List<ResultDocument> destResults = dest.getResultList(combinedQuery, ctx);
                 int numSlots=0;
-                for(ResultDocument doc:destResults) {
-                    List<ChildSlot> slots=doc.getSlots().get(aq.getReference());
+                for (DocAndQ parentDocAndQ : docs) {
+                    List<ChildSlot> slots=parentDocAndQ.doc.getSlots().get(aq.getReference());
                     if(slots!=null)
                         numSlots+=slots.size();
                 }
                 // Try to build an index from results
                 MemDocIndex docIndex=null;
-                if(aq.getQuery()!=null&&numSlots>MEM_INDEX_THRESHOLD) {
+                if(aq.getQuery()!=null&&numSlots>memoryIndexThreshold) {
                     KeySpec keySpec=aq.getIndexKeySpec();
                     LOGGER.debug("In-memory index key spec:{}",keySpec);
                     if(keySpec!=null) {

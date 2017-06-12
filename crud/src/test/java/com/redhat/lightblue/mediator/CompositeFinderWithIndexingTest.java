@@ -18,21 +18,14 @@
  */
 package com.redhat.lightblue.mediator;
 
-import org.junit.After;
 import org.junit.Before;
-
-import com.redhat.lightblue.assoc.ep.Assemble;
 
 public class CompositeFinderWithIndexingTest extends CompositeFinderTest {
 
     @Before
-    public void setup() {
-        // Force use of mem index for all cases
-        Assemble.MEM_INDEX_THRESHOLD=0;
+    public void initMediator() throws Exception {
+        // use in memory index regardless of result set size
+        initMediator(0);
     }
-    @After
-    public void restore() {
-        // Force use of mem index for all cases
-        Assemble.MEM_INDEX_THRESHOLD=16;
-    }
+
 }

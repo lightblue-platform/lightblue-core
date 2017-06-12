@@ -177,9 +177,14 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
     @Before
     public void initMediator() throws Exception {
+        initMediator(16);
+    }
+
+    public void initMediator(int memoryIndexThreshold) throws Exception {
         Factory factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
+        factory.setMemoryIndexThreshold(memoryIndexThreshold);
         factory.addCRUDController("mongo", new CompositeTestCrudController(new TestCrudController.GetData() {
             public List<JsonDoc> getData(String entityName) {
                 try {
