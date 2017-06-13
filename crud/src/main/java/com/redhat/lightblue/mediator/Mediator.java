@@ -115,7 +115,7 @@ public class Mediator {
      * that pass the validation to the CRUD implementation for that entity. CRUD
      * implementation can perform further validations.
      */
-    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
+    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
@@ -189,7 +189,7 @@ public class Mediator {
      * implementation can perform further validations.
      *
      */
-    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
+    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
@@ -264,7 +264,7 @@ public class Mediator {
      * implementation must perform all constraint validations and process only
      * the documents that pass those validations.
      */
-    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
+    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public Response update(UpdateRequest req) {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
@@ -338,7 +338,7 @@ public class Mediator {
         return response;
     }
 
-    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
+    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public Response delete(DeleteRequest req) {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
@@ -474,7 +474,7 @@ public class Mediator {
      *
      * The implementation passes the request to the back-end.
      */
-    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
+    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public Response find(FindRequest req) {
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");
@@ -560,7 +560,7 @@ public class Mediator {
      * the core level, and then passed to the backend to fill in
      * back-end specifics
      */
-    @StopWatch(loggerName="stopwatch.com.redhat.lightblue.mediator.Mediator")
+    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator")
     public Response explain(FindRequest req) {
         LOGGER.debug("explain {}", req.getEntityVersion());
         Error.push("explain(" + req.getEntityVersion().toString() + ")");
