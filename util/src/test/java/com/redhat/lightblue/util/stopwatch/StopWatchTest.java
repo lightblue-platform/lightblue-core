@@ -10,6 +10,15 @@ import org.junit.Test;
 
 public class StopWatchTest {
 
+    static class StringSizeCalc implements SizeCalculator<String> {
+
+        @Override
+        public int size(String object) {
+            return object.length();
+        }
+
+    }
+
     class StopWatched {
 
         @StopWatch(loggerName="logger", warnThresholdMS=100)
@@ -30,6 +39,15 @@ public class StopWatchTest {
             }
         }
 
+        @StopWatch(loggerName="logger", sizeCalculatorClass="com.redhat.lightblue.util.stopwatch.StopWatchTest$StringSizeCalc", warnThresholdSizeB=3)
+        public String explicitSize(String str) {
+            return str;
+        }
+
+        @StopWatch(loggerName="logger", sizeCalculatorClass="com.redhat.lightblue.util.stopwatch.StopWatchTest$StringSizeCalc")
+        public String implicitSize(String str) {
+            return str;
+        }
     }
 
     class MockStopWatchLogger extends StopWatchLogger {
@@ -75,7 +93,7 @@ public class StopWatchTest {
         w.watchedMethodExplicitThreshold(150);
 
         Assert.assertEquals(1,logger.logEntries.size());
-        Assert.assertTrue(logger.logEntries.get(0).startsWith("WARN logger: Long call=StopWatched#watchedMethodExplicitThreshold(150) executionTimeMS=1"));
+        Assert.assertTrue(logger.logEntries.get(0).startsWith("WARN logger: call=StopWatched#watchedMethodExplicitThreshold(150) executionTimeMS=1"));
     }
 
     @Test
@@ -92,7 +110,7 @@ public class StopWatchTest {
         w.watchedMethod(150);
 
         Assert.assertEquals(1,logger.logEntries.size());
-        Assert.assertTrue(logger.logEntries.get(0).startsWith("WARN logger: Long call=StopWatched#watchedMethod(150) executionTimeMS=1"));
+        Assert.assertTrue(logger.logEntries.get(0).startsWith("WARN logger: call=StopWatched#watchedMethod(150) executionTimeMS=1"));
     }
 
     @Test
@@ -109,7 +127,7 @@ public class StopWatchTest {
         w.watchedMethodExplicitThreshold(150);
 
         Assert.assertEquals(1,logger.logEntries.size());
-        Assert.assertTrue(logger.logEntries.get(0).startsWith("WARN logger: Long call=StopWatched#watchedMethodExplicitThreshold(150) executionTimeMS=1"));
+        Assert.assertTrue(logger.logEntries.get(0).startsWith("WARN logger: call=StopWatched#watchedMethodExplicitThreshold(150) executionTimeMS=1"));
     }
 
     @Test
@@ -119,6 +137,43 @@ public class StopWatchTest {
         w.watchedMethodExplicitThreshold(150);
 
         Assert.assertEquals(0,logger.logEntries.size());
+    }
+
+    @Test
+    public void testResultSizeExplicitThreshold() {
+
+        System.setProperty("stopwatch.enabled", "true");
+
+        StopWatched w = new StopWatched();
+
+        w.explicitSize("fo");
+
+        Assert.assertEquals(0, logger.logEntries.size());
+
+        w.explicitSize("foobar");
+
+        Assert.assertEquals(1, logger.logEntries.size());
+        Assert.assertEquals("WARN logger: call=StopWatched#explicitSize('foobar') resultSize=6", logger.logEntries.get(0));
+    }
+
+    @Test
+    public void testResultSizeGlobalThreshold() {
+
+        System.setProperty("stopwatch.enabled", "true");
+
+        StopWatched w = new StopWatched();
+
+        w.implicitSize("foobar");
+        Assert.assertEquals(0, logger.logEntries.size());
+
+        System.setProperty("stopwatch.stopwatch.globalWarnSizeThresholdB", "3");
+        w.implicitSize("fo");
+        Assert.assertEquals(0, logger.logEntries.size());
+
+        w.explicitSize("foobar");
+
+        Assert.assertEquals(1, logger.logEntries.size());
+        Assert.assertEquals("WARN logger: call=StopWatched#explicitSize('foobar') resultSize=6", logger.logEntries.get(0));
     }
 
 }

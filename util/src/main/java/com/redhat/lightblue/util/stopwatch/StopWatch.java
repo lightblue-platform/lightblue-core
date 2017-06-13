@@ -25,4 +25,12 @@ public @interface StopWatch {
      */
     String loggerName() default "com.redhat.lightblue.crud.stopwatch";
 
+    /**
+     * Class name used to calculate result size.
+     *
+     */
+    String sizeCalculatorClass() default "null";
+
+    int warnThresholdSizeB() default -1;
+
 }
