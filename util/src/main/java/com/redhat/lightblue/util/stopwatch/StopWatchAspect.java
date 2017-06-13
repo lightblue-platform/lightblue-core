@@ -7,6 +7,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Aspect with pointcut for all methods annotated with @StopWatch. Measures execution time and logs a warning if it's higher than threshold.
@@ -17,7 +19,9 @@ import org.aspectj.lang.reflect.MethodSignature;
 @Aspect
 public class StopWatchAspect {
 
-    static StopWatchLogger logger = new StopWatchLogger();
+    private static final Logger logger = LoggerFactory.getLogger(StopWatchAspect.class);
+
+    static StopWatchLogger stopWatchLogger = new StopWatchLogger();
 
     @Around("@annotation(StopWatch) && execution(* *(..))")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -40,10 +44,15 @@ public class StopWatchAspect {
 
             // calculate result size and log a warning if exceeds threshold
             if (returned != null && calc != null) {
-                @SuppressWarnings("unchecked")
-                int size = calc.size(returned);
-                if (warnSizeThresholdB(joinPoint) >= 0 && size >= warnSizeThresholdB(joinPoint)) {
-                    logger.warn(loggerName, "call="+className+Mnemos.toText(joinPoint, false, false)+" resultSize="+size);
+                try {
+                    @SuppressWarnings("unchecked")
+                    int size = calc.size(returned);
+                    if (warnSizeThresholdB(joinPoint) >= 0 && size >= warnSizeThresholdB(joinPoint)) {
+                        stopWatchLogger.warn(loggerName, "call="+className+Mnemos.toText(joinPoint, false, false)+" resultSize="+size);
+                    }
+                } catch (Exception e) {
+                    // swallow this exception to avoid potential SizeCalculator bugs to impact request processing
+                    logger.error("Error when calculating result size!", e);
                 }
             }
 
@@ -55,11 +64,11 @@ public class StopWatchAspect {
             final long tookMS = TimeUnit.MILLISECONDS.convert(tookNano, TimeUnit.NANOSECONDS);
 
             if (tookMS >= warnThresholdMS(joinPoint)) {
-                logger.warn(loggerName, "call="+className+Mnemos.toText(joinPoint, false, false)+" executionTimeMS="+tookMS);
+                stopWatchLogger.warn(loggerName, "call="+className+Mnemos.toText(joinPoint, false, false)+" executionTimeMS="+tookMS);
             }
 
-            if (logger.isDebugEnabled(loggerName)) {
-                logger.debug(loggerName, "call="+className+Mnemos.toText(joinPoint, false, false)+" executionTimeMS="+tookMS);
+            if (stopWatchLogger.isDebugEnabled(loggerName)) {
+                stopWatchLogger.debug(loggerName, "call="+className+Mnemos.toText(joinPoint, false, false)+" executionTimeMS="+tookMS);
             }
         }
     }

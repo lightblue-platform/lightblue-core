@@ -76,7 +76,7 @@ public class StopWatchTest {
     @Before
     public void before() {
         logger = new MockStopWatchLogger();
-        StopWatchAspect.logger = logger;
+        StopWatchAspect.stopWatchLogger = logger;
         StopWatchAspect.clear();
     }
 
