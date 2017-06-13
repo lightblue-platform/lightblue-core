@@ -91,48 +91,35 @@ public class StopWatchAspect {
     }
 
     private static Boolean enabled = null;
+    private static Integer globalWarnThresholdMS = null;
+    private static Integer globalWarnSizeThresholdB = null;
 
     private boolean enabled() {
         if (enabled == null) {
             enabled = Boolean.parseBoolean(System.getProperty(ENABLED_PROP, "false"));
+            globalWarnThresholdMS = Integer.parseInt(System.getProperty(GLOBAL_WARN_THRESHOLD_MS_PROP, "5000"));
+            globalWarnSizeThresholdB = Integer.parseInt(System.getProperty(GLOBAL_WARN_SIZE_THRESHOLD_B_PROP, "-1"));
+
+            logger.info("StopWatch initialized: enabled={}, globalWarnThresholdMS={}, globalWarnSizeThresholdB={}", enabled, globalWarnThresholdMS, globalWarnSizeThresholdB);
         }
         return enabled;
-    }
-
-    private static Integer globalWarnThresholdMS = null;
-
-    private int globalWarnThresholdMS() {
-        if (globalWarnThresholdMS == null) {
-            globalWarnThresholdMS = Integer.parseInt(System.getProperty(GLOBAL_WARN_THRESHOLD_MS_PROP, "5000"));
-        }
-        return globalWarnThresholdMS;
     }
 
     private int warnThresholdMS(ProceedingJoinPoint joinPoint) {
         int annotationWarnThresholdMS = getAnnotation(joinPoint).warnThresholdMS();
 
         if (annotationWarnThresholdMS < 0) {
-            return globalWarnThresholdMS();
+            return globalWarnThresholdMS;
         } else {
             return annotationWarnThresholdMS;
         }
     }
 
-    private static Integer globalWarnSizeThresholdB = null;
-
-    private int globalWarnSizeThresholdB() {
-        if (globalWarnSizeThresholdB == null) {
-            globalWarnSizeThresholdB = Integer.parseInt(System.getProperty(GLOBAL_WARN_SIZE_THRESHOLD_B_PROP, "-1"));
-        }
-        return globalWarnSizeThresholdB;
-    }
-
-
     private int warnSizeThresholdB(ProceedingJoinPoint joinPoint) {
         int annotationWarnSizeThresholdB = getAnnotation(joinPoint).warnThresholdSizeB();
 
         if (annotationWarnSizeThresholdB < 0) {
-            return globalWarnSizeThresholdB();
+            return globalWarnSizeThresholdB;
         } else {
             return annotationWarnSizeThresholdB;
         }
