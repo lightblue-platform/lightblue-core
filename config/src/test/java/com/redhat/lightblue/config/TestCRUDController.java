@@ -21,7 +21,7 @@ package com.redhat.lightblue.config;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.LightblueHealth;
+import com.redhat.lightblue.crud.CRUDHealth;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
@@ -77,9 +77,8 @@ public class TestCRUDController implements CRUDController {
     public void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc) {
     }
 
-	@Override
-	public LightblueHealth checkHealth() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public CRUDHealth checkHealth() {
+        return new CRUDHealth(true, "Return always healthy for test");
+    }
 }

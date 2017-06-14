@@ -42,7 +42,7 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.DocumentStream;
 import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.LightblueHealth;
+import com.redhat.lightblue.crud.CRUDHealth;
 import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
@@ -161,10 +161,10 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         public void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc) {}
         @Override public MetadataListener getMetadataListener() {return null;}
 
-		@Override
-		public LightblueHealth checkHealth() {
-			return null;
-		}
+        @Override
+        public CRUDHealth checkHealth() {
+            return new CRUDHealth(true, "Return always healthy for test");
+        }
     }
 
     @Before

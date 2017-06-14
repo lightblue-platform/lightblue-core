@@ -122,7 +122,7 @@ public interface CRUDController {
     void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc);
     
     /**
-     * Checks the health
+     * Checks the CRUD health
      */
-    LightblueHealth checkHealth();
+    CRUDHealth checkHealth();
 }
