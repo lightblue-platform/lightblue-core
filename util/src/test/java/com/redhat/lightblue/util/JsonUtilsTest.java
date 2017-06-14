@@ -157,4 +157,9 @@ public class JsonUtilsTest {
 
         Assert.assertEquals(378, JsonUtils.size(node));
     }
+
+    @Test
+    public void testSizeForNullNode() throws Exception {
+        Assert.assertEquals(0, JsonUtils.size(null));
+    }
 }

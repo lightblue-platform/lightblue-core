@@ -451,6 +451,10 @@ public final class JsonUtils {
      * @return
      */
     public static int size(JsonNode node) {
+        if (node == null) {
+            return 0;
+        }
+
         int size = 0;
         if (node instanceof ArrayNode) {
             for (Iterator<JsonNode> elements = ((ArrayNode) node).elements(); elements.hasNext();) {
