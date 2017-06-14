@@ -105,32 +105,6 @@ final class Mnemos {
     }
 
     /**
-     * Make a string out of point.
-     * @param point The point
-     * @param trim Shall we trim long texts?
-     * @return Text representation of it
-     * @deprecated Use toText(Method,Object,boolean,boolean) instead
-     */
-    @Deprecated
-    public static String toText(final ProceedingJoinPoint point,
-        final boolean trim) {
-        return Mnemos.toText(point, trim, false);
-    }
-
-    /**
-     * Make a string out of point.
-     * @param point The point
-     * @param trim Shall we trim long texts?
-     * @return Text representation of it
-     * @deprecated Use toText() instead
-     */
-    @Deprecated
-    public static String toString(final ProceedingJoinPoint point,
-        final boolean trim) {
-        return Mnemos.toText(point, trim, false);
-    }
-
-    /**
      * Make a string out of method.
      * @param method The method
      * @param args Actual arguments of the method
@@ -175,34 +149,6 @@ final class Mnemos {
     public static String toText(final Method method, final Object[] args,
         final boolean trim, final boolean skip) {
         return Mnemos.toText(method, args, "", trim, skip);
-    }
-
-    /**
-     * Make a string out of method.
-     * @param method The method
-     * @param args Actual arguments of the method
-     * @param trim Shall we trim long texts?
-     * @return Text representation of it
-     * @deprecated Use toText(Method,Object,boolean,boolean) instead
-     */
-    @Deprecated
-    public static String toText(final Method method, final Object[] args,
-        final boolean trim) {
-        return Mnemos.toText(method, args, trim, false);
-    }
-
-    /**
-     * Make a string out of method.
-     * @param method The method
-     * @param args Actual arguments of the method
-     * @param trim Shall we trim long texts?
-     * @return Text representation of it
-     * @deprecated Use toText() instead
-     */
-    @Deprecated
-    public static String toString(final Method method, final Object[] args,
-        final boolean trim) {
-        return Mnemos.toText(method, args, trim, false);
     }
 
     /**
@@ -253,30 +199,6 @@ final class Mnemos {
             }
         }
         return text.toString();
-    }
-
-    /**
-     * Make a string out of an object.
-     * @param arg The argument
-     * @param trim Shall we trim long texts?
-     * @return Text representation of it
-     * @deprecated Use toText(Object,boolean,boolean) instead
-     */
-    @Deprecated
-    public static String toText(final Object arg, final boolean trim) {
-        return Mnemos.toText(arg, trim, false);
-    }
-
-    /**
-     * Make a string out of an object.
-     * @param arg The argument
-     * @param trim Shall we trim long texts?
-     * @return Text representation of it
-     * @deprecated Use toText() instead
-     */
-    @Deprecated
-    public static String toString(final Object arg, final boolean trim) {
-        return Mnemos.toText(arg, trim, false);
     }
 
     /**
