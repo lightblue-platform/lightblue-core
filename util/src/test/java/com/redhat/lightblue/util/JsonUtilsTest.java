@@ -150,4 +150,16 @@ public class JsonUtilsTest {
         Assert.assertEquals("value1",node.get("v1").asText());
         Assert.assertEquals(1,node.get("o").get("a").get(0).asInt());
     }
+
+    @Test
+    public void testSize() throws Exception {
+        JsonNode node=JsonUtils.json(getClass().getResourceAsStream("/JsonNodeDocRelativeTest-complexarray.json"));
+
+        Assert.assertEquals(378, JsonUtils.size(node));
+    }
+
+    @Test
+    public void testSizeForNullNode() throws Exception {
+        Assert.assertEquals(0, JsonUtils.size(null));
+    }
 }
