@@ -443,6 +443,37 @@ public final class JsonUtils {
         }
     }
 
+    /**
+     * An approximation of how much space will a JsonNode take in memory. Does not take jvm optimizations
+     * or architecture into account. Useful only to compare JsonNodes with each other.
+     *
+     * @param node
+     * @return
+     */
+    public static int size(JsonNode node) {
+        if (node == null) {
+            return 0;
+        }
+
+        int size = 0;
+        if (node instanceof ArrayNode) {
+            for (Iterator<JsonNode> elements = ((ArrayNode) node).elements(); elements.hasNext();) {
+                size += size(elements.next());
+            }
+        } else if (node instanceof ObjectNode) {
+            for (Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) node).fields(); fields.hasNext();) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                size += field.getKey().length();
+                size += size(field.getValue());
+            }
+        } else if (node instanceof NumericNode) {
+            size += 4;
+        } else {
+            size += node.asText().length();
+        }
+        return size;
+    }
+
     private JsonUtils() {
     }
 }

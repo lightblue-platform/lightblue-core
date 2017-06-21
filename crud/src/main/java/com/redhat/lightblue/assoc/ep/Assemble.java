@@ -218,7 +218,7 @@ public class Assemble extends Step<ResultDocument> {
                 }
                 // Try to build an index from results
                 MemDocIndex docIndex=null;
-                if(aq.getQuery()!=null&&numSlots>memoryIndexThreshold) {
+                if(aq.getQuery()!=null&&memoryIndexThreshold>=0&&numSlots>memoryIndexThreshold) {
                     KeySpec keySpec=aq.getIndexKeySpec();
                     LOGGER.debug("In-memory index key spec:{}",keySpec);
                     if(keySpec!=null) {
