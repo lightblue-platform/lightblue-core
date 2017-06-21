@@ -122,7 +122,9 @@ public interface CRUDController {
     void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc);
     
     /**
-     * Checks the CRUD health
+     * Checks the CRUD controller health. The respective implementations should
+     * provide the health of lightblue CRUD layer which is further exposed by
+     * dropwizard metrics HealthCheckServlet REST endpoint
      */
     CRUDHealth checkHealth();
 }
