@@ -113,7 +113,6 @@ public class ExtensionsTest {
         Assert.assertTrue(ei.getHooks().getHooks().get(0).isInsert());
         Assert.assertFalse(ei.getHooks().getHooks().get(0).isUpdate());
         Assert.assertFalse(ei.getHooks().getHooks().get(0).isDelete());
-        Assert.assertFalse(ei.getHooks().getHooks().get(0).isFind());
         Assert.assertEquals("testValue", ((TestHookCfg) ei.getHooks().getHooks().get(0).getConfiguration()).testName);
     }
 

@@ -532,13 +532,8 @@ public class Mediator {
                 }
                 response.setMatchCount(result == null ? 0 : result.getSize());
             }
-            // call any queued up hooks (regardless of status)
-            ctx.getHookManager().queueMediatorHooks(ctx);
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
-            if (response.getStatus() != OperationStatus.ERROR) {
-                ctx.getHookManager().callQueuedHooks();
-            }
         } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);

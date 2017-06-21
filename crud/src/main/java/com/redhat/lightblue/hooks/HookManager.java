@@ -186,7 +186,6 @@ public class HookManager {
             case INSERT: if(h.isInsert()) return true;break;
             case UPDATE: if(h.isUpdate()) return true;break;
             case DELETE: if(h.isDelete()) return true;break;
-            case FIND: if(h.isFind()) return true;break;
             }
         }
         return false;
@@ -240,7 +239,6 @@ public class HookManager {
                     case INSERT: queue=hook.hook.isInsert();break;
                     case UPDATE: queue=hook.hook.isUpdate();break;
                     case DELETE: queue=hook.hook.isDelete();break;
-                    case FIND: queue=hook.hook.isFind();break;
                     }
                     if(queue) {
                         hook.docList.add(new HookDocInfo(doc));

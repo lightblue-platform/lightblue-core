@@ -116,17 +116,4 @@ public class Hook extends MetadataObject {
         delete = b;
     }
 
-    /**
-     * Determines if this is a find hook
-     */
-    public boolean isFind() {
-        return find;
-    }
-
-    /**
-     * Determines if this is a find hook
-     */
-    public void setFind(boolean b) {
-        find = b;
-    }
 }

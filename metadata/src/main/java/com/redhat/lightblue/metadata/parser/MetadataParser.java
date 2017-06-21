@@ -414,7 +414,6 @@ public abstract class MetadataParser<T> {
                     hook.setInsert(values.contains(STR_INSERT));
                     hook.setUpdate(values.contains(STR_UPDATE));
                     hook.setDelete(values.contains(STR_DELETE));
-                    hook.setFind(values.contains(STR_FIND));
                 }
                 T cfg = getObjectProperty(object, STR_CONFIGURATION);
                 if (cfg != null) {
@@ -1373,9 +1372,6 @@ public abstract class MetadataParser<T> {
                     }
                     if (h.isDelete()) {
                         addStringToArray(actions, STR_DELETE);
-                    }
-                    if (h.isFind()) {
-                        addStringToArray(actions, STR_FIND);
                     }
 
                     HookConfiguration cfg = h.getConfiguration();
