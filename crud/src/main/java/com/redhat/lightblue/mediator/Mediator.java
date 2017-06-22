@@ -523,7 +523,6 @@ public class Mediator {
         return response;
     }
     
-    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public StreamingResponse findAndStream(FindRequest req) {
         LOGGER.debug("findAndStream {}", req.getEntityVersion());
         Error.push("findAndStream(" + req.getEntityVersion().toString() + ")");        
