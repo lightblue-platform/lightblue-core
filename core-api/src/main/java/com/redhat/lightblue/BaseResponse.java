@@ -55,8 +55,8 @@ public class BaseResponse extends JsonObject {
     private String taskHandle;
     private SessionInfo session;
     private String hostname;
-    private final List<DataError> dataErrors = new ArrayList<>();
-    private final List<Error> errors = new ArrayList<>();
+    private final List<DataError> dataErrors;
+    private final List<Error> errors;
 
     final JsonNodeFactory jsonNodeFactory;
 
@@ -80,12 +80,27 @@ public class BaseResponse extends JsonObject {
      */
     @Deprecated
     public BaseResponse() {
-        jsonNodeFactory = JsonNodeFactory.withExactBigDecimals(true);
+        this(JsonNodeFactory.withExactBigDecimals(true));
     }
 
     public BaseResponse(JsonNodeFactory jsonNodeFactory) {
         this.jsonNodeFactory = jsonNodeFactory;
         this.hostname = HOSTNAME;
+        this.dataErrors=new ArrayList<>();
+        this.errors=new ArrayList<>();
+    }
+
+    public BaseResponse(BaseResponse r) {
+        jsonNodeFactory=r.jsonNodeFactory;
+        entity=r.entity;
+        status=r.status;
+        modifiedCount=r.modifiedCount;
+        matchCount=r.matchCount;
+        taskHandle=r.taskHandle;
+        session=r.session;
+        hostname=r.hostname;
+        dataErrors = r.dataErrors;
+        errors = r.errors;
     }
 
     public EntityVersion getEntity() {

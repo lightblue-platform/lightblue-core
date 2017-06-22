@@ -60,6 +60,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final ExecutionOptions executionOptions;
     private final Set<String> documentVersions=new HashSet<>();
     private boolean updateIfCurrent;
+    private boolean computeMatchCount=true;
 
     public final Measure measure=new Measure();
 
@@ -161,6 +162,14 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public Factory getFactory() {
         return factory;
+    }
+
+    public boolean isComputeMatchCount() {
+        return computeMatchCount;
+    }
+
+    public void setComputeMatchCount(boolean b) {
+        computeMatchCount=b;
     }
 
     /**

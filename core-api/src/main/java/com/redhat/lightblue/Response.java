@@ -51,6 +51,16 @@ public class Response extends BaseResponse  {
         super(jsonNodeFactory);
     }
 
+    public Response(Response r) {
+        super(r);
+        entityData=r.entityData;
+        resultMetadata=r.resultMetadata;
+    }
+
+    public Response(BaseResponse r) {
+        super(r);
+    }
+
     /**
      * Returns the entity data resulting from the call.
      */
