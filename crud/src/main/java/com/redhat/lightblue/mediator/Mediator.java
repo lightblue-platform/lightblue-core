@@ -530,7 +530,7 @@ public class Mediator {
         OperationContext ctx=null;
         try {
             ctx = newCtx(req, CRUDOperation.FIND);
-            ctx.setComputeMatchCount(false);
+            ctx.setComputeCounts(false);
             ctx.measure.begin("find");
             return _findAndStream(req,ctx);
         } catch (Error e) {
@@ -581,7 +581,7 @@ public class Mediator {
             if(!ctx.hasErrors()) {                    
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.documentStream=ctx.getDocumentStream();
-                if(ctx.isComputeMatchCount()) {
+                if(ctx.isComputeCounts()) {
                     response.matchCount=result.getSize();
                 }
             } else {
