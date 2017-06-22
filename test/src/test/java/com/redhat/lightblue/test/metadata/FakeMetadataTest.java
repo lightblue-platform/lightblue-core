@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -146,7 +148,7 @@ public class FakeMetadataTest {
 
         assertEquals(entityInfo, metadata.getEntityInfo(entityName));
 
-        Response dependencies = new Response(null);
+        Response dependencies = new Response(JsonNodeFactory.instance);
         metadata.setDependencies(entityName, version1, dependencies);
 
         assertEquals(dependencies, metadata.getDependencies(entityName, version1));
@@ -166,7 +168,7 @@ public class FakeMetadataTest {
 
         assertEquals(entityInfo, metadata.getEntityInfo(entityName));
 
-        Response access = new Response(null);
+        Response access = new Response(JsonNodeFactory.instance);
         metadata.setAccess(entityName, version1, access);
 
         assertEquals(access, metadata.getAccess(entityName, version1));

@@ -24,6 +24,8 @@ import static com.redhat.lightblue.test.Assert.assertNoErrors;
 import org.junit.Test;
 import org.junit.runners.model.MultipleFailureException;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.util.Error;
@@ -32,24 +34,24 @@ public class AssertTest {
 
     @Test
     public void testAssertNoErrors_pass() throws MultipleFailureException {
-        assertNoErrors(new Response(null));
+        assertNoErrors(new Response(JsonNodeFactory.instance));
     }
 
     @Test(expected = MultipleFailureException.class)
     public void testAssertNoErrors_fail() throws MultipleFailureException {
-        Response response = new Response(null);
+        Response response = new Response(JsonNodeFactory.instance);
         response.getErrors().add(Error.get("fake error"));
         assertNoErrors(response);
     }
 
     @Test
     public void testAssertNoDataErrors_pass() throws MultipleFailureException {
-        assertNoDataErrors(new Response(null));
+        assertNoDataErrors(new Response(JsonNodeFactory.instance));
     }
 
     @Test(expected = MultipleFailureException.class)
     public void testAssertNoDataErrors_fail() throws MultipleFailureException {
-        Response response = new Response(null);
+        Response response = new Response(JsonNodeFactory.instance);
         response.getDataErrors().add(new DataError());
         assertNoDataErrors(response);
     }

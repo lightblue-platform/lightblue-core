@@ -61,6 +61,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final Set<String> documentVersions=new HashSet<>();
     private boolean updateIfCurrent;
     private boolean computeMatchCount=true;
+    private boolean limitQueryTime=true;
 
     public final Measure measure=new Measure();
 
@@ -141,7 +142,15 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     public void setUpdateIfCurrent(boolean b) {
         updateIfCurrent=b;
     }
-        
+
+    public boolean isLimitQueryTime() {
+        return limitQueryTime;
+    }
+
+    public void setLimitQueryTime(boolean b) {
+        limitQueryTime=b;
+    }
+    
     /**
      * Returns the execution options
      */
