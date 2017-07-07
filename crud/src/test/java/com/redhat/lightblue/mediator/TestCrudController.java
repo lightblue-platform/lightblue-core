@@ -33,7 +33,6 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.CRUDHealth;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.eval.QueryEvaluator;
@@ -138,10 +137,5 @@ public class TestCrudController implements CRUDController {
     @Override
     public void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc) {
 
-    }
-
-    @Override
-    public CRUDHealth checkHealth() {
-        return new CRUDHealth(true, "Return always healthy for test");
     }
 }
