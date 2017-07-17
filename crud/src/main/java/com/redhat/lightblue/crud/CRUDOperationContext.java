@@ -60,6 +60,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final ExecutionOptions executionOptions;
     private final Set<String> documentVersions=new HashSet<>();
     private boolean updateIfCurrent;
+    private boolean computeCounts=true;
+    private boolean limitQueryTime=true;
 
     public final Measure measure=new Measure();
 
@@ -140,7 +142,15 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     public void setUpdateIfCurrent(boolean b) {
         updateIfCurrent=b;
     }
-        
+
+    public boolean isLimitQueryTime() {
+        return limitQueryTime;
+    }
+
+    public void setLimitQueryTime(boolean b) {
+        limitQueryTime=b;
+    }
+    
     /**
      * Returns the execution options
      */
@@ -161,6 +171,14 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public Factory getFactory() {
         return factory;
+    }
+
+    public boolean isComputeCounts() {
+        return computeCounts;
+    }
+
+    public void setComputeCounts(boolean b) {
+        computeCounts=b;
     }
 
     /**

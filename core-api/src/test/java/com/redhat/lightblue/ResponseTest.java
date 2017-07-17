@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.Response.ResponseBuilder;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 import org.junit.After;
@@ -33,10 +33,128 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import static org.junit.Assert.*;
 
 public class ResponseTest {
+    public static class ResponseBuilder {
+
+        private OperationStatus status;
+        private long modifiedCount;
+        private long matchCount;
+        private String taskHandle;
+        private SessionInfo session;
+        private JsonNode entityData;
+        private String hostname;
+        private List<DataError> dataErrors = new ArrayList<>();
+        private List<Error> errors = new ArrayList<>();
+
+        private final JsonNodeFactory jsonNodeFactory;
+
+        public ResponseBuilder(JsonNodeFactory jsonNodeFactory) {
+            this.jsonNodeFactory = jsonNodeFactory;
+        }
+
+        public ResponseBuilder(Response response) {
+            status = response.getStatus();
+            modifiedCount = response.getModifiedCount();
+            matchCount = response.getMatchCount();
+            hostname = response.getHostname();
+            taskHandle = response.getTaskHandle();
+            session = response.getSessionInfo();
+            entityData = response.getEntityData();
+            dataErrors = response.getDataErrors();
+            errors = response.getErrors();
+            jsonNodeFactory = response.jsonNodeFactory;
+        }
+
+        public ResponseBuilder withHostname(JsonNode node) {
+            if (node != null) {
+                hostname = node.asText();
+            }
+            return this;
+        }
+
+        public ResponseBuilder withStatus(JsonNode node) {
+            if (node != null) {
+                try {
+                    status = OperationStatus.valueOf(node.asText().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    status = OperationStatus.ERROR;
+                }
+            }
+            return this;
+        }
+
+        public ResponseBuilder withModifiedCount(JsonNode node) {
+            if (node != null) {
+                modifiedCount = node.asLong();
+            }
+            return this;
+        }
+
+        public ResponseBuilder withMatchCount(JsonNode node) {
+            if (node != null) {
+                matchCount = node.asLong();
+            }
+            return this;
+        }
+
+        public ResponseBuilder withTaskHandle(JsonNode node) {
+            if (node != null) {
+                taskHandle = node.asText();
+            }
+            return this;
+        }
+
+        public ResponseBuilder withSession(JsonNode node) {
+            //TODO
+            return this;
+        }
+
+        public ResponseBuilder withEntityData(JsonNode node) {
+            if (node != null) {
+                entityData = node;
+            }
+            return this;
+        }
+
+        public ResponseBuilder withDataErrors(JsonNode node) {
+            if (node instanceof ArrayNode) {
+                for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
+                        itr.hasNext();) {
+                    dataErrors.add(DataError.fromJson((ObjectNode) itr.next()));
+                }
+            }
+            return this;
+        }
+
+        public ResponseBuilder withErrors(JsonNode node) {
+            if (node instanceof ArrayNode) {
+                for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
+                        itr.hasNext();) {
+                    errors.add(Error.fromJson(itr.next()));
+                }
+            }
+            return this;
+        }
+
+        public Response buildResponse() {
+            Response response = new Response(jsonNodeFactory);
+
+            response.setStatus(status);
+            response.setModifiedCount(modifiedCount);
+            response.setMatchCount(matchCount);
+            response.setTaskHandle(taskHandle);
+            response.setSessionInfo(session);
+            response.setEntityData(entityData);
+            response.getDataErrors().addAll(dataErrors);
+            response.getErrors().addAll(errors);
+
+            return response;
+        }
+    }
 
     Response response;
 
@@ -47,7 +165,7 @@ public class ResponseTest {
     public void setUp() throws Exception {
         JsonNodeFactory jnf = JsonNodeFactory.withExactBigDecimals(true);
         response = new Response(jnf);
-        builder = new Response.ResponseBuilder(jnf);
+        builder = new ResponseBuilder(jnf);
     }
 
     @After
@@ -212,7 +330,7 @@ public class ResponseTest {
         response.getDataErrors().addAll(new ArrayList<DataError>());
         response.getErrors().addAll(new ArrayList<Error>());
 
-        ResponseBuilder responseBuilder = new Response.ResponseBuilder(response);
+        ResponseBuilder responseBuilder = new ResponseBuilder(response);
 
         assertTrue(response.getStatus().equals(responseBuilder.buildResponse().getStatus()));
     }

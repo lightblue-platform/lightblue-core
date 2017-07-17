@@ -215,9 +215,6 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                 case "update":
                     hook.setUpdate(true);
                     break;
-                case "find":
-                    hook.setFind(true);
-                    break;
                 case "delete":
                     hook.setDelete(true);
                     break;
@@ -245,7 +242,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         // error hook gets processed first so we can be sure the rest continue
         addHook(md, "EH", null, new TestErrorHookConfig(), "update");
         addHook(md, "hook1", null, new TestHook1Config(), "insert", "update");
-        addHook(md, "hook2", null, new TestHook2Config(), "find", "delete", "update");
+        addHook(md, "hook2", null, new TestHook2Config(), "delete", "update");
         addHook(md, "MH", null, new TestMediatorHookConfig(), "insert", "update", "delete");
         TestOperationContext ctx = new TestOperationContext(md,
                 op,
@@ -318,22 +315,6 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         Assert.assertNull(mediatorHook.md);
     }
 
-    @Test
-    public void crudFindQueueTest() throws Exception {
-        HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(CRUDOperation.FIND);
-
-        //  hook2 should be called
-        hooks.queueHooks(ctx);
-        hooks.callQueuedHooks();
-
-        Assert.assertNull(hook1.md);
-        Assert.assertEquals(ctx.md, hook2.md);
-        Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
-        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
-        Assert.assertNull(mediatorHook.md);
-    }
-
 
     private static class NonRewindableDocumentStream<T> implements DocumentStream<T> {
 
@@ -371,26 +352,6 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         }
     }
 
-    @Test
-    public void crudFindQueueTest_deferredProcessing() throws Exception {
-        HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(CRUDOperation.FIND);
-
-        ctx.setDocumentStream(new NonRewindableDocumentStream<DocCtx>(ctx.getInputDocuments()));
-        
-        //  hook2 should be called
-        hooks.queueHooks(ctx);
-        // Suck docs
-        while(ctx.getDocumentStream().hasNext())
-            ctx.getDocumentStream().next();
-        hooks.callQueuedHooks();
-
-        Assert.assertNull(hook1.md);
-        Assert.assertEquals(ctx.md, hook2.md);
-        Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
-        Assert.assertEquals(ctx.getInputDocuments().size(), hook2.processed.size());
-        Assert.assertNull(mediatorHook.md);
-    }
 
     @Test
     public void crudMixedQueueTest() throws Exception {
@@ -409,7 +370,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(ctx.md, hook2.md);
         Assert.assertTrue(hook2.cfg instanceof TestHook2Config);
-        Assert.assertEquals(9, hook2.processed.size());
+        Assert.assertEquals(2, hook2.processed.size());
 
         Assert.assertNull(mediatorHook.md);
     }

@@ -477,69 +477,36 @@ public class Mediator {
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public Response find(FindRequest req) {
         LOGGER.debug("find {}", req.getEntityVersion());
-        Error.push("find(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response(factory.getNodeFactory());
-        response.setStatus(OperationStatus.ERROR);
+        Error.push("find(" + req.getEntityVersion().toString() + ")");        
         OperationContext ctx=null;
+        Response response=new Response();
         try {
             ctx = newCtx(req, CRUDOperation.FIND);
             ctx.measure.begin("find");
-            response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
-            CompositeMetadata md = ctx.getTopLevelEntityMetadata();
-            if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
-                ctx.setStatus(OperationStatus.ERROR);
-                LOGGER.debug("No access");
-                ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
-            } else if (checkQueryAccess(ctx, req.getQuery())) {
-                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND, ctx);
-                Finder finder;
-                if (ctx.isSimple()) {
-                    LOGGER.debug("Simple entity");
-                    finder = new SimpleFindImpl(md, factory);
-                } else {
-                    LOGGER.debug("Composite entity");
-                    finder = new CompositeFindImpl(md);
-                    // This can be read from a configuration
-                    ((CompositeFindImpl) finder).setParallelism(9);
-                }
 
-                ctx.measure.begin("finder.find");
-                CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
-                ctx.measure.end("finder.find");
-
-                if(!ctx.hasErrors()) {
-                    ctx.measure.begin("postProcessFound");
-                    DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
-                    List<ResultMetadata> rmd=new ArrayList<>();
-                    response.setEntityData(factory.getNodeFactory().arrayNode());
-                    for(;docStream.hasNext();) {
-                        DocCtx doc=docStream.next();
-                        if(!doc.hasErrors()) {          
-                            response.addEntityData(doc.getOutputDocument().getRoot());
-                            rmd.add(doc.getResultMetadata());
+            StreamingResponse r=_findAndStream(req,ctx);
+            
+            response = new Response(r);
+            if(response.getErrors()==null||response.getErrors().isEmpty()) {
+                DocumentStream<DocCtx> docStream=r.documentStream;
+                List<ResultMetadata> rmd=new ArrayList<>();
+                response.setEntityData(factory.getNodeFactory().arrayNode());
+                for(;docStream.hasNext();) {
+                    DocCtx doc=docStream.next();
+                    if(!doc.hasErrors()) {          
+                        response.addEntityData(doc.getOutputDocument().getRoot());
+                        rmd.add(doc.getResultMetadata());
                     } else {
-                            DataError error=doc.getDataError();
-                            if(error!=null)
-                                response.getDataErrors().add(error);
-                        }
+                        DataError error=doc.getDataError();
+                        if(error!=null)
+                            response.getDataErrors().add(error);
                     }
-                    docStream.close();
-                    response.setResultMetadata(rmd);
-                    ctx.measure.end("postProcessFound");
-                    ctx.setStatus(OperationStatus.COMPLETE);
-                } else {
-                    ctx.setStatus(OperationStatus.ERROR);
                 }
-                response.setMatchCount(result == null ? 0 : result.getSize());
+                docStream.close();
+                response.setResultMetadata(rmd);
+                response.setMatchCount(r.matchCount == null ? 0 : r.matchCount);
             }
-            // call any queued up hooks (regardless of status)
-            ctx.getHookManager().queueMediatorHooks(ctx);
-            response.setStatus(ctx.getStatus());
-            response.getErrors().addAll(ctx.getErrors());
-            if (response.getStatus() != OperationStatus.ERROR) {
-                ctx.getHookManager().callQueuedHooks();
-            }
-        } catch (Error e) {
+         } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -552,6 +519,76 @@ public class Mediator {
             }
             Error.pop();
         }
+        
+        return response;
+    }
+    
+    public StreamingResponse findAndStream(FindRequest req) {
+        LOGGER.debug("findAndStream {}", req.getEntityVersion());
+        Error.push("findAndStream(" + req.getEntityVersion().toString() + ")");        
+        OperationContext ctx=null;
+        try {
+            ctx = newCtx(req, CRUDOperation.FIND);
+            ctx.setComputeCounts(false);
+            ctx.measure.begin("find");
+            return _findAndStream(req,ctx);
+        } catch (Error e) {
+            LOGGER.debug("Error during find:{}", e);
+            StreamingResponse response=new StreamingResponse();
+            response.getErrors().add(e);
+            return response;
+        } catch (Exception e) {
+            LOGGER.debug("Exception during find:{}", e);
+            StreamingResponse response=new StreamingResponse();
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
+            return response;
+        } finally {
+            if(ctx!=null) {
+                ctx.measure.end("find");
+                METRICS.debug("find: {}",ctx.measure);
+            }
+            Error.pop();
+        }
+    }
+
+    private StreamingResponse _findAndStream(FindRequest req,OperationContext ctx) {
+        StreamingResponse response = new StreamingResponse(factory.getNodeFactory());
+        response.setStatus(OperationStatus.ERROR);
+        response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
+        CompositeMetadata md = ctx.getTopLevelEntityMetadata();
+        if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
+            ctx.setStatus(OperationStatus.ERROR);
+            LOGGER.debug("No access");
+            ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
+        } else if (checkQueryAccess(ctx, req.getQuery())) {
+            factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND, ctx);
+            Finder finder;
+            if (ctx.isSimple()) {
+                LOGGER.debug("Simple entity");
+                finder = new SimpleFindImpl(md, factory);
+            } else {
+                LOGGER.debug("Composite entity");
+                finder = new CompositeFindImpl(md);
+                // This can be read from a configuration
+                ((CompositeFindImpl) finder).setParallelism(9);
+            }
+            
+            ctx.measure.begin("finder.find");
+            CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
+            ctx.measure.end("finder.find");
+            
+            if(!ctx.hasErrors()) {                    
+                ctx.setStatus(OperationStatus.COMPLETE);
+                response.documentStream=ctx.getDocumentStream();
+                if(ctx.isComputeCounts()) {
+                    response.matchCount=result.getSize();
+                }
+            } else {
+                ctx.setStatus(OperationStatus.ERROR);
+            }
+        }
+        response.setStatus(ctx.getStatus());
+        response.getErrors().addAll(ctx.getErrors());
         return response;
     }
 
