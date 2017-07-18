@@ -78,6 +78,8 @@ public final class CrudConstants {
 
     public static final String ERR_DATASOURCE_UNKNOWN = "crud:DataSourceUnknown";
 
+    public static final String ERR_RESULT_SIZE_TOO_LARGE = "crud:ResultSizeTooLarge";
+
     private CrudConstants() {
 
     }

@@ -49,6 +49,8 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
     private boolean validateRequests = false;
     private int bulkParallelExecutions = 3;
     private int memoryIndexThreshold = 16;
+    private int maxResultSetSizeB = 50 * 1024 * 1024; // 50 MB
+    private int warnResultSetSizeB = 10 * 1024 * 1024; // 10 MB
 
     public boolean isValidateRequests() {
         return validateRequests;
@@ -135,6 +137,16 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
             if (x != null) {
                 memoryIndexThreshold = x.intValue();
             }
+
+            x = node.get("maxResultSetSizeB");
+            if (x != null) {
+                maxResultSetSizeB = x.intValue();
+            }
+
+            x = node.get("warnResultSetSizeB");
+            if (x != null) {
+                warnResultSetSizeB = x.intValue();
+            }
         }
     }
 
@@ -144,5 +156,21 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
 
     void setMemoryIndexThreshold(int memoryIndexThreshold) {
         this.memoryIndexThreshold = memoryIndexThreshold;
+    }
+
+    public int getMaxResultSetSizeB() {
+        return maxResultSetSizeB;
+    }
+
+    public void setMaxResultSetSizeB(int maxResultSetSizeB) {
+        this.maxResultSetSizeB = maxResultSetSizeB;
+    }
+
+    public int getWarnResultSetSizeB() {
+        return warnResultSetSizeB;
+    }
+
+    public void setWarnResultSetSizeB(int warnResultSetSizeB) {
+        this.warnResultSetSizeB = warnResultSetSizeB;
     }
 }
