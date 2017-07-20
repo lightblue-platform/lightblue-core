@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +78,6 @@ import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.stopwatch.StopWatch;
 
@@ -650,22 +648,12 @@ public class Mediator {
         return response;        
     }
 
-    public static class BulkExecutionContext {
-        final Future<Response>[] futures;
-        final Response[] responses;
-
-        public BulkExecutionContext(int size) {
-            futures = new Future[size];
-            responses = new Response[size];
-        }
-    }
-
     protected void wait(BulkExecutionContext ctx) {
         for (int i = 0; i < ctx.futures.length; i++) {
             if (ctx.futures[i] != null) {
                 try {
                     LOGGER.debug("Waiting for a find request to complete");
-                    ctx.responses[i] = ctx.futures[i].get();
+                    ctx.setResponseAt(i, ctx.futures[i].get());
                 } catch (Exception e) {
                     LOGGER.debug("Find request wait failed", e);
                 }
@@ -705,6 +693,7 @@ public class Mediator {
             List<Request> requestList = requests.getEntries();
             int n = requestList.size();
             BulkExecutionContext ctx = new BulkExecutionContext(n);
+            ctx.ensureResponseSizeNotTooLarge(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), requests);
 
             for (int i = 0; i < n; i++) {
                 Request req = requestList.get(i);
@@ -716,16 +705,16 @@ public class Mediator {
                         wait(ctx);
                         switch (req.getOperation()) {
                             case INSERT:
-                                ctx.responses[i] = insert((InsertionRequest) req);
+                                ctx.setResponseAt(i, insert((InsertionRequest) req));
                                 break;
                             case DELETE:
-                                ctx.responses[i] = delete((DeleteRequest) req);
+                                ctx.setResponseAt(i, delete((DeleteRequest) req));
                                 break;
                             case UPDATE:
-                                ctx.responses[i] = update((UpdateRequest) req);
+                                ctx.setResponseAt(i, update((UpdateRequest) req));
                                 break;
                             case SAVE:
-                                ctx.responses[i] = save((SaveRequest) req);
+                                ctx.setResponseAt(i, save((SaveRequest) req));
                                 break;
                         }
                     }
@@ -739,7 +728,7 @@ public class Mediator {
             wait(ctx);
             LOGGER.debug("Bulk execution completed");
             BulkResponse response = new BulkResponse();
-            response.setEntries(ctx.responses);
+            response.setEntries(ctx.getResponses());
             Error.pop();
             return response;
         } finally {

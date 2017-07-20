@@ -18,10 +18,8 @@
  */
 package com.redhat.lightblue.mediator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,22 +38,21 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.WithRange;
-import com.redhat.lightblue.crud.DocCtx;
-import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
 
 public class MediatorTest extends AbstractMediatorTest {
 

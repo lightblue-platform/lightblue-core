@@ -150,7 +150,7 @@ public class Response extends BaseResponse  {
             // better do https://github.com/lightblue-platform/lightblue-core/issues/802 instead
         }
 
-        if (isCheckResponseSize()&& responseDataSizeB >= maxResultSetSizeB) {
+        if (isEnsureResposneSizeNotTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
             LOGGER.error(ERR_RESULT_SIZE_TOO_LARGE + ": request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
 
             // empty data
