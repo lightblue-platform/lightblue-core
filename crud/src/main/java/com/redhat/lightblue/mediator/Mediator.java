@@ -492,17 +492,12 @@ public class Mediator {
                 DocumentStream<DocCtx> docStream=r.documentStream;
                 List<ResultMetadata> rmd=new ArrayList<>();
                 response.setEntityData(factory.getNodeFactory().arrayNode());
+                response.ensureResponseSizeNotTooLarge(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
 
-                int dataSizeB = 0;
                 for(;docStream.hasNext();) {
                     DocCtx doc=docStream.next();
                     if(!doc.hasErrors()) {
-
-                        JsonNode entityDataJson = doc.getOutputDocument().getRoot();
-
-                        dataSizeB = ensureResponseSizeNotTooLarge(entityDataJson, dataSizeB, req, response);
-
-                        response.addEntityData(entityDataJson);
+                        response.addEntityData(doc.getOutputDocument().getRoot());
                         rmd.add(doc.getResultMetadata());
                     } else {
                         DataError error=doc.getDataError();
@@ -529,40 +524,6 @@ public class Mediator {
         }
         
         return response;
-    }
-    
-    /**
-     * Ensures that the response is not larger than maxResultSetSizeB to protect Lightblue from running out of memory when building large result sets.
-     *
-     * This method checks only the data part of the response. This is enough for finds, because they do not generate large errors (write operations
-     * can include entire docs in the errors).
-     *
-     * @param entityDataJson A document being currently added to the response
-     * @param responseDataSizeB Current response data size
-     * @param request Request
-     * @param response Response
-     * @return responseDataSizeB + size(entityDataJson)
-     */
-    @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator#ensureResponseSizeNotTooLarge", warnThresholdMS=10)
-    private int ensureResponseSizeNotTooLarge(JsonNode entityDataJson, int responseDataSizeB, Request request, Response response) {
-
-        if (factory.getMaxResultSetSizeB() > 0 || factory.getWarnResultSetSizeB() > 0) {
-            responseDataSizeB += JsonUtils.size(entityDataJson);
-        }
-
-        if (factory.getMaxResultSetSizeB() > 0 && responseDataSizeB >= factory.getMaxResultSetSizeB()) {
-            LOGGER.error(CrudConstants.ERR_RESULT_SIZE_TOO_LARGE + ": request={}, responseDataSizeB={}", request, responseDataSizeB);
-
-            // empty data
-            // returning incomplete result set could be useful, but also confusing and thus dangerous
-            response.setEntityData(factory.getNodeFactory().arrayNode());
-
-            throw Error.get(CrudConstants.ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+factory.getMaxResultSetSizeB()+"B");
-        } else if (factory.getWarnResultSetSizeB() > 0 && responseDataSizeB >= factory.getWarnResultSetSizeB()) {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", request, responseDataSizeB);
-        }
-
-        return responseDataSizeB;
     }
 
     public StreamingResponse findAndStream(FindRequest req) {
@@ -883,6 +844,9 @@ public class Mediator {
         DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
         if(docStream!=null) {
             List<ResultMetadata> rmd=new ArrayList<>();
+
+            response.ensureResponseSizeNotTooLarge(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), (Request)requestWithRange);
+
             for(;docStream.hasNext();) {
                 DocCtx doc=docStream.next();
                 if(!doc.hasErrors()) {                

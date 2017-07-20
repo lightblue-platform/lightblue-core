@@ -18,25 +18,38 @@
  */
 package com.redhat.lightblue;
 
+import java.util.Iterator;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * Response information from mediator APIs
  */
 public class Response extends BaseResponse  {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Response.class);
+
     private static final String PROPERTY_PROCESSED = "processed";
     private static final String PROPERTY_RESULT_METADATA = "resultMetadata";
 
     private JsonNode entityData;
     private List<ResultMetadata> resultMetadata;
+
+    private int responseDataSizeB = 0;
+    private int maxResultSetSizeB = -1, warnResultSetSizeB = -1;
+    private Request forRequest;
+
+    // TODO: Response has no access to CrudConstants
+    public static final String ERR_RESULT_SIZE_TOO_LARGE = "crud:ResultSizeTooLarge";
 
 
     /**
@@ -59,6 +72,24 @@ public class Response extends BaseResponse  {
 
     public Response(BaseResponse r) {
         super(r);
+    }
+
+    public void ensureResponseSizeNotTooLarge(int maxResultSetSizeB, int warnResultSetSizeB, Request forRequest) {
+        this.forRequest = forRequest;
+        this.maxResultSetSizeB = maxResultSetSizeB;
+        this.warnResultSetSizeB = warnResultSetSizeB;
+    }
+
+    public boolean isEnsureResposneSizeNotTooLarge() {
+        return maxResultSetSizeB > 0;
+    }
+
+    public boolean isWarnResponseSizeLarge() {
+        return warnResultSetSizeB > 0;
+    }
+
+    public boolean isCheckResponseSize() {
+        return isEnsureResposneSizeNotTooLarge() || isWarnResponseSizeLarge();
     }
 
     /**
@@ -87,9 +118,12 @@ public class Response extends BaseResponse  {
      */
     public void addEntityData(JsonNode doc) {
         if(doc!=null) {
+
+            enforceResponseSizeLimits(doc);
+
             if(entityData==null) {
                 entityData=JsonNodeFactory.instance.arrayNode();
-            } 
+            }
             if(doc instanceof ArrayNode) {
                 for(Iterator<JsonNode> itr=doc.elements();itr.hasNext();) {
                     ((ArrayNode)entityData).add(itr.next());
@@ -98,6 +132,37 @@ public class Response extends BaseResponse  {
                 ((ArrayNode)entityData).add(doc);
             }
         }
+    }
+
+    /**
+     * Ensures that the response is not larger than maxResultSetSizeB to protect Lightblue from running out of memory when building large result sets.
+     *
+     * This method is used to checks only the data part of the response. TODO: check dataErrors as well, as they include entire docs.
+     *
+     * @param entityDataJson json being added to the response
+     */
+    private void enforceResponseSizeLimits(JsonNode entityDataJson) {
+
+        if (isCheckResponseSize()) {
+            responseDataSizeB += JsonUtils.size(entityDataJson);
+
+            // TODO: could account for copies made for hooks here
+            // better do https://github.com/lightblue-platform/lightblue-core/issues/802 instead
+        }
+
+        if (isCheckResponseSize()&& responseDataSizeB >= maxResultSetSizeB) {
+            LOGGER.error(ERR_RESULT_SIZE_TOO_LARGE + ": request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
+
+            // empty data
+            // returning incomplete result set could be useful, but also confusing and thus dangerous
+            // the counts - matchCount, modifiedCount - are unmodified
+            setEntityData(JsonNodeFactory.instance.arrayNode());
+
+            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B");
+        } else if (isWarnResponseSizeLarge() && responseDataSizeB >= warnResultSetSizeB) {
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
+        }
+
     }
 
     /**
@@ -129,5 +194,9 @@ public class Response extends BaseResponse  {
             node.set(PROPERTY_RESULT_METADATA,arr);
         }
         return node;
+    }
+
+    public int getResponseDataSizeB() {
+        return responseDataSizeB;
     }
 }
