@@ -418,6 +418,7 @@ public class MediatorTest extends AbstractMediatorTest {
             ctx.setDocumentStream(new ListDocumentStream<DocCtx>(docs));
         };
 
+        mediator.factory.setWarnResultSetSizeB(600);
         mediator.factory.setMaxResultSetSizeB(-1);
         Response response = mediator.find(req); // no max result set size
         Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));

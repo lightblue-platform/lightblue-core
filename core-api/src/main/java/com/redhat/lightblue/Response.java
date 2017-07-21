@@ -47,6 +47,7 @@ public class Response extends BaseResponse  {
     private int responseDataSizeB = 0;
     private int maxResultSetSizeB = -1, warnResultSetSizeB = -1;
     private Request forRequest;
+    private boolean warnThresholdBreached = false;
 
     // TODO: Response has no access to CrudConstants
     public static final String ERR_RESULT_SIZE_TOO_LARGE = "crud:ResultSizeTooLarge";
@@ -159,8 +160,9 @@ public class Response extends BaseResponse  {
             setEntityData(JsonNodeFactory.instance.arrayNode());
 
             throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B");
-        } else if (isWarnResponseSizeLarge() && responseDataSizeB >= warnResultSetSizeB) {
+        } else if (isWarnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
             LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
+            warnThresholdBreached = true;
         }
 
     }

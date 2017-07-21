@@ -20,6 +20,7 @@ public class BulkExecutionContext {
     private int responseDataSizeB = 0;
     private int maxResultSetSizeB = -1, warnResultSetSizeB = -1;
     private BulkRequest forRequest;
+    private boolean warnThresholdBreached = false;
 
     public BulkExecutionContext(int size) {
         futures = new Future[size];
@@ -55,8 +56,9 @@ public class BulkExecutionContext {
             // remove data
             response.setEntityData(JsonNodeFactory.instance.arrayNode());
             response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B"));
-        } else if (isWarnResponseSizeLarge() && responseDataSizeB >= warnResultSetSizeB) {
+        } else if (isWarnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
             LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
+            warnThresholdBreached = true;
         }
 
     }
