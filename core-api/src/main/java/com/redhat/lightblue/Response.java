@@ -49,7 +49,7 @@ public class Response extends BaseResponse  {
     private Request forRequest;
     private boolean warnThresholdBreached = false;
 
-    // TODO: Response has no access to CrudConstants
+    // Response has no access to CrudConstants
     public static final String ERR_RESULT_SIZE_TOO_LARGE = "crud:ResultSizeTooLarge";
 
 

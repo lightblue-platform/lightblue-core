@@ -190,7 +190,6 @@ public class BulkTest extends AbstractMediatorTest {
         Assert.assertEquals(Response.ERR_RESULT_SIZE_TOO_LARGE, responseFind.getErrors().get(0).getErrorCode());
         Assert.assertEquals("The second request contains no data", 0, responseFind.getEntityData().size());
 
-        // TODO: make those meta fields in response transient
         // TODO: don't print the error twice (Error.get also does it)
     }
 
