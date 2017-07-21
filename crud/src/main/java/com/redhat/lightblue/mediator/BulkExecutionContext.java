@@ -51,8 +51,6 @@ public class BulkExecutionContext {
         }
 
         if (isEnsureResposneSizeNotTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
-            LOGGER.error(Response.ERR_RESULT_SIZE_TOO_LARGE + ": request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
-
             // remove data
             response.setEntityData(JsonNodeFactory.instance.arrayNode());
             response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B"));

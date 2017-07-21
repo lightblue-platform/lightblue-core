@@ -152,8 +152,6 @@ public class Response extends BaseResponse  {
         }
 
         if (isEnsureResposneSizeNotTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
-            LOGGER.error(ERR_RESULT_SIZE_TOO_LARGE + ": request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
-
             // empty data
             // returning incomplete result set could be useful, but also confusing and thus dangerous
             // the counts - matchCount, modifiedCount - are unmodified

@@ -189,8 +189,6 @@ public class BulkTest extends AbstractMediatorTest {
         Assert.assertEquals("The second request should error, as it exceeds the response size threshold", 1, responseFind.getErrors().size());
         Assert.assertEquals(Response.ERR_RESULT_SIZE_TOO_LARGE, responseFind.getErrors().get(0).getErrorCode());
         Assert.assertEquals("The second request contains no data", 0, responseFind.getEntityData().size());
-
-        // TODO: don't print the error twice (Error.get also does it)
     }
 
     @Test
