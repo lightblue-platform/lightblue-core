@@ -19,15 +19,15 @@
 package com.redhat.lightblue.hooks;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
@@ -40,6 +40,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * This class manages hooks. As operations are performed, queueHooks() is called
@@ -63,6 +64,52 @@ public class HookManager {
     private final JsonNodeFactory factory;
 
     private final List<QueuedHook> queuedHooks = new ArrayList<>();
+
+    private int queuedHooksSizeB = 0;
+    private int maxQueuedHooksSizeB = -1, warnQueuedHooksSizeB = -1;
+    private Request forRequest;
+    private boolean warnThresholdBreached = false;
+
+    public int getQueuedHooksSizeB() {
+        return queuedHooksSizeB;
+    }
+
+    public void ensureQueuedHooksSizeNotTooLarge(int maxQueuedHooksSizeB, int warnQueuedHooksSizeB, Request forRequest) {
+        this.forRequest = forRequest;
+        this.maxQueuedHooksSizeB = maxQueuedHooksSizeB;
+        this.warnQueuedHooksSizeB = warnQueuedHooksSizeB;
+    }
+
+    public boolean isEnsureQueueSizeNotTooLarge() {
+        return maxQueuedHooksSizeB > 0;
+    }
+
+    public boolean isWarnQueueSizeLarge() {
+        return warnQueuedHooksSizeB > 0;
+    }
+
+    public boolean isCheckQueueSize() {
+        return isEnsureQueueSizeNotTooLarge() || isWarnQueueSizeLarge();
+    }
+
+    private JsonNode enforceQueueSizeLimits(JsonNode jsonNode) {
+
+        if (isCheckQueueSize()) {
+            queuedHooksSizeB += JsonUtils.size(jsonNode);
+        }
+
+        if (isEnsureQueueSizeNotTooLarge() && queuedHooksSizeB >= maxQueuedHooksSizeB) {
+
+
+            throw Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, queuedHooksSizeB+"B > "+maxQueuedHooksSizeB+"B");
+        } else if (isWarnQueueSizeLarge() && !warnThresholdBreached && queuedHooksSizeB >= warnQueuedHooksSizeB) {
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, queuedHooks);
+            warnThresholdBreached = true;
+        }
+
+        return jsonNode;
+
+    }
 
     private static final class HookDocInfo {
         private final JsonDoc pre;
@@ -173,6 +220,10 @@ public class HookManager {
      */
     public void clear() {
         queuedHooks.clear();
+
+        queuedHooksSizeB = 0;
+        forRequest = null;
+        warnThresholdBreached = false;
     }
 
     /**
@@ -241,7 +292,26 @@ public class HookManager {
                     case DELETE: queue=hook.hook.isDelete();break;
                     }
                     if(queue) {
-                        hook.docList.add(new HookDocInfo(doc));
+                        HookDocInfo hdi = new HookDocInfo(doc);
+
+                        if (isCheckQueueSize()) {
+
+                            LOGGER.debug("Checking original doc size");
+                            enforceQueueSizeLimits(doc.getRoot());
+
+                            if (hdi.pre != null && doc.getRoot() != hdi.pre.getRoot()) {
+                                LOGGER.debug("Checking pre copy size");
+                                enforceQueueSizeLimits(hdi.pre.getRoot());
+                            }
+
+                            if (hdi.post != null && doc.getRoot() != hdi.post.getRoot()) {
+                                LOGGER.debug("Checking post copy size");
+                                enforceQueueSizeLimits(hdi.post.getRoot());
+                            }
+                        }
+
+                        hook.docList.add(hdi);
+
                     }
                 }
             }
@@ -283,6 +353,10 @@ public class HookManager {
             }
             queuedHooks.add(new QueuedHook(who,hookList));
         }        
+    }
+
+    public boolean isHookQueueEmpty() {
+        return queuedHooks.isEmpty();
     }
 
     private  JsonDoc project(JsonDoc doc, Projector p) {
