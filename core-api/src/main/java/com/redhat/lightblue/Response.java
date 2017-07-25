@@ -82,7 +82,7 @@ public class Response extends BaseResponse  {
      * @param warnResultSetSizeB log a warning when this threshold is breached
      * @param forRequest request which resulted in this resposne, for logging purposes
      */
-    public void ensureResponseSizeNotTooLarge(int maxResultSetSizeB, int warnResultSetSizeB, Request forRequest) {
+    public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, Request forRequest) {
         this.forRequest = forRequest;
         this.maxResultSetSizeB = maxResultSetSizeB;
         this.warnResultSetSizeB = warnResultSetSizeB;

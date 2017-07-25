@@ -36,7 +36,7 @@ public class BulkExecutionContext {
      * @param warnResultSetSizeB log a warning when this threshold is breached
      * @param forRequest request which resulted in this resposne, for logging purposes
      */
-    public void ensureResponseSizeNotTooLarge(int maxResultSetSizeB, int warnResultSetSizeB, BulkRequest forRequest) {
+    public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, BulkRequest forRequest) {
         this.forRequest = forRequest;
         this.maxResultSetSizeB = maxResultSetSizeB;
         this.warnResultSetSizeB = warnResultSetSizeB;
