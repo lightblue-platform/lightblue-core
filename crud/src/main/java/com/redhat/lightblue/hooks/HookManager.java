@@ -229,6 +229,8 @@ public class HookManager {
         queuedHooks.clear();
 
         queuedHooksSizeB = 0;
+        warnQueuedHooksSizeB = -1;
+        maxQueuedHooksSizeB = -1;
         forRequest = null;
         warnThresholdBreached = false;
     }
