@@ -80,7 +80,7 @@ public class Response extends BaseResponse  {
      *
      * @param maxResultSetSizeB error when this threshold is breached
      * @param warnResultSetSizeB log a warning when this threshold is breached
-     * @param forRequest request which resulted in this resposne, for logging purposes
+     * @param forRequest request which resulted in this response, for logging purposes
      */
     public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, Request forRequest) {
         this.forRequest = forRequest;
@@ -88,7 +88,7 @@ public class Response extends BaseResponse  {
         this.warnResultSetSizeB = warnResultSetSizeB;
     }
 
-    public boolean isErrorOnResposneSizeTooLarge() {
+    public boolean isErrorOnResponseSizeTooLarge() {
         return maxResultSetSizeB > 0;
     }
 
@@ -97,7 +97,7 @@ public class Response extends BaseResponse  {
     }
 
     public boolean isCheckResponseSize() {
-        return isErrorOnResposneSizeTooLarge() || isWarnOnResponseSizeLarge();
+        return isErrorOnResponseSizeTooLarge() || isWarnOnResponseSizeLarge();
     }
 
     /**
@@ -155,7 +155,7 @@ public class Response extends BaseResponse  {
             responseDataSizeB += JsonUtils.size(entityDataJson);
         }
 
-        if (isErrorOnResposneSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
+        if (isErrorOnResponseSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
             // empty data
             // returning incomplete result set could be useful, but also confusing and thus dangerous
             // the counts - matchCount, modifiedCount - are unmodified

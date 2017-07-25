@@ -34,7 +34,7 @@ public class BulkExecutionContext {
      *
      * @param maxResultSetSizeB error when this threshold is breached
      * @param warnResultSetSizeB log a warning when this threshold is breached
-     * @param forRequest request which resulted in this resposne, for logging purposes
+     * @param forRequest request which resulted in this response, for logging purposes
      */
     public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, BulkRequest forRequest) {
         this.forRequest = forRequest;
@@ -42,7 +42,7 @@ public class BulkExecutionContext {
         this.warnResultSetSizeB = warnResultSetSizeB;
     }
 
-    public boolean isErrorOnResposneSizeTooLarge() {
+    public boolean isErrorOnResponseSizeTooLarge() {
         return maxResultSetSizeB > 0;
     }
 
@@ -51,7 +51,7 @@ public class BulkExecutionContext {
     }
 
     public boolean isCheckResponseSize() {
-        return isErrorOnResposneSizeTooLarge() || isWarnOnResponseSizeLarge();
+        return isErrorOnResponseSizeTooLarge() || isWarnOnResponseSizeLarge();
     }
 
     private void enforceResponseSizeLimits(Response response) {
@@ -59,7 +59,7 @@ public class BulkExecutionContext {
             responseDataSizeB += response.getResponseDataSizeB();
         }
 
-        if (isErrorOnResposneSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
+        if (isErrorOnResponseSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
             // remove data
             response.setEntityData(JsonNodeFactory.instance.arrayNode());
             response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B"));

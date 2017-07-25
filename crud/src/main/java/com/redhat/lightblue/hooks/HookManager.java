@@ -79,7 +79,7 @@ public class HookManager {
      *
      * @param maxResultSetSizeB error when this threshold is breached
      * @param warnResultSetSizeB log a warning when this threshold is breached
-     * @param forRequest request which resulted in this resposne, for logging purposes
+     * @param forRequest request which resulted in this response, for logging purposes
      */
     public void setQueuedHooksSizeThresholds(int maxQueuedHooksSizeB, int warnQueuedHooksSizeB, Request forRequest) {
         this.forRequest = forRequest;
