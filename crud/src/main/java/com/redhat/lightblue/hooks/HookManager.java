@@ -74,22 +74,29 @@ public class HookManager {
         return queuedHooksSizeB;
     }
 
+    /**
+     * Threshold is expressed in bytes. This is just an approximation, see @{link {@link JsonUtils#size(JsonNode)} for details.
+     *
+     * @param maxResultSetSizeB error when this threshold is breached
+     * @param warnResultSetSizeB log a warning when this threshold is breached
+     * @param forRequest request which resulted in this resposne, for logging purposes
+     */
     public void ensureQueuedHooksSizeNotTooLarge(int maxQueuedHooksSizeB, int warnQueuedHooksSizeB, Request forRequest) {
         this.forRequest = forRequest;
         this.maxQueuedHooksSizeB = maxQueuedHooksSizeB;
         this.warnQueuedHooksSizeB = warnQueuedHooksSizeB;
     }
 
-    public boolean isEnsureQueueSizeNotTooLarge() {
+    public boolean isErrorOnQueueSizeTooLarge() {
         return maxQueuedHooksSizeB > 0;
     }
 
-    public boolean isWarnQueueSizeLarge() {
+    public boolean isWarnOnQueueSizeLarge() {
         return warnQueuedHooksSizeB > 0;
     }
 
     public boolean isCheckQueueSize() {
-        return isEnsureQueueSizeNotTooLarge() || isWarnQueueSizeLarge();
+        return isErrorOnQueueSizeTooLarge() || isWarnOnQueueSizeLarge();
     }
 
     private JsonNode enforceQueueSizeLimits(JsonNode jsonNode) {
@@ -98,11 +105,11 @@ public class HookManager {
             queuedHooksSizeB += JsonUtils.size(jsonNode);
         }
 
-        if (isEnsureQueueSizeNotTooLarge() && queuedHooksSizeB >= maxQueuedHooksSizeB) {
+        if (isErrorOnQueueSizeTooLarge() && queuedHooksSizeB >= maxQueuedHooksSizeB) {
 
 
             throw Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, queuedHooksSizeB+"B > "+maxQueuedHooksSizeB+"B");
-        } else if (isWarnQueueSizeLarge() && !warnThresholdBreached && queuedHooksSizeB >= warnQueuedHooksSizeB) {
+        } else if (isWarnOnQueueSizeLarge() && !warnThresholdBreached && queuedHooksSizeB >= warnQueuedHooksSizeB) {
             LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, queuedHooks);
             warnThresholdBreached = true;
         }

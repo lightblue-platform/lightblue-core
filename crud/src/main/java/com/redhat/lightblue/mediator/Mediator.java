@@ -838,7 +838,7 @@ public class Mediator {
             List<ResultMetadata> rmd=new ArrayList<>();
 
             if (ctx.getHookManager().isHookQueueEmpty()) {
-                // ensure response size not only if hooks didn't fire
+                // ensure response size only if hooks didn't fire
                 // otherwise result stream is read during hook queuing and this is where those checks take place
                 response.ensureResponseSizeNotTooLarge(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), (Request)requestWithRange);
             }

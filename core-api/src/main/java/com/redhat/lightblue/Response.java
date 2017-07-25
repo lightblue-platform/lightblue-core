@@ -75,22 +75,29 @@ public class Response extends BaseResponse  {
         super(r);
     }
 
+    /**
+     * Result set size threshold is expressed in bytes. This is just an approximation, see @{link {@link JsonUtils#size(JsonNode)} for details.
+     *
+     * @param maxResultSetSizeB error when this threshold is breached
+     * @param warnResultSetSizeB log a warning when this threshold is breached
+     * @param forRequest request which resulted in this resposne, for logging purposes
+     */
     public void ensureResponseSizeNotTooLarge(int maxResultSetSizeB, int warnResultSetSizeB, Request forRequest) {
         this.forRequest = forRequest;
         this.maxResultSetSizeB = maxResultSetSizeB;
         this.warnResultSetSizeB = warnResultSetSizeB;
     }
 
-    public boolean isEnsureResposneSizeNotTooLarge() {
+    public boolean isErrorOnResposneSizeTooLarge() {
         return maxResultSetSizeB > 0;
     }
 
-    public boolean isWarnResponseSizeLarge() {
+    public boolean isWarnOnResponseSizeLarge() {
         return warnResultSetSizeB > 0;
     }
 
     public boolean isCheckResponseSize() {
-        return isEnsureResposneSizeNotTooLarge() || isWarnResponseSizeLarge();
+        return isErrorOnResposneSizeTooLarge() || isWarnOnResponseSizeLarge();
     }
 
     /**
@@ -146,19 +153,16 @@ public class Response extends BaseResponse  {
 
         if (isCheckResponseSize()) {
             responseDataSizeB += JsonUtils.size(entityDataJson);
-
-            // TODO: could account for copies made for hooks here
-            // better do https://github.com/lightblue-platform/lightblue-core/issues/802 instead
         }
 
-        if (isEnsureResposneSizeNotTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
+        if (isErrorOnResposneSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
             // empty data
             // returning incomplete result set could be useful, but also confusing and thus dangerous
             // the counts - matchCount, modifiedCount - are unmodified
             setEntityData(JsonNodeFactory.instance.arrayNode());
 
             throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B");
-        } else if (isWarnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
+        } else if (isWarnOnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
             LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
             warnThresholdBreached = true;
         }

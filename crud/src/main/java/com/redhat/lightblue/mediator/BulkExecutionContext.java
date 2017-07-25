@@ -5,10 +5,12 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
 
 public class BulkExecutionContext {
 
@@ -27,22 +29,29 @@ public class BulkExecutionContext {
         responses = new Response[size];
     }
 
+    /**
+     * Bulk result set size threshold is expressed in bytes. This is just an approximation, see @{link {@link JsonUtils#size(JsonNode)} for details.
+     *
+     * @param maxResultSetSizeB error when this threshold is breached
+     * @param warnResultSetSizeB log a warning when this threshold is breached
+     * @param forRequest request which resulted in this resposne, for logging purposes
+     */
     public void ensureResponseSizeNotTooLarge(int maxResultSetSizeB, int warnResultSetSizeB, BulkRequest forRequest) {
         this.forRequest = forRequest;
         this.maxResultSetSizeB = maxResultSetSizeB;
         this.warnResultSetSizeB = warnResultSetSizeB;
     }
 
-    public boolean isEnsureResposneSizeNotTooLarge() {
+    public boolean isErrorOnResposneSizeTooLarge() {
         return maxResultSetSizeB > 0;
     }
 
-    public boolean isWarnResponseSizeLarge() {
+    public boolean isWarnOnResponseSizeLarge() {
         return warnResultSetSizeB > 0;
     }
 
     public boolean isCheckResponseSize() {
-        return isEnsureResposneSizeNotTooLarge() || isWarnResponseSizeLarge();
+        return isErrorOnResposneSizeTooLarge() || isWarnOnResponseSizeLarge();
     }
 
     private void enforceResponseSizeLimits(Response response) {
@@ -50,11 +59,11 @@ public class BulkExecutionContext {
             responseDataSizeB += response.getResponseDataSizeB();
         }
 
-        if (isEnsureResposneSizeNotTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
+        if (isErrorOnResposneSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
             // remove data
             response.setEntityData(JsonNodeFactory.instance.arrayNode());
             response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B"));
-        } else if (isWarnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
+        } else if (isWarnOnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
             LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
             warnThresholdBreached = true;
         }
