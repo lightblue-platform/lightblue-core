@@ -20,7 +20,6 @@ package com.redhat.lightblue.mediator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,21 +38,21 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.WithRange;
-import com.redhat.lightblue.crud.DocCtx;
-import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 
 public class MediatorTest extends AbstractMediatorTest {
 
@@ -398,6 +397,72 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(1,response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_DATASOURCE_TIMEOUT,response.getErrors().get(0).getErrorCode());
+    }
+
+    @Test
+    public void findResultSetTooLargeTest() throws Exception {
+
+        final JsonNode sampleDoc = loadJsonNode("./sample1.json");
+
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+
+        mdManager.md.getAccess().getFind().setRoles("anyone");
+        mockCrudController.findResponse = new CRUDFindResponse();
+        mockCrudController.findResponse.setSize(10);
+        mockCrudController.findCb=ctx->{
+            ArrayList<DocCtx> docs=new ArrayList<>();
+            for(int i=0;i<10;i++) {
+                docs.add(new DocCtx(new JsonDoc(sampleDoc),getRmd(Integer.toString(i))));
+            }
+            ctx.setDocumentStream(new ListDocumentStream<DocCtx>(docs));
+        };
+
+        mediator.factory.setWarnResultSetSizeB(600);
+        mediator.factory.setMaxResultSetSizeB(-1);
+        Response response = mediator.find(req); // no max result set size
+        Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
+        Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
+
+        mediator.factory.setMaxResultSetSizeB(12000);
+        response = mediator.find(req); // max result set size set, but response below threshold
+        Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
+        Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
+
+        mediator.factory.setMaxResultSetSizeB(11000);
+        response = mediator.find(req); // max result set size exceeded
+        Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
+        Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
+        Assert.assertEquals("crud:ResultSizeTooLarge", response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals("11290B > 11000B", response.getErrors().get(0).getMsg());
+    }
+
+    @Test
+    public void updateResultSetTooLargeTest() throws Exception {
+
+        final JsonNode sampleDoc = loadJsonNode("./sample1.json");
+
+        UpdateRequest req = new UpdateRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+
+        mdManager.md.getAccess().getUpdate().setRoles("anyone");
+        mockCrudController.updateResponse = new CRUDUpdateResponse();
+        mockCrudController.updateCb=ctx->{
+            ArrayList<DocCtx> docs=new ArrayList<>();
+            for(int i=0;i<10;i++) {
+                docs.add(new DocCtx(new JsonDoc(sampleDoc),getRmd(Integer.toString(i))));
+            }
+            ctx.setInputDocuments(docs);
+        };
+
+
+        mediator.factory.setMaxResultSetSizeB(11000);
+        Response response = mediator.update(req); // max result set size exceeded
+        Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
+        Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
+        Assert.assertEquals("crud:ResultSizeTooLarge", response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals("11290B > 11000B", response.getErrors().get(0).getMsg());
+
     }
 
     @Test

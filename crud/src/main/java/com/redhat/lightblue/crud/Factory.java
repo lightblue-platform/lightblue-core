@@ -62,6 +62,8 @@ public class Factory implements Serializable {
     private JsonNodeFactory nodeFactory;
     private int bulkParallelExecutions = 3;
     private int memoryIndexThreshold = 16;
+    private int maxResultSetSizeB;
+    private int warnResultSetSizeB;
 
     /**
      * Adds a field constraint validator
@@ -226,5 +228,30 @@ public class Factory implements Serializable {
 
     public void setMemoryIndexThreshold(int memoryIndexThreshold) {
         this.memoryIndexThreshold = memoryIndexThreshold;
+    }
+
+    public int getMaxResultSetSizeB() {
+        return maxResultSetSizeB;
+    }
+
+    public void setMaxResultSetSizeB(int maxResultSetSizeB) {
+        this.maxResultSetSizeB = maxResultSetSizeB;
+    }
+
+    public int getWarnResultSetSizeB() {
+        return warnResultSetSizeB;
+    }
+
+    public void setWarnResultSetSizeB(int warnResultSetSizeB) {
+        this.warnResultSetSizeB = warnResultSetSizeB;
+    }
+
+    @Override
+    public String toString() {
+        return "Factory [fieldConstraintValidatorRegistry=" + fieldConstraintValidatorRegistry + ", entityConstraintValidatorRegistry="
+                + entityConstraintValidatorRegistry + ", crudControllers=" + crudControllers + ", hookResolver=" + hookResolver + ", interceptors="
+                + interceptors + ", generators=" + generators + ", nodeFactory=" + nodeFactory + ", bulkParallelExecutions=" + bulkParallelExecutions
+                + ", memoryIndexThreshold=" + memoryIndexThreshold + ", maxResultSetSizeB=" + maxResultSetSizeB + ", warnResultSetSizeB=" + warnResultSetSizeB
+                + "]";
     }
 }

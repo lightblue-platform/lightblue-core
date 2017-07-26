@@ -58,7 +58,9 @@ import com.redhat.lightblue.crud.DocumentStream;
 
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class HookManagerTest extends AbstractJsonNodeTest {
 
@@ -296,6 +298,99 @@ public class HookManagerTest extends AbstractJsonNodeTest {
             Assert.assertNotNull(doc.getPreDoc());
             Assert.assertNotNull(doc.getPostDoc());
             Assert.assertEquals(CRUDOperation.UPDATE, doc.getCRUDOperation());
+        }
+    }
+
+    @Test
+    public void crudUpdateMaxHookQueueSizeTest() throws Exception {
+        HookManager hooks = new HookManager(resolver, nodeFactory);
+        TestOperationContext ctx = setupContext(CRUDOperation.UPDATE);
+
+        int expectedSizeB = 0;
+        int updateHookCount = 3;
+        for(DocCtx doc: ctx.getInputDocuments()) {
+            expectedSizeB += updateHookCount * (
+                    JsonUtils.size(doc.getOriginalDocument().getRoot()) + // original doc
+                    JsonUtils.size(doc.getOriginalDocument().getRoot()) + // pre copy
+                    JsonUtils.size(doc.getUpdatedDocument().getRoot()));  // post copy
+        }
+
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB+10, 1, null);
+
+        // queue hooks (process entire stream of results)
+        hooks.queueHooks(ctx);
+
+        Assert.assertEquals(expectedSizeB, hooks.getQueuedHooksSizeB());
+
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null);
+
+        try {
+            hooks.queueHooks(ctx);
+            Assert.fail("Hook queue exceeds limit, expecting exception");
+        } catch (Error e) {
+            Assert.assertEquals("crud:ResultSizeTooLarge", e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void crudInsertMaxHookQueueSizeTest() throws Exception {
+        HookManager hooks = new HookManager(resolver, nodeFactory);
+        TestOperationContext ctx = setupContext(CRUDOperation.INSERT);
+
+        int expectedSizeB = 0;
+        int insertHookCount = 1;
+
+        for(DocCtx doc: ctx.getInputDocuments()) {
+            expectedSizeB += insertHookCount * (
+                    JsonUtils.size(doc.getRoot()) + // original doc
+                    JsonUtils.size(doc.getRoot())); // post copy
+        }
+
+        hooks.setQueuedHooksSizeThresholds(-1, 1, null);
+
+        // queue hooks (process entire stream of results)
+        hooks.queueHooks(ctx);
+
+        Assert.assertEquals(expectedSizeB, hooks.getQueuedHooksSizeB());
+
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null);
+
+        try {
+            hooks.queueHooks(ctx);
+            Assert.fail("Hook queue exceeds limit, expecting exception");
+        } catch (Error e) {
+            Assert.assertEquals("crud:ResultSizeTooLarge", e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void crudDeleteMaxHookQueueSizeTest() throws Exception {
+        HookManager hooks = new HookManager(resolver, nodeFactory);
+        TestOperationContext ctx = setupContext(CRUDOperation.DELETE);
+
+        int expectedSizeB = 0;
+        int deleteHookCount = 1;
+
+        for(DocCtx doc: ctx.getInputDocuments()) {
+            expectedSizeB += deleteHookCount * (
+                    JsonUtils.size(doc.getRoot()) + // original doc
+                    JsonUtils.size(doc.getRoot())); // pre copy
+        }
+
+        hooks.setQueuedHooksSizeThresholds(-1, 1, null);
+
+        // queue hooks (process entire stream of results)
+        hooks.queueHooks(ctx);
+
+        Assert.assertEquals(expectedSizeB, hooks.getQueuedHooksSizeB());
+
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null);
+
+        try {
+            hooks.queueHooks(ctx);
+            Assert.fail("Hook queue exceeds limit, expecting exception");
+        } catch (Error e) {
+            Assert.assertEquals("crud:ResultSizeTooLarge", e.getErrorCode());
         }
     }
 

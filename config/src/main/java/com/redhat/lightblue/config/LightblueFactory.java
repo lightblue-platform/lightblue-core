@@ -161,6 +161,8 @@ public final class LightblueFactory implements Serializable {
             f.setBulkParallelExecutions(crudConfiguration.getBulkParallelExecutions());
             f.setMemoryIndexThreshold(crudConfiguration.getMemoryIndexThreshold());
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
+            f.setMaxResultSetSizeB(crudConfiguration.getMaxResultSetSizeB());
+            f.setWarnResultSetSizeB(crudConfiguration.getWarnResultSetSizeB());
 
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());
@@ -174,6 +176,8 @@ public final class LightblueFactory implements Serializable {
             }
             // Make sure we assign factory after it is initialized. (factory is volatile, there's a memory barrier here)
             factory = f;
+
+            LOGGER.info("Initialized factory: {}", factory);
         }
     }
 

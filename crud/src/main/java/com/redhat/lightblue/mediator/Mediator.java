@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +136,7 @@ public class Mediator {
                 if (!ctx.hasErrors() && ctx.hasInputDocumentsWithoutErrors()) {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     CRUDInsertionResponse ir=controller.insert(ctx, req.getReturnFields());
+                    ctx.getHookManager().setQueuedHooksSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     ctx.measure.begin("postProcessInsertedDocs");
                     response.setModifiedCount(ir.getNumInserted());
@@ -301,6 +301,7 @@ public class Mediator {
                         updateResponse.setNumMatched(0);
                     }
                 }
+                ctx.getHookManager().setQueuedHooksSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 ctx.measure.begin("postProcessUpdatedDocs");
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());                
@@ -372,6 +373,7 @@ public class Mediator {
                     }
                 }
 
+                ctx.getHookManager().setQueuedHooksSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 response.setModifiedCount(result == null ? 0 : result.getNumDeleted());
                 if (ctx.hasErrors()) {
@@ -491,9 +493,11 @@ public class Mediator {
                 DocumentStream<DocCtx> docStream=r.documentStream;
                 List<ResultMetadata> rmd=new ArrayList<>();
                 response.setEntityData(factory.getNodeFactory().arrayNode());
+                response.setResultSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
+
                 for(;docStream.hasNext();) {
                     DocCtx doc=docStream.next();
-                    if(!doc.hasErrors()) {          
+                    if(!doc.hasErrors()) {
                         response.addEntityData(doc.getOutputDocument().getRoot());
                         rmd.add(doc.getResultMetadata());
                     } else {
@@ -522,7 +526,7 @@ public class Mediator {
         
         return response;
     }
-    
+
     public StreamingResponse findAndStream(FindRequest req) {
         LOGGER.debug("findAndStream {}", req.getEntityVersion());
         Error.push("findAndStream(" + req.getEntityVersion().toString() + ")");        
@@ -647,22 +651,12 @@ public class Mediator {
         return response;        
     }
 
-    public static class BulkExecutionContext {
-        final Future<Response>[] futures;
-        final Response[] responses;
-
-        public BulkExecutionContext(int size) {
-            futures = new Future[size];
-            responses = new Response[size];
-        }
-    }
-
     protected void wait(BulkExecutionContext ctx) {
         for (int i = 0; i < ctx.futures.length; i++) {
             if (ctx.futures[i] != null) {
                 try {
                     LOGGER.debug("Waiting for a find request to complete");
-                    ctx.responses[i] = ctx.futures[i].get();
+                    ctx.setResponseAt(i, ctx.futures[i].get());
                 } catch (Exception e) {
                     LOGGER.debug("Find request wait failed", e);
                 }
@@ -702,6 +696,7 @@ public class Mediator {
             List<Request> requestList = requests.getEntries();
             int n = requestList.size();
             BulkExecutionContext ctx = new BulkExecutionContext(n);
+            ctx.setResultSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), requests);
 
             for (int i = 0; i < n; i++) {
                 Request req = requestList.get(i);
@@ -713,16 +708,16 @@ public class Mediator {
                         wait(ctx);
                         switch (req.getOperation()) {
                             case INSERT:
-                                ctx.responses[i] = insert((InsertionRequest) req);
+                                ctx.setResponseAt(i, insert((InsertionRequest) req));
                                 break;
                             case DELETE:
-                                ctx.responses[i] = delete((DeleteRequest) req);
+                                ctx.setResponseAt(i, delete((DeleteRequest) req));
                                 break;
                             case UPDATE:
-                                ctx.responses[i] = update((UpdateRequest) req);
+                                ctx.setResponseAt(i, update((UpdateRequest) req));
                                 break;
                             case SAVE:
-                                ctx.responses[i] = save((SaveRequest) req);
+                                ctx.setResponseAt(i, save((SaveRequest) req));
                                 break;
                         }
                     }
@@ -736,7 +731,7 @@ public class Mediator {
             wait(ctx);
             LOGGER.debug("Bulk execution completed");
             BulkResponse response = new BulkResponse();
-            response.setEntries(ctx.responses);
+            response.setEntries(ctx.getResponses());
             Error.pop();
             return response;
         } finally {
@@ -841,6 +836,13 @@ public class Mediator {
         DocumentStream<DocCtx> docStream=ctx.getDocumentStream();
         if(docStream!=null) {
             List<ResultMetadata> rmd=new ArrayList<>();
+
+            if (ctx.getHookManager().isHookQueueEmpty()) {
+                // ensure response size only if hooks didn't fire
+                // otherwise result stream is read during hook queuing and this is where those checks take place
+                response.setResultSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), (Request)requestWithRange);
+            }
+
             for(;docStream.hasNext();) {
                 DocCtx doc=docStream.next();
                 if(!doc.hasErrors()) {                

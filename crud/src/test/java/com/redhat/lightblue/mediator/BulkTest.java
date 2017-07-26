@@ -18,31 +18,36 @@
  */
 package com.redhat.lightblue.mediator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.ResultMetadata;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.BulkResponse;
-import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
 
 public class BulkTest extends AbstractMediatorTest {
 
@@ -123,6 +128,67 @@ public class BulkTest extends AbstractMediatorTest {
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(1, response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
+    }
+
+    @Test
+    public void bulkResultSetTooLargeTest() throws Exception {
+        final JsonNode sampleDoc = loadJsonNode("./sample1.json");
+        mdManager.md.getAccess().getFind().setRoles("anyone");
+
+        BulkRequest breq = new BulkRequest();
+
+        InsertionRequest ireq = new InsertionRequest();
+        ireq.setEntityVersion(new EntityVersion("test", "1.0"));
+        ireq.setEntityData(sampleDoc);
+        ireq.setReturnFields(null);
+        ireq.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
+        breq.add(ireq);
+
+        FindRequest freq = new FindRequest();
+        freq.setEntityVersion(new EntityVersion("test", "1.0"));
+        breq.add(freq);
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(10);
+        mockCrudController.insertCb=ctx->{
+            ArrayList<DocCtx> docs=new ArrayList<>();
+            for(int i=0;i<10;i++) {
+                docs.add(new DocCtx(new JsonDoc(sampleDoc), new ResultMetadata()));
+            }
+            ctx.setDocumentStream(new ListDocumentStream<DocCtx>(docs));
+        };
+        mockCrudController.findResponse=new CRUDFindResponse();
+        mockCrudController.findResponse.setSize(10);
+        mockCrudController.findCb=ctx->{
+            ArrayList<DocCtx> docs=new ArrayList<>();
+            for(int i=0;i<10;i++) {
+                docs.add(new DocCtx(new JsonDoc(sampleDoc), new ResultMetadata()));
+            }
+            ctx.setDocumentStream(new ListDocumentStream<DocCtx>(docs));
+        };
+
+        mediator.factory.setWarnResultSetSizeB(10);
+
+        BulkResponse bresp = mediator.bulkRequest(breq);
+        Assert.assertEquals(2, breq.getEntries().size());
+
+        Response responseInsert = bresp.getEntries().get(0);
+        Response responseFind = bresp.getEntries().get(1);
+
+        Assert.assertEquals("Insert response should return 1262B of data", 1262, responseInsert.getResponseDataSizeB());
+        Assert.assertEquals("Find response should return 12620B of data", 12620, responseFind.getResponseDataSizeB());
+
+        mediator.factory.setMaxResultSetSizeB(12630); // the limit is more than each request alone
+
+        bresp = mediator.bulkRequest(breq);
+
+        responseInsert = bresp.getEntries().get(0);
+        responseFind = bresp.getEntries().get(1);
+
+        Assert.assertTrue("The first request should have no errors", responseInsert.getErrors().isEmpty());
+        Assert.assertEquals("The first request should have returend all data", 1262, JsonUtils.size(responseInsert.getEntityData()));
+        Assert.assertEquals("The second request should error, as it exceeds the response size threshold", 1, responseFind.getErrors().size());
+        Assert.assertEquals(Response.ERR_RESULT_SIZE_TOO_LARGE, responseFind.getErrors().get(0).getErrorCode());
+        Assert.assertEquals("The second request contains no data", 0, responseFind.getEntityData().size());
     }
 
     @Test
