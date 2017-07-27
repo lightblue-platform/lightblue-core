@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.Request;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
@@ -38,9 +37,12 @@ import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Hook;
+import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.MemoryMonitor;
+import com.redhat.lightblue.util.MemoryMonitor.ThresholdMonitor;
 
 /**
  * This class manages hooks. As operations are performed, queueHooks() is called
@@ -65,13 +67,14 @@ public class HookManager {
 
     private final List<QueuedHook> queuedHooks = new ArrayList<>();
 
-    private int queuedHooksSizeB = 0;
-    private int maxQueuedHooksSizeB = -1, warnQueuedHooksSizeB = -1;
-    private Request forRequest;
-    private boolean warnThresholdBreached = false;
+    private MemoryMonitor<JsonNode> monitor = null;
 
     public int getQueuedHooksSizeB() {
-        return queuedHooksSizeB;
+        if (monitor != null) {
+            return monitor.getDataSizeB();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -81,41 +84,16 @@ public class HookManager {
      * @param warnResultSetSizeB log a warning when this threshold is breached
      * @param forRequest request which resulted in this response, for logging purposes
      */
-    public void setQueuedHooksSizeThresholds(int maxQueuedHooksSizeB, int warnQueuedHooksSizeB, Request forRequest) {
-        this.forRequest = forRequest;
-        this.maxQueuedHooksSizeB = maxQueuedHooksSizeB;
-        this.warnQueuedHooksSizeB = warnQueuedHooksSizeB;
-    }
+    public void setQueuedHooksSizeThresholds(int maxQueuedHooksSizeB, int warnQueuedHooksSizeB, final QueryExpression query) {
+        this.monitor = new MemoryMonitor<>((node) -> JsonUtils.size(node));
 
-    public boolean isErrorOnQueueSizeTooLarge() {
-        return maxQueuedHooksSizeB > 0;
-    }
+        this.monitor.registerMonitor(new ThresholdMonitor<>(warnQueuedHooksSizeB, (current, threshold, node) -> {
+            LOGGER.warn("crud:ResultSizeIsLarge: query={}, queuedHooksSizeB={}", query, current);
+        }));
 
-    public boolean isWarnOnQueueSizeLarge() {
-        return warnQueuedHooksSizeB > 0;
-    }
-
-    public boolean isCheckQueueSize() {
-        return isErrorOnQueueSizeTooLarge() || isWarnOnQueueSizeLarge();
-    }
-
-    private JsonNode enforceQueueSizeLimits(JsonNode jsonNode) {
-
-        if (isCheckQueueSize()) {
-            queuedHooksSizeB += JsonUtils.size(jsonNode);
-        }
-
-        if (isErrorOnQueueSizeTooLarge() && queuedHooksSizeB >= maxQueuedHooksSizeB) {
-
-
-            throw Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, queuedHooksSizeB+"B > "+maxQueuedHooksSizeB+"B");
-        } else if (isWarnOnQueueSizeLarge() && !warnThresholdBreached && queuedHooksSizeB >= warnQueuedHooksSizeB) {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, queuedHooks);
-            warnThresholdBreached = true;
-        }
-
-        return jsonNode;
-
+        this.monitor.registerMonitor(new ThresholdMonitor<>(maxQueuedHooksSizeB, (current, threshold, node) -> {
+            throw Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B (during hook processing)");
+        }));
     }
 
     private static final class HookDocInfo {
@@ -228,11 +206,7 @@ public class HookManager {
     public void clear() {
         queuedHooks.clear();
 
-        queuedHooksSizeB = 0;
-        warnQueuedHooksSizeB = -1;
-        maxQueuedHooksSizeB = -1;
-        forRequest = null;
-        warnThresholdBreached = false;
+        monitor = null;
     }
 
     /**
@@ -303,19 +277,19 @@ public class HookManager {
                     if(queue) {
                         HookDocInfo hdi = new HookDocInfo(doc);
 
-                        if (isCheckQueueSize()) {
+                        if (monitor != null) {
 
                             LOGGER.debug("Checking original doc size");
-                            enforceQueueSizeLimits(doc.getRoot());
+                            monitor.apply(doc.getRoot());
 
                             if (hdi.pre != null && doc.getRoot() != hdi.pre.getRoot()) {
                                 LOGGER.debug("Checking pre copy size");
-                                enforceQueueSizeLimits(hdi.pre.getRoot());
+                                monitor.apply(hdi.pre.getRoot());
                             }
 
                             if (hdi.post != null && doc.getRoot() != hdi.post.getRoot()) {
                                 LOGGER.debug("Checking post copy size");
-                                enforceQueueSizeLimits(hdi.post.getRoot());
+                                monitor.apply(hdi.post.getRoot());
                             }
                         }
 

@@ -161,8 +161,9 @@ public final class LightblueFactory implements Serializable {
             f.setBulkParallelExecutions(crudConfiguration.getBulkParallelExecutions());
             f.setMemoryIndexThreshold(crudConfiguration.getMemoryIndexThreshold());
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
-            f.setMaxResultSetSizeB(crudConfiguration.getMaxResultSetSizeB());
+            f.setMaxResultSetSizeForReadsB(crudConfiguration.getMaxResultSetSizeForReadsB());
             f.setWarnResultSetSizeB(crudConfiguration.getWarnResultSetSizeB());
+            f.setMaxResultSetSizeForWritesB(crudConfiguration.getMaxResultSetSizeForWritesB());
 
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());

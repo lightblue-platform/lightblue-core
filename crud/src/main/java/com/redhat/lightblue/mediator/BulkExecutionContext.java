@@ -11,6 +11,8 @@ import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.MemoryMonitor;
+import com.redhat.lightblue.util.MemoryMonitor.ThresholdMonitor;
 
 public class BulkExecutionContext {
 
@@ -19,10 +21,7 @@ public class BulkExecutionContext {
     final Future<Response>[] futures;
     private Response[] responses;
 
-    private int responseDataSizeB = 0;
-    private int maxResultSetSizeB = -1, warnResultSetSizeB = -1;
-    private BulkRequest forRequest;
-    private boolean warnThresholdBreached = false;
+    private MemoryMonitor<Response> memoryMonitor = null;
 
     public BulkExecutionContext(int size) {
         futures = new Future[size];
@@ -37,37 +36,18 @@ public class BulkExecutionContext {
      * @param forRequest request which resulted in this response, for logging purposes
      */
     public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, BulkRequest forRequest) {
-        this.forRequest = forRequest;
-        this.maxResultSetSizeB = maxResultSetSizeB;
-        this.warnResultSetSizeB = warnResultSetSizeB;
-    }
 
-    public boolean isErrorOnResponseSizeTooLarge() {
-        return maxResultSetSizeB > 0;
-    }
+        this.memoryMonitor = new MemoryMonitor<>((response) -> response.getResponseDataSizeB());
 
-    public boolean isWarnOnResponseSizeLarge() {
-        return warnResultSetSizeB > 0;
-    }
+        memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(warnResultSetSizeB, (current, threshold, response) -> {
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
+        }));
 
-    public boolean isCheckResponseSize() {
-        return isErrorOnResponseSizeTooLarge() || isWarnOnResponseSizeLarge();
-    }
-
-    private void enforceResponseSizeLimits(Response response) {
-        if (isCheckResponseSize()) {
-            responseDataSizeB += response.getResponseDataSizeB();
-        }
-
-        if (isErrorOnResponseSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
+        memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(maxResultSetSizeB, (current, threshold, response) -> {
             // remove data
             response.setEntityData(JsonNodeFactory.instance.arrayNode());
-            response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B"));
-        } else if (isWarnOnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
-            warnThresholdBreached = true;
-        }
-
+            response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B"));
+        }));
     }
 
     /**
@@ -78,7 +58,9 @@ public class BulkExecutionContext {
      * @param response
      */
     public void setResponseAt(int index, Response response) {
-        enforceResponseSizeLimits(response);
+        if (memoryMonitor != null) {
+            memoryMonitor.apply(response);
+        }
 
         responses[index] = response;
     }

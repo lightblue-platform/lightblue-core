@@ -62,8 +62,9 @@ public class Factory implements Serializable {
     private JsonNodeFactory nodeFactory;
     private int bulkParallelExecutions = 3;
     private int memoryIndexThreshold = 16;
-    private int maxResultSetSizeB;
+    private int maxResultSetSizeForReadsB;
     private int warnResultSetSizeB;
+    private int maxResultSetSizeForWritesB;
 
     /**
      * Adds a field constraint validator
@@ -230,12 +231,12 @@ public class Factory implements Serializable {
         this.memoryIndexThreshold = memoryIndexThreshold;
     }
 
-    public int getMaxResultSetSizeB() {
-        return maxResultSetSizeB;
+    public int getMaxResultSetSizeForReadsB() {
+        return maxResultSetSizeForReadsB;
     }
 
-    public void setMaxResultSetSizeB(int maxResultSetSizeB) {
-        this.maxResultSetSizeB = maxResultSetSizeB;
+    public void setMaxResultSetSizeForReadsB(int maxResultSetSizeB) {
+        this.maxResultSetSizeForReadsB = maxResultSetSizeB;
     }
 
     public int getWarnResultSetSizeB() {
@@ -246,12 +247,20 @@ public class Factory implements Serializable {
         this.warnResultSetSizeB = warnResultSetSizeB;
     }
 
+    public int getMaxResultSetSizeForWritesB() {
+       return maxResultSetSizeForWritesB;
+    }
+
+    public void setMaxResultSetSizeForWritesB(int maxResultSetSizeForWritesB) {
+        this.maxResultSetSizeForWritesB = maxResultSetSizeForWritesB;
+    }
+
     @Override
     public String toString() {
         return "Factory [fieldConstraintValidatorRegistry=" + fieldConstraintValidatorRegistry + ", entityConstraintValidatorRegistry="
                 + entityConstraintValidatorRegistry + ", crudControllers=" + crudControllers + ", hookResolver=" + hookResolver + ", interceptors="
                 + interceptors + ", generators=" + generators + ", nodeFactory=" + nodeFactory + ", bulkParallelExecutions=" + bulkParallelExecutions
-                + ", memoryIndexThreshold=" + memoryIndexThreshold + ", maxResultSetSizeB=" + maxResultSetSizeB + ", warnResultSetSizeB=" + warnResultSetSizeB
-                + "]";
+                + ", memoryIndexThreshold=" + memoryIndexThreshold + ", maxResultSetSizeForReadsB=" + maxResultSetSizeForReadsB + ", warnResultSetSizeB="
+                + warnResultSetSizeB + ", maxResultSetSizeForWritesB=" + maxResultSetSizeForWritesB + "]";
     }
 }
