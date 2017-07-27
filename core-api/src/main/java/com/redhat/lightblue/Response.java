@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.MemoryMonitor;
+import com.redhat.lightblue.util.MemoryMonitor.ThresholdMonitor;
 
 /**
  * Response information from mediator APIs
@@ -44,10 +46,7 @@ public class Response extends BaseResponse  {
     private JsonNode entityData;
     private List<ResultMetadata> resultMetadata;
 
-    private int responseDataSizeB = 0;
-    private int maxResultSetSizeB = -1, warnResultSetSizeB = -1;
-    private Request forRequest;
-    private boolean warnThresholdBreached = false;
+    private MemoryMonitor<JsonNode> memoryMonitor = null;
 
     // Response has no access to CrudConstants
     public static final String ERR_RESULT_SIZE_TOO_LARGE = "crud:ResultSizeTooLarge";
@@ -82,22 +81,20 @@ public class Response extends BaseResponse  {
      * @param warnResultSetSizeB log a warning when this threshold is breached
      * @param forRequest request which resulted in this response, for logging purposes
      */
-    public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, Request forRequest) {
-        this.forRequest = forRequest;
-        this.maxResultSetSizeB = maxResultSetSizeB;
-        this.warnResultSetSizeB = warnResultSetSizeB;
-    }
+    public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, final Request forRequest) {
+        this.memoryMonitor = new MemoryMonitor<>((jsonNode) -> JsonUtils.size(jsonNode));
 
-    public boolean isErrorOnResponseSizeTooLarge() {
-        return maxResultSetSizeB > 0;
-    }
+        memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(warnResultSetSizeB, (current, threshold, doc) -> {
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
+        }));
 
-    public boolean isWarnOnResponseSizeLarge() {
-        return warnResultSetSizeB > 0;
-    }
-
-    public boolean isCheckResponseSize() {
-        return isErrorOnResponseSizeTooLarge() || isWarnOnResponseSizeLarge();
+        memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(maxResultSetSizeB, (current, threshold, doc) -> {
+            // empty data
+            // returning incomplete result set could be useful, but also confusing and thus dangerous
+            // the counts - matchCount, modifiedCount - are unmodified
+            setEntityData(JsonNodeFactory.instance.arrayNode());
+            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B");
+        }));
     }
 
     /**
@@ -127,7 +124,9 @@ public class Response extends BaseResponse  {
     public void addEntityData(JsonNode doc) {
         if(doc!=null) {
 
-            enforceResponseSizeLimits(doc);
+            if (memoryMonitor != null) {
+                memoryMonitor.apply(doc);
+            }
 
             if(entityData==null) {
                 entityData=JsonNodeFactory.instance.arrayNode();
@@ -140,33 +139,6 @@ public class Response extends BaseResponse  {
                 ((ArrayNode)entityData).add(doc);
             }
         }
-    }
-
-    /**
-     * Ensures that the response is not larger than maxResultSetSizeB to protect Lightblue from running out of memory when building large result sets.
-     *
-     * This method is used to checks only the data part of the response. TODO: check dataErrors as well, as they include entire docs.
-     *
-     * @param entityDataJson json being added to the response
-     */
-    private void enforceResponseSizeLimits(JsonNode entityDataJson) {
-
-        if (isCheckResponseSize()) {
-            responseDataSizeB += JsonUtils.size(entityDataJson);
-        }
-
-        if (isErrorOnResponseSizeTooLarge() && responseDataSizeB >= maxResultSetSizeB) {
-            // empty data
-            // returning incomplete result set could be useful, but also confusing and thus dangerous
-            // the counts - matchCount, modifiedCount - are unmodified
-            setEntityData(JsonNodeFactory.instance.arrayNode());
-
-            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, responseDataSizeB+"B > "+maxResultSetSizeB+"B");
-        } else if (isWarnOnResponseSizeLarge() && !warnThresholdBreached && responseDataSizeB >= warnResultSetSizeB) {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, responseDataSizeB);
-            warnThresholdBreached = true;
-        }
-
     }
 
     /**
@@ -201,6 +173,10 @@ public class Response extends BaseResponse  {
     }
 
     public int getResponseDataSizeB() {
-        return responseDataSizeB;
+        if (memoryMonitor != null) {
+            return memoryMonitor.getDataSizeB();
+        } else {
+            return 0;
+        }
     }
 }

@@ -136,7 +136,6 @@ public class Mediator {
                 if (!ctx.hasErrors() && ctx.hasInputDocumentsWithoutErrors()) {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     CRUDInsertionResponse ir=controller.insert(ctx, req.getReturnFields());
-                    ctx.getHookManager().setQueuedHooksSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     ctx.measure.begin("postProcessInsertedDocs");
                     response.setModifiedCount(ir.getNumInserted());
@@ -301,7 +300,6 @@ public class Mediator {
                         updateResponse.setNumMatched(0);
                     }
                 }
-                ctx.getHookManager().setQueuedHooksSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 ctx.measure.begin("postProcessUpdatedDocs");
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());                
@@ -373,7 +371,6 @@ public class Mediator {
                     }
                 }
 
-                ctx.getHookManager().setQueuedHooksSizeThresholds(factory.getMaxResultSetSizeB(), factory.getWarnResultSetSizeB(), req);
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 response.setModifiedCount(result == null ? 0 : result.getNumDeleted());
                 if (ctx.hasErrors()) {
