@@ -49,7 +49,8 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
     private boolean validateRequests = false;
     private int bulkParallelExecutions = 3;
     private int memoryIndexThreshold = 16;
-    private int maxResultSetSizeB = 50 * 1024 * 1024; // 50 MB
+    private int maxResultSetSizeForReadsB = 50 * 1024 * 1024; // 50 MB
+    private int maxResultSetSizeForWritesB = 50 * 1024 * 1024; // 50 MB
     private int warnResultSetSizeB = 10 * 1024 * 1024; // 10 MB
 
     public boolean isValidateRequests() {
@@ -138,14 +139,19 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
                 memoryIndexThreshold = x.intValue();
             }
 
-            x = node.get("maxResultSetSizeB");
+            x = node.get("maxResultSetSizeForReadsB");
             if (x != null) {
-                maxResultSetSizeB = x.intValue();
+                maxResultSetSizeForReadsB = x.intValue();
             }
 
             x = node.get("warnResultSetSizeB");
             if (x != null) {
                 warnResultSetSizeB = x.intValue();
+            }
+
+            x = node.get("maxResultSetSizeForWritesB");
+            if (x != null) {
+                maxResultSetSizeForWritesB = x.intValue();
             }
         }
     }
@@ -158,12 +164,12 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
         this.memoryIndexThreshold = memoryIndexThreshold;
     }
 
-    public int getMaxResultSetSizeB() {
-        return maxResultSetSizeB;
+    public int getMaxResultSetSizeForReadsB() {
+        return maxResultSetSizeForReadsB;
     }
 
-    public void setMaxResultSetSizeB(int maxResultSetSizeB) {
-        this.maxResultSetSizeB = maxResultSetSizeB;
+    public void setMaxResultSetSizeForReadsB(int maxResultSetSizeB) {
+        this.maxResultSetSizeForReadsB = maxResultSetSizeB;
     }
 
     public int getWarnResultSetSizeB() {
@@ -172,5 +178,13 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
 
     public void setWarnResultSetSizeB(int warnResultSetSizeB) {
         this.warnResultSetSizeB = warnResultSetSizeB;
+    }
+
+    public int getMaxResultSetSizeForWritesB() {
+        return maxResultSetSizeForWritesB;
+    }
+
+    public void setMaxResultSetSizeForWritesB(int maxResultSetSizeForWritesB) {
+        this.maxResultSetSizeForWritesB = maxResultSetSizeForWritesB;
     }
 }

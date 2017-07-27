@@ -177,7 +177,7 @@ public class BulkTest extends AbstractMediatorTest {
         Assert.assertEquals("Insert response should return 1262B of data", 1262, responseInsert.getResponseDataSizeB());
         Assert.assertEquals("Find response should return 12620B of data", 12620, responseFind.getResponseDataSizeB());
 
-        mediator.factory.setMaxResultSetSizeB(12630); // the limit is more than each request alone
+        mediator.factory.setMaxResultSetSizeForReadsB(12630); // the limit is more than each request alone
 
         bresp = mediator.bulkRequest(breq);
 

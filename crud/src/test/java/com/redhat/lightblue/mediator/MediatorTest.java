@@ -185,7 +185,6 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
-
     }
 
     @Test
@@ -419,17 +418,17 @@ public class MediatorTest extends AbstractMediatorTest {
         };
 
         mediator.factory.setWarnResultSetSizeB(600);
-        mediator.factory.setMaxResultSetSizeB(-1);
+        mediator.factory.setMaxResultSetSizeForReadsB(-1);
         Response response = mediator.find(req); // no max result set size
         Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
         Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
 
-        mediator.factory.setMaxResultSetSizeB(12000);
+        mediator.factory.setMaxResultSetSizeForReadsB(12000);
         response = mediator.find(req); // max result set size set, but response below threshold
         Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
         Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
 
-        mediator.factory.setMaxResultSetSizeB(11000);
+        mediator.factory.setMaxResultSetSizeForReadsB(11000);
         response = mediator.find(req); // max result set size exceeded
         Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
         Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
@@ -456,7 +455,7 @@ public class MediatorTest extends AbstractMediatorTest {
         };
 
 
-        mediator.factory.setMaxResultSetSizeB(11000);
+        mediator.factory.setMaxResultSetSizeForWritesB(11000);
         Response response = mediator.update(req); // max result set size exceeded
         Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
         Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
