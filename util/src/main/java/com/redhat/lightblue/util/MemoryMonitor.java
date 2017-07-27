@@ -29,12 +29,12 @@ public class MemoryMonitor<T> {
 
         boolean fired = false;
 
-        final ThresholdExceededCallback<T> event;
+        final ThresholdExceededCallback<T> callback;
 
-        public ThresholdMonitor(int thresholdB, ThresholdExceededCallback<T> event) {
+        public ThresholdMonitor(int thresholdB, ThresholdExceededCallback<T> callback) {
             super();
             this.thresholdB = thresholdB;
-            this.event = event;
+            this.callback = callback;
         }
 
     }
@@ -45,6 +45,13 @@ public class MemoryMonitor<T> {
 
     private List<ThresholdMonitor<T>> monitors = new ArrayList<>();
 
+    /**
+     * Adds a monitor with a callback which fires when specified threshold is exceeded. The callback will fire only once.
+     *
+     * Monitors/callbacks are processed in order they were registered. If a callback throws a RuntimeException, processing stops.
+     *
+     * @param m
+     */
     public void registerMonitor(ThresholdMonitor<T> m) {
         if (m.thresholdB > 0) {
             this.monitors.add(m);
@@ -55,7 +62,7 @@ public class MemoryMonitor<T> {
         for (ThresholdMonitor<T> m: monitors) {
             if (dataSizeB > m.thresholdB && !m.fired) {
                 m.fired = true;
-                m.event.fire(dataSizeB, m.thresholdB, obj);
+                m.callback.fire(dataSizeB, m.thresholdB, obj);
             }
         }
     }
