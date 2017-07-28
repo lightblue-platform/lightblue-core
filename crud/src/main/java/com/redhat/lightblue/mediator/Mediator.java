@@ -834,11 +834,9 @@ public class Mediator {
         if(docStream!=null) {
             List<ResultMetadata> rmd=new ArrayList<>();
 
-            if (ctx.getHookManager().isHookQueueEmpty()) {
-                // ensure response size only if hooks didn't fire
-                // otherwise result stream is read during hook queuing and this is where those checks take place
-                response.setResultSizeThresholds(factory.getMaxResultSetSizeForWritesB(), factory.getWarnResultSetSizeB(), (Request)requestWithRange);
-            }
+            // this is somewhat redundant, as update memory limits are enforced in mongo controller
+            // but we want to have the response size in case this is a bulk request and we will aggregate response sizes
+            response.setResultSizeThresholds(factory.getMaxResultSetSizeForWritesB(), factory.getWarnResultSetSizeB(), (Request)requestWithRange);
 
             for(;docStream.hasNext();) {
                 DocCtx doc=docStream.next();
