@@ -67,9 +67,14 @@ public class MemoryMonitor<T> {
         }
     }
 
-    public MemoryMonitor(SizeCalculator<T> sizeCalculator) {
+    public MemoryMonitor(SizeCalculator<T> sizeCalculator, int intialDataSizeB) {
         super();
         this.sizeCalculator = sizeCalculator;
+        this.dataSizeB = intialDataSizeB;
+    }
+
+    public MemoryMonitor(SizeCalculator<T> sizeCalculator) {
+        this(sizeCalculator, 0);
     }
 
     /**

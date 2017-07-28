@@ -315,14 +315,14 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                     JsonUtils.size(doc.getUpdatedDocument().getRoot()));  // post copy
         }
 
-        hooks.setQueuedHooksSizeThresholds(expectedSizeB+10, 1, null);
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB+10, 1, null, 0);
 
         // queue hooks (process entire stream of results)
         hooks.queueHooks(ctx);
 
         Assert.assertEquals(expectedSizeB, hooks.getQueuedHooksSizeB());
 
-        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null);
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null, 0);
 
         try {
             hooks.queueHooks(ctx);
@@ -346,14 +346,14 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                     JsonUtils.size(doc.getRoot())); // post copy
         }
 
-        hooks.setQueuedHooksSizeThresholds(-1, 1, null);
+        hooks.setQueuedHooksSizeThresholds(-1, 1, null, 0);
 
         // queue hooks (process entire stream of results)
         hooks.queueHooks(ctx);
 
         Assert.assertEquals(expectedSizeB, hooks.getQueuedHooksSizeB());
 
-        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null);
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null, 0);
 
         try {
             hooks.queueHooks(ctx);
@@ -377,14 +377,14 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                     JsonUtils.size(doc.getRoot())); // pre copy
         }
 
-        hooks.setQueuedHooksSizeThresholds(-1, 1, null);
+        hooks.setQueuedHooksSizeThresholds(-1, 1, null, 0);
 
         // queue hooks (process entire stream of results)
         hooks.queueHooks(ctx);
 
         Assert.assertEquals(expectedSizeB, hooks.getQueuedHooksSizeB());
 
-        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null);
+        hooks.setQueuedHooksSizeThresholds(expectedSizeB-10, 1, null, 0);
 
         try {
             hooks.queueHooks(ctx);
