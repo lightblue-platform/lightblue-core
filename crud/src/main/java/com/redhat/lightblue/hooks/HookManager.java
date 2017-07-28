@@ -88,13 +88,14 @@ public class HookManager {
     public void setQueuedHooksSizeThresholds(int maxQueuedHooksSizeB, int warnQueuedHooksSizeB, final QueryExpression query, int initialDataSizeB) {
         this.monitor = new MemoryMonitor<>((node) -> JsonUtils.size(node), initialDataSizeB);
 
+        this.monitor.registerMonitor(new ThresholdMonitor<>(maxQueuedHooksSizeB, (current, threshold, node) -> {
+            throw Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B (during hook processing)");
+        }));
+
         this.monitor.registerMonitor(new ThresholdMonitor<>(warnQueuedHooksSizeB, (current, threshold, node) -> {
             LOGGER.warn("crud:ResultSizeIsLarge: query={}, queuedHooksSizeB={}", query, current);
         }));
 
-        this.monitor.registerMonitor(new ThresholdMonitor<>(maxQueuedHooksSizeB, (current, threshold, node) -> {
-            throw Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B (during hook processing)");
-        }));
     }
 
     private static final class HookDocInfo {

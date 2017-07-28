@@ -39,15 +39,16 @@ public class BulkExecutionContext {
 
         this.memoryMonitor = new MemoryMonitor<>((response) -> response.getResponseDataSizeB());
 
-        memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(warnResultSetSizeB, (current, threshold, response) -> {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
-        }));
-
         memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(maxResultSetSizeB, (current, threshold, response) -> {
             // remove data
             response.setEntityData(JsonNodeFactory.instance.arrayNode());
             response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B"));
         }));
+
+        memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(warnResultSetSizeB, (current, threshold, response) -> {
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
+        }));
+
     }
 
     /**
