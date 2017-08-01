@@ -20,17 +20,17 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>2.10.0-SNAPSHOT</version>
+        <version>2.10.0</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
-    <version>2.10.0-SNAPSHOT</version><artifactId>lightblue-core-query-api</artifactId>
+    <version>2.10.0</version><artifactId>lightblue-core-query-api</artifactId>
     <packaging>jar</packaging>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-util</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <version>2.10.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
