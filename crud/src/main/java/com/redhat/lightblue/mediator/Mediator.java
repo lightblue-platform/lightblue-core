@@ -510,9 +510,11 @@ public class Mediator {
          } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);
+            response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
             LOGGER.debug("Exception during find:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
+            response.setStatus(OperationStatus.ERROR);
         } finally {
             if(ctx!=null) {
                 ctx.measure.end("find");

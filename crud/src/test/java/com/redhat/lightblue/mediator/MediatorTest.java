@@ -397,6 +397,23 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(1,response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_DATASOURCE_TIMEOUT,response.getErrors().get(0).getErrorCode());
     }
+    
+    
+    @Test
+    public void queryDisabledMetadataVersionError() throws Exception {
+        
+        mdManager.md.setStatus(MetadataStatus.DISABLED);
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        
+        mdManager.md.getAccess().getFind().setRoles("anyone");
+        mockCrudController.findResponse = new CRUDFindResponse();
+        
+        Response response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(1,response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_DISABLED_METADATA,response.getErrors().get(0).getErrorCode());
+    }
 
     @Test
     public void findResultSetTooLargeTest() throws Exception {
@@ -420,16 +437,19 @@ public class MediatorTest extends AbstractMediatorTest {
         mediator.factory.setWarnResultSetSizeB(600);
         mediator.factory.setMaxResultSetSizeForReadsB(-1);
         Response response = mediator.find(req); // no max result set size
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
         Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
 
         mediator.factory.setMaxResultSetSizeForReadsB(12000);
         response = mediator.find(req); // max result set size set, but response below threshold
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
         Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
 
         mediator.factory.setMaxResultSetSizeForReadsB(11000);
         response = mediator.find(req); // max result set size exceeded
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
         Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
         Assert.assertEquals("crud:ResultSizeTooLarge", response.getErrors().get(0).getErrorCode());
@@ -457,6 +477,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mediator.factory.setMaxResultSetSizeForWritesB(11000);
         Response response = mediator.update(req); // max result set size exceeded
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
         Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
         Assert.assertEquals("crud:ResultSizeTooLarge", response.getErrors().get(0).getErrorCode());
