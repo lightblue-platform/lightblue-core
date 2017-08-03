@@ -400,7 +400,7 @@ public class MediatorTest extends AbstractMediatorTest {
     
     
     @Test
-    public void queryDisabledMetadataVersionError() throws Exception {
+    public void findEntityWithDisabledMetadataVersionReturnsStatusFieldTest() throws Exception {
         
         mdManager.md.setStatus(MetadataStatus.DISABLED);
         FindRequest req = new FindRequest();
