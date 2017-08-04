@@ -89,6 +89,7 @@ public class Response extends BaseResponse  {
             // returning incomplete result set could be useful, but also confusing and thus dangerous
             // the counts - matchCount, modifiedCount - are unmodified
             setEntityData(JsonNodeFactory.instance.arrayNode());
+            setStatus(OperationStatus.ERROR);
             throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B");
         }));
 

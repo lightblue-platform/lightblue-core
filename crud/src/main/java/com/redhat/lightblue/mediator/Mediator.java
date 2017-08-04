@@ -479,6 +479,7 @@ public class Mediator {
         Error.push("find(" + req.getEntityVersion().toString() + ")");        
         OperationContext ctx=null;
         Response response=new Response();
+        response.setStatus(OperationStatus.ERROR);
         try {
             ctx = newCtx(req, CRUDOperation.FIND);
             ctx.measure.begin("find");
