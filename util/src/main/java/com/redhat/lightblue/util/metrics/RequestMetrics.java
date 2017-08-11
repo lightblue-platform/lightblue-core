@@ -31,7 +31,7 @@ public interface RequestMetrics {
 
     Context startLockRequest(String lockOperation, String domain);
 
-    Context startBulkRequest(String bulkOperation);
+    Context startBulkRequest(String bulkOperation, String entity, String version);
 
     interface Context {
         

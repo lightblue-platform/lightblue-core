@@ -79,6 +79,7 @@ import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.metrics.RequestMetrics;
 import com.redhat.lightblue.util.stopwatch.StopWatch;
 
 /**
@@ -115,7 +116,13 @@ public class Mediator {
      * implementation can perform further validations.
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response insert(InsertionRequest req) {
+    public Response insert(InsertionRequest req, RequestMetrics metrics, boolean isBulkRequest) {
+        RequestMetrics.Context metricCtx;
+        if (isBulkRequest) {
+            metricCtx = metrics.startBulkRequest("insert", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        } else {
+            metricCtx = metrics.startEntityRequest("insert", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        }
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -161,13 +168,16 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             if(ctx!=null) {
+                metricCtx.endRequestMonitoring();
                 ctx.measure.end("insert");
                 METRICS.debug("insert: {}",ctx.measure);
             }
@@ -189,7 +199,13 @@ public class Mediator {
      *
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response save(SaveRequest req) {
+    public Response save(SaveRequest req, RequestMetrics metrics, boolean isBulkRequest) {
+        RequestMetrics.Context metricCtx;
+        if (isBulkRequest) {
+            metricCtx = metrics.startBulkRequest("save", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        } else {
+            metricCtx = metrics.startEntityRequest("save", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        }
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -235,13 +251,16 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             if(ctx!=null) {
+                metricCtx.endRequestMonitoring();
                 ctx.measure.end("save");
                 METRICS.debug("save: {}",ctx.measure);
             }
@@ -264,7 +283,13 @@ public class Mediator {
      * the documents that pass those validations.
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response update(UpdateRequest req) {
+    public Response update(UpdateRequest req, RequestMetrics metrics, boolean isBulkRequest) {
+        RequestMetrics.Context metricCtx;
+        if (isBulkRequest) {
+            metricCtx = metrics.startBulkRequest("update", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        } else {
+            metricCtx = metrics.startEntityRequest("update", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        }
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -322,13 +347,16 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
              if(ctx!=null) {
+                metricCtx.endRequestMonitoring();
                 ctx.measure.end("update");
                 METRICS.debug("update: {}",ctx.measure);
             }
@@ -338,7 +366,13 @@ public class Mediator {
     }
 
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response delete(DeleteRequest req) {
+    public Response delete(DeleteRequest req, RequestMetrics metrics, boolean isBulkRequest) {
+        RequestMetrics.Context metricCtx;
+        if (isBulkRequest) {
+            metricCtx = metrics.startBulkRequest("delete", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        } else {
+            metricCtx = metrics.startEntityRequest("delete", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        }
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -385,13 +419,16 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
+            metricCtx.markRequestException(e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             if(ctx!=null) {
+                metricCtx.endRequestMonitoring();
                 ctx.measure.end("delete");
                 METRICS.debug("delete: {}",ctx.measure);
             }
@@ -474,7 +511,11 @@ public class Mediator {
      * The implementation passes the request to the back-end.
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response find(FindRequest req) {
+    public Response find(FindRequest req, RequestMetrics metrics, boolean isBulkRequest) {
+        RequestMetrics.Context metricCtx = null;
+        if (isBulkRequest) {
+            metricCtx = metrics.startBulkRequest("find", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        }
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");        
         OperationContext ctx=null;
@@ -509,12 +550,21 @@ public class Mediator {
                 response.setMatchCount(r.matchCount == null ? 0 : r.matchCount);
             }
          } catch (Error e) {
+            if(metricCtx!=null) {
+               metricCtx.markRequestException(e);
+            }
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
+            if(metricCtx!=null) {
+                metricCtx.markRequestException(e);
+             }
             LOGGER.debug("Exception during find:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
+            if(metricCtx!=null) {
+                metricCtx.endRequestMonitoring();
+             }
             if(ctx!=null) {
                 ctx.measure.end("find");
                 METRICS.debug("find: {}",ctx.measure);
@@ -600,7 +650,8 @@ public class Mediator {
      * back-end specifics
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator")
-    public Response explain(FindRequest req) {
+    public Response explain(FindRequest req, RequestMetrics metrics) {
+        RequestMetrics.Context metricCtx = metrics.startEntityRequest("explain", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
         LOGGER.debug("explain {}", req.getEntityVersion());
         Error.push("explain(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -638,12 +689,15 @@ public class Mediator {
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
         } catch (Error e) {
+            metricCtx.markRequestException(e);
             LOGGER.debug("Error during explain:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
+            metricCtx.markRequestException(e);
             LOGGER.debug("Exception during explain:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
+            metricCtx.endRequestMonitoring();
             Error.pop();
         }
         return response;        
@@ -662,22 +716,22 @@ public class Mediator {
         }
     }
 
-    protected Callable<Response> getFutureRequest(final Request req) {
+    protected Callable<Response> getFutureRequest(final Request req, RequestMetrics metrics) {
         return new Callable<Response>() {
             @Override
             public Response call() {
                 LOGGER.debug("Starting a future {} request",req.getOperation());
                 switch (req.getOperation()) {
                     case FIND:
-                        return find((FindRequest) req);
+                        return find((FindRequest) req, metrics, true);
                     case INSERT:
-                        return insert((InsertionRequest) req);
+                        return insert((InsertionRequest) req, metrics, true);
                     case DELETE:
-                        return delete((DeleteRequest) req);
+                        return delete((DeleteRequest) req, metrics, true);
                     case UPDATE:
-                        return update((UpdateRequest) req);
+                        return update((UpdateRequest) req, metrics, true);
                     case SAVE:
-                        return save((SaveRequest) req);
+                        return save((SaveRequest) req, metrics, true);
                     default:
                         throw new UnsupportedOperationException("CRUD operation '"+req.getOperation()+"' is not supported!");
                 }
@@ -685,7 +739,7 @@ public class Mediator {
         };
     }
 
-    public BulkResponse bulkRequest(BulkRequest requests) {
+    public BulkResponse bulkRequest(BulkRequest requests, RequestMetrics metrics) {
         LOGGER.debug("Bulk request start");
         Error.push("bulk operation");
         ExecutorService executor = Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
@@ -701,28 +755,28 @@ public class Mediator {
                 if (requests.isOrdered()) {
                     // ordered - only consecutive finds in parallel
                     if (req.getOperation() == CRUDOperation.FIND) {
-                        ctx.futures[i] = executor.submit(getFutureRequest(req));
+                        ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                     } else {
                         wait(ctx);
                         switch (req.getOperation()) {
                             case INSERT:
-                                ctx.setResponseAt(i, insert((InsertionRequest) req));
+                                ctx.setResponseAt(i, insert((InsertionRequest) req, metrics, true));
                                 break;
                             case DELETE:
-                                ctx.setResponseAt(i, delete((DeleteRequest) req));
+                                ctx.setResponseAt(i, delete((DeleteRequest) req, metrics, true));
                                 break;
                             case UPDATE:
-                                ctx.setResponseAt(i, update((UpdateRequest) req));
+                                ctx.setResponseAt(i, update((UpdateRequest) req, metrics, true));
                                 break;
                             case SAVE:
-                                ctx.setResponseAt(i, save((SaveRequest) req));
+                                ctx.setResponseAt(i, save((SaveRequest) req, metrics, true));
                                 break;
                         }
                     }
                 } else {
                     LOGGER.debug("Scheduling a future operation");
                     // unordered - do them all in parallel
-                    ctx.futures[i] = executor.submit(getFutureRequest(req));
+                    ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                 }
             }
 

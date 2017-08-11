@@ -17,7 +17,7 @@ public class NoopRequestMetrics implements RequestMetrics {
     }
 
     @Override
-    public Context startBulkRequest(String bulkOperation) {
+    public Context startBulkRequest(String bulkOperation, String entity, String version) {
         return NOOP_CONTEXT;
     }
 

@@ -77,8 +77,8 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     }
 
     @Override
-    public Context startBulkRequest(String bulkOperation) {
-        return new DropwizardContext(name(API, bulkOperation));
+    public Context startBulkRequest(String bulkOperation, String entity, String version) {
+        return new DropwizardContext(name(API, "bulk", bulkOperation, entity, version));
     }
 
     public class DropwizardContext implements Context {
