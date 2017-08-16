@@ -73,20 +73,20 @@ public class BulkTest extends AbstractMediatorTest {
         }
 
         @Override
-        public Response find(FindRequest req, RequestMetrics metrics, boolean isBulkRequest) {
+        public Response find(FindRequest req, RequestMetrics metrics) {
             if (findCb != null) {
                 return findCb.call(req);
             } else {
-                return super.find(req, metrics, isBulkRequest);
+                return super.find(req, metrics);
             }
         }
 
         @Override
-        public Response insert(InsertionRequest req, RequestMetrics metrics, boolean isBulkRequest) {
+        public Response insert(InsertionRequest req, RequestMetrics metrics) {
             if (insertCb != null) {
                 return insertCb.call(req);
             } else {
-                return super.insert(req, metrics, isBulkRequest);
+                return super.insert(req, metrics);
             }
         }
     }

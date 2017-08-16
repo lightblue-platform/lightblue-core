@@ -221,7 +221,7 @@ public class SavedSearchCache {
         LOGGER.debug("Searching {}",q);
         findRequest.setQuery(q);
         findRequest.setProjection(FieldProjection.ALL);
-        Response response=m.find(findRequest, metrics, false);
+        Response response=m.find(findRequest, metrics);
         if(response.getErrors()!=null&&!response.getErrors().isEmpty())
             throw new RetrievalError(response.getErrors());
         LOGGER.debug("Found {}",response.getEntityData());

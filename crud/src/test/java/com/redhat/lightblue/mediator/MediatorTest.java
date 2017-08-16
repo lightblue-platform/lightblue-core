@@ -67,7 +67,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setReturnFields(null);
 
         mdManager.md.getAccess().getInsert().setRoles("role1");
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(CrudConstants.ERR_DISABLED_METADATA, response.getErrors().get(0).getErrorCode());
@@ -83,7 +83,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         mockCrudController.insertResponse.setNumInserted(1);
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
@@ -108,7 +108,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.insertCb=ctx->{ctx.getInputDocuments().get(0).setResultMetadata(getRmd("1"));};
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         mockCrudController.insertResponse.setNumInserted(1);
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1,response.getResultMetadata().size());
@@ -129,7 +129,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         mockCrudController.insertResponse.setNumInserted(1);
 
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
@@ -152,7 +152,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         mockCrudController.insertResponse.setNumInserted(1);
 
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
         // there should be no errors
         // Response should return the entity name:version
         Assert.assertEquals("terms",response.getEntity().getEntity());
@@ -169,7 +169,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.insertResponse.setNumInserted(1);
 
         mdManager.md.getAccess().getInsert().setRoles("role1");
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
@@ -179,7 +179,7 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
 
         mdManager.md.getAccess().getInsert().setRoles("anyone");
-        response = mediator.insert(req, new NoopRequestMetrics(), false);
+        response = mediator.insert(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
@@ -199,7 +199,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getInsert().setRoles("role1");
         mdManager.md.getAccess().getUpdate().setRoles("role1");
-        Response response = mediator.save(req, new NoopRequestMetrics(), false);
+        Response response = mediator.save(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
@@ -210,7 +210,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getInsert().setRoles("anyone");
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
-        response = mediator.save(req, new NoopRequestMetrics(), false);
+        response = mediator.save(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
@@ -232,7 +232,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getInsert().setRoles("anyone");
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
-        Response response = mediator.save(req, new NoopRequestMetrics(), false);
+        Response response = mediator.save(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
@@ -248,7 +248,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getUpdate().setRoles("role1");
         mockCrudController.updateResponse = new CRUDUpdateResponse();
-        Response response = mediator.update(req, new NoopRequestMetrics(), false);
+        Response response = mediator.update(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
@@ -260,7 +260,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
         mockCrudController.updateResponse.setNumUpdated(1);
         mockCrudController.updateResponse.setNumMatched(1);
-        response = mediator.update(req, new NoopRequestMetrics(), false);
+        response = mediator.update(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
         Assert.assertEquals(1, response.getMatchCount());
@@ -277,11 +277,11 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test-update")));
 
         mockCrudController.updateResponse = new CRUDUpdateResponse();
-        Response response = mediator.update(req, new NoopRequestMetrics(), false);
+        Response response = mediator.update(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
 
         req.setQuery(new ValueComparisonExpression(new Path("field2"), BinaryComparisonOperator._eq, new Value("x")));
-        response = mediator.update(req, new NoopRequestMetrics(), false);
+        response = mediator.update(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
     }
 
@@ -292,7 +292,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getDelete().setRoles("role1");
         mockCrudController.deleteResponse = new CRUDDeleteResponse();
-        Response response = mediator.delete(req, new NoopRequestMetrics(), false);
+        Response response = mediator.delete(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
@@ -303,7 +303,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getDelete().setRoles("anyone");
         mockCrudController.deleteResponse.setNumDeleted(1);
-        response = mediator.delete(req, new NoopRequestMetrics(), false);
+        response = mediator.delete(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
         Assert.assertEquals(0, response.getMatchCount());
@@ -322,11 +322,11 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test-delete")));
 
         mockCrudController.deleteResponse = new CRUDDeleteResponse();
-        Response response = mediator.delete(req, new NoopRequestMetrics(), false);
+        Response response = mediator.delete(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
 
         req.setQuery(new ValueComparisonExpression(new Path("field2"), BinaryComparisonOperator._eq, new Value("x")));
-        response = mediator.delete(req, new NoopRequestMetrics(), false);
+        response = mediator.delete(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
     }
 
@@ -338,7 +338,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mdManager.md.getAccess().getFind().setRoles("role1");
         mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
         mockCrudController.findResponse = new CRUDFindResponse();
-        Response response = mediator.find(req, new NoopRequestMetrics(), false);
+        Response response = mediator.find(req, new NoopRequestMetrics());
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
@@ -349,7 +349,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getFind().setRoles("anyone");
         mockCrudController.findResponse.setSize(0);
-        response = mediator.find(req, new NoopRequestMetrics(), false);
+        response = mediator.find(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
         Assert.assertEquals(0, response.getMatchCount());
@@ -374,7 +374,7 @@ public class MediatorTest extends AbstractMediatorTest {
                 docs.add(new DocCtx(new JsonDoc(JsonNodeFactory.instance.objectNode()),getRmd(Integer.toString(i))));
             ctx.setDocumentStream(new ListDocumentStream(docs));
         };
-        Response response = mediator.find(req, new NoopRequestMetrics(), false);
+        Response response = mediator.find(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
         Assert.assertEquals(10, response.getMatchCount());
@@ -393,7 +393,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.findCb=ctx->{
             ctx.addError(Error.get(CrudConstants.ERR_DATASOURCE_TIMEOUT,"timeout"));
         };
-        Response response = mediator.find(req, new NoopRequestMetrics(), false);
+        Response response = mediator.find(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(1,response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_DATASOURCE_TIMEOUT,response.getErrors().get(0).getErrorCode());
@@ -410,7 +410,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mdManager.md.getAccess().getFind().setRoles("anyone");
         mockCrudController.findResponse = new CRUDFindResponse();
         
-        Response response = mediator.find(req, new NoopRequestMetrics(), false);
+        Response response = mediator.find(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(1,response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_DISABLED_METADATA,response.getErrors().get(0).getErrorCode());
@@ -437,19 +437,19 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mediator.factory.setWarnResultSetSizeB(600);
         mediator.factory.setMaxResultSetSizeForReadsB(-1);
-        Response response = mediator.find(req, new NoopRequestMetrics(), false); // no max result set size
+        Response response = mediator.find(req, new NoopRequestMetrics()); // no max result set size
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
         Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
 
         mediator.factory.setMaxResultSetSizeForReadsB(12000);
-        response = mediator.find(req, new NoopRequestMetrics(), false); // max result set size set, but response below threshold
+        response = mediator.find(req, new NoopRequestMetrics()); // max result set size set, but response below threshold
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 11290B", 11290, JsonUtils.size(response.getEntityData()));
         Assert.assertTrue("Expecting no errors in response", response.getErrors().isEmpty());
 
         mediator.factory.setMaxResultSetSizeForReadsB(11000);
-        response = mediator.find(req, new NoopRequestMetrics(), false); // max result set size exceeded
+        response = mediator.find(req, new NoopRequestMetrics()); // max result set size exceeded
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
         Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
@@ -477,7 +477,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
 
         mediator.factory.setMaxResultSetSizeForWritesB(11000);
-        Response response = mediator.update(req, new NoopRequestMetrics(), false); // max result set size exceeded
+        Response response = mediator.update(req, new NoopRequestMetrics()); // max result set size exceeded
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals("Expecting entity data size = 0", 0, JsonUtils.size(response.getEntityData()));
         Assert.assertEquals("Expecting one error in response", 1, response.getErrors().size());
@@ -495,11 +495,11 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mockCrudController.findResponse = new CRUDFindResponse();
         mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
-        Response response = mediator.find(req, new NoopRequestMetrics(), false);
+        Response response = mediator.find(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
 
         req.setQuery(new ValueComparisonExpression(new Path("field2"), BinaryComparisonOperator._eq, new Value("x")));
-        response = mediator.find(req, new NoopRequestMetrics(), false);
+        response = mediator.find(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
     }
 
@@ -511,7 +511,7 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mockCrudController.findResponse = new CRUDFindResponse();
         mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
-        Response response = mediator.find(req, new NoopRequestMetrics(), false);
+        Response response = mediator.find(req, new NoopRequestMetrics());
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
     }
 
@@ -524,7 +524,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./userdata.json"));
         req.setReturnFields(new FieldProjection(new Path("*"), true, true));
         mockCrudController.insertResponse = new CRUDInsertionResponse();
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
         System.out.println(response.getDataErrors());
         JsonDoc doc = mockCrudController.ctx.getInputDocuments().get(0);
         Assert.assertEquals(0, response.getErrors().size());
@@ -562,7 +562,7 @@ public class MediatorTest extends AbstractMediatorTest {
         String today = docNode.get("today").asText();
         String id = docNode.get("_id").asText();
 
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
         JsonDoc doc = mockCrudController.ctx.getInputDocuments().get(0);
         System.out.println(doc);
 
@@ -579,7 +579,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./userdata.json"));
         req.setReturnFields(null);
         mockCrudController.insertResponse = new CRUDInsertionResponse();
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
         System.out.println(response.getDataErrors());
         Assert.assertEquals(0, response.getErrors().size());
         Assert.assertEquals(0, response.getDataErrors().size());
@@ -594,7 +594,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./termsdata.json"));
         req.setReturnFields(null);
         mockCrudController.insertResponse = new CRUDInsertionResponse();
-        Response response = mediator.insert(req, new NoopRequestMetrics(), false);
+        Response response = mediator.insert(req, new NoopRequestMetrics());
         System.out.println(response.getDataErrors());
         System.out.println(response.getErrors());
         Assert.assertEquals(0, response.getErrors().size());
@@ -610,7 +610,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setEntityData(loadJsonNode("./termsdata.json"));
         req.setReturnFields(null);
         mockCrudController.saveResponse = new CRUDSaveResponse();
-        Response response = mediator.save(req, new NoopRequestMetrics(), false);
+        Response response = mediator.save(req, new NoopRequestMetrics());
         System.out.println(response.getDataErrors());
         System.out.println(response.getErrors());
         Assert.assertEquals(0, response.getErrors().size());

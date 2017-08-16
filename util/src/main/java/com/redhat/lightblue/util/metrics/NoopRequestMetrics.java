@@ -21,6 +21,16 @@ public class NoopRequestMetrics implements RequestMetrics {
         return NOOP_CONTEXT;
     }
 
+    @Override
+    public void setBulkRequest(boolean bulkRequest) {
+        
+    }
+
+    @Override
+    public boolean isBulkRequest() {
+        return false;
+    }
+    
     private static class NoopContext implements Context {
         @Override
         public void endRequestMonitoring() {

@@ -38,6 +38,16 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     private static final String API = "api";
 
     private final MetricRegistry metricsRegistry;
+    
+    private boolean isBulkRequest = false;
+
+    public boolean isBulkRequest() {
+        return isBulkRequest;
+    }
+
+    public void setBulkRequest(boolean isBulkRequest) {
+        this.isBulkRequest = isBulkRequest;
+    }
 
     public DropwizardRequestMetrics(MetricRegistry metricRegistry) {
         metricsRegistry = metricRegistry;
