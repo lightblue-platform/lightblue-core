@@ -82,6 +82,11 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     }
 
     @Override
+    public Context startStreamingEntityRequest(String operation, String entity, String version) {
+        return new DropwizardContext(name(API, "stream", operation, entity, version));
+    }
+    
+    @Override
     public Context startLockRequest(String lockOperation, String domain) {
         return new DropwizardContext(name(API, "lock", domain, lockOperation));
     }

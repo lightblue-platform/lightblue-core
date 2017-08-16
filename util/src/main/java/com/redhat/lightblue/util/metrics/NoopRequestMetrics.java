@@ -12,6 +12,11 @@ public class NoopRequestMetrics implements RequestMetrics {
     }
 
     @Override
+    public Context startStreamingEntityRequest(String operation, String entity, String version) {
+        return NOOP_CONTEXT;
+    }
+    
+    @Override
     public Context startLockRequest(String lockOperation, String domain) {
         return NOOP_CONTEXT;
     }

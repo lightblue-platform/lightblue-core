@@ -28,6 +28,8 @@ public interface RequestMetrics {
      * be used by one and only one thread concurrently.
      */
     Context startEntityRequest(String operation, String entity, String version);
+    
+    Context startStreamingEntityRequest(String operation, String entity, String version);
 
     Context startLockRequest(String lockOperation, String domain);
 

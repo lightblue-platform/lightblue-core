@@ -512,9 +512,11 @@ public class Mediator {
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
     public Response find(FindRequest req, RequestMetrics metrics) {
-        RequestMetrics.Context metricCtx = null;
+        RequestMetrics.Context metricCtx;
         if (metrics.isBulkRequest()) {
             metricCtx = metrics.startBulkRequest("find", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+        } else {
+            metricCtx = metrics.startEntityRequest("find", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
         }
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");        
@@ -550,15 +552,11 @@ public class Mediator {
                 response.setMatchCount(r.matchCount == null ? 0 : r.matchCount);
             }
          } catch (Error e) {
-            if(metricCtx!=null) {
-               metricCtx.markRequestException(e);
-            }
+            metricCtx.markRequestException(e);
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-             }
+            metricCtx.markRequestException(e);
             LOGGER.debug("Exception during find:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
@@ -567,9 +565,7 @@ public class Mediator {
                 METRICS.debug("find: {}",ctx.measure);
             }
             Error.pop();
-            if(metricCtx!=null) {
-                metricCtx.endRequestMonitoring();
-            }            
+            metricCtx.endRequestMonitoring();
         }
         
         return response;
