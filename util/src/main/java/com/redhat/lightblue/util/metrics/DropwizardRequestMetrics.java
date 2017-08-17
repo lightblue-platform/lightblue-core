@@ -18,18 +18,17 @@
  */
 package com.redhat.lightblue.util.metrics;
 
-import static com.codahale.metrics.MetricRegistry.name;
-
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Objects;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.MetricRegistry;
+import static com.codahale.metrics.MetricRegistry.name;
 
 public class DropwizardRequestMetrics implements RequestMetrics {
     
@@ -94,6 +93,16 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     @Override
     public Context startBulkRequest(String bulkOperation, String entity, String version) {
         return new DropwizardContext(name(API, "bulk", bulkOperation, entity, version));
+    }
+
+    @Override
+    public Context startHealthRequest(String operation) {
+        return new DropwizardContext(name(API, operation));
+    }
+
+    @Override
+    public Context startDiagnosticsRequest(String operation) {
+        return new DropwizardContext(name(API, operation));
     }
 
     public class DropwizardContext implements Context {
