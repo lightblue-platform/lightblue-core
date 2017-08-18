@@ -1,7 +1,5 @@
 package com.redhat.lightblue.util.metrics;
 
-import com.redhat.lightblue.util.metrics.RequestMetrics;
-
 public class NoopRequestMetrics implements RequestMetrics {
 
     private static final NoopContext NOOP_CONTEXT = new NoopContext();
@@ -18,6 +16,16 @@ public class NoopRequestMetrics implements RequestMetrics {
     
     @Override
     public Context startLockRequest(String lockOperation, String domain) {
+        return NOOP_CONTEXT;
+    }
+
+    @Override
+    public Context startDiagnosticsRequest() {
+        return NOOP_CONTEXT;
+    }
+
+    @Override
+    public Context startHealthRequest() {
         return NOOP_CONTEXT;
     }
 

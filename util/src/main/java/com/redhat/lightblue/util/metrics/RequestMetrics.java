@@ -33,6 +33,10 @@ public interface RequestMetrics {
 
     Context startLockRequest(String lockOperation, String domain);
 
+    Context startDiagnosticsRequest();
+
+    Context startHealthRequest();
+
     Context startBulkRequest();
 
     interface Context {
