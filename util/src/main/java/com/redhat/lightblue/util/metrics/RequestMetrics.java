@@ -33,11 +33,7 @@ public interface RequestMetrics {
 
     Context startLockRequest(String lockOperation, String domain);
 
-    Context startBulkRequest(String bulkOperation, String entity, String version);
-    
-    void setBulkRequest(boolean bulkRequest);
-    
-    boolean isBulkRequest();
+    Context startBulkRequest();
 
     interface Context {
         
