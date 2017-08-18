@@ -18,49 +18,41 @@
  */
 package com.redhat.lightblue.savedsearch;
 
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
-import com.redhat.lightblue.Request;
-import com.redhat.lightblue.Response;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.EntityVersion;
-
+import com.redhat.lightblue.Response;
 import com.redhat.lightblue.config.SavedSearchConfiguration;
-
-import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.CrudConstants;
-
+import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.mediator.Mediator;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
-
-import com.redhat.lightblue.query.*;
-
+import com.redhat.lightblue.query.ArrayContainsExpression;
+import com.redhat.lightblue.query.BinaryComparisonOperator;
+import com.redhat.lightblue.query.ContainsOperator;
+import com.redhat.lightblue.query.FieldProjection;
+import com.redhat.lightblue.query.NaryLogicalExpression;
+import com.redhat.lightblue.query.NaryLogicalOperator;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
-import com.redhat.lightblue.util.metrics.MetricRegistryFactory;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
-import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * This class is the main access point to saved searches. It loads
@@ -86,9 +78,6 @@ public class SavedSearchCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(SavedSearchCache.class);
 
     public static final String ERR_SAVED_SEARCH="crud:saved-search";
-    
-    private static final RequestMetrics metrics =
-            new DropwizardRequestMetrics(MetricRegistryFactory.getMetricRegistry());
 
     Cache<Key,ObjectNode> cache;
 
@@ -221,7 +210,7 @@ public class SavedSearchCache {
         LOGGER.debug("Searching {}",q);
         findRequest.setQuery(q);
         findRequest.setProjection(FieldProjection.ALL);
-        Response response=m.find(findRequest, metrics);
+        Response response=m.find(findRequest);
         if(response.getErrors()!=null&&!response.getErrors().isEmpty())
             throw new RetrievalError(response.getErrors());
         LOGGER.debug("Found {}",response.getEntityData());

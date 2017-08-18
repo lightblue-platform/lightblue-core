@@ -63,6 +63,8 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
+import com.redhat.lightblue.util.metrics.RequestMetrics;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 
 public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
@@ -94,9 +96,8 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
     private static final class TestMediator extends Mediator {
         OperationContext ctx;
 
-        public TestMediator(Metadata md,
-                            Factory factory) {
-            super(md, factory);
+        public TestMediator(Metadata md, Factory factory, RequestMetrics metrics) {
+            super(md, factory, metrics);
         }
 
         @Override
@@ -173,7 +174,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
         factory.addCRUDController("mongo", new TestCrudController());
-        mediator = new TestMediator(new TestMetadata(), factory);
+        mediator = new TestMediator(new TestMetadata(), factory, new NoopRequestMetrics());
     }
 
     @Test
