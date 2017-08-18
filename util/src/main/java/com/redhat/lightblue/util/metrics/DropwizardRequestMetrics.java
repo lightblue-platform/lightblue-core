@@ -94,17 +94,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     public Context startBulkRequest() {
         return new DropwizardContext(name(API, "bulk"));
     }
-
-    @Override
-    public Context startHealthRequest(String operation) {
-        return new DropwizardContext(name(API, operation));
-    }
-
-    @Override
-    public Context startDiagnosticsRequest(String operation) {
-        return new DropwizardContext(name(API, operation));
-    }
-
+    
     public class DropwizardContext implements Context {
         
         private final String metricNamespace;
