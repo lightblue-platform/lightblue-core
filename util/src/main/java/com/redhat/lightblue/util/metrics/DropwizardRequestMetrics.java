@@ -118,6 +118,13 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
 
         @Override
+        public void markRequestException(Exception e, String errorCode) {
+        	System.out.println(errorNamespace(metricNamespace, e));
+        	System.out.println(name(errorNamespace(metricNamespace, e), errorCode));
+            metricsRegistry.meter(name(errorNamespace(metricNamespace, e), errorCode)).mark();
+        }
+        
+        @Override
         public void endRequestMonitoringWithException(Exception e) {
             endRequestMonitoring();
             markRequestException(e);

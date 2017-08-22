@@ -59,7 +59,6 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
 
 /**
  * Manager class that creates instances of Mediator, Factory, Metadata, etc.
@@ -116,10 +115,10 @@ public final class LightblueFactory implements Serializable {
         }
     }
 
-    private synchronized void initializeMediator(RequestMetrics metrics)
+    private synchronized void initializeMediator()
             throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator == null) {
-            mediator = new Mediator(getMetadata(), getFactory(), metrics);
+            mediator = new Mediator(getMetadata(), getFactory());
         }
     }
     
@@ -346,10 +345,10 @@ public final class LightblueFactory implements Serializable {
         return factory;
     }
 
-    public Mediator getMediator(RequestMetrics metrics)
+    public Mediator getMediator()
             throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator == null) {
-            initializeMediator(metrics);
+            initializeMediator();
         }
 
         return mediator;

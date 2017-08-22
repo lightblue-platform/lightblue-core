@@ -40,6 +40,8 @@ public interface RequestMetrics {
         void endRequestMonitoring();
         
         void markRequestException(Exception e);
+        
+        void markRequestException(Exception e, String errorCode);
 
         void endRequestMonitoringWithException(Exception e);
 

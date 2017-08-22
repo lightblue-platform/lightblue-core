@@ -38,6 +38,11 @@ public class NoopRequestMetrics implements RequestMetrics {
         }
 
         @Override
+        public void markRequestException(Exception e, String errorCode) {
+
+        }
+        
+        @Override
         public void endRequestMonitoringWithException(Exception e) {
     
         }

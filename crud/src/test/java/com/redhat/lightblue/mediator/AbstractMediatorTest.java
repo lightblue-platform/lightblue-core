@@ -121,8 +121,8 @@ public abstract class AbstractMediatorTest extends AbstractJsonSchemaTest {
         return md;
     }
 
-    protected Mediator newMediator(Metadata md, Factory f, RequestMetrics metrics) {
-        return new Mediator(md, f, metrics);
+    protected Mediator newMediator(Metadata md, Factory f) {
+        return new Mediator(md, f);
     }
 
     @Before
@@ -135,6 +135,6 @@ public abstract class AbstractMediatorTest extends AbstractJsonSchemaTest {
         new GeneratedFieldInterceptor().register(factory.getInterceptors());
         factory.addCRUDController("mongo", mockCrudController);
         mdManager.md = getMd("./testMetadata.json");
-        mediator = newMediator(mdManager, factory, new NoopRequestMetrics());
+        mediator = newMediator(mdManager, factory);
     }
 }

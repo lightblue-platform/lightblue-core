@@ -23,7 +23,6 @@ import com.redhat.lightblue.mediator.Mediator;
 import org.junit.Assert;
 import org.junit.Test;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
-import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
 
 /**
  *
@@ -43,7 +42,7 @@ public class LightblueFactoryTest {
         DataSourcesConfiguration ds = new DataSourcesConfiguration();
         LightblueFactory mgr = new LightblueFactory(new DataSourcesConfiguration());
 
-        Mediator m = mgr.getMediator(new NoopRequestMetrics());
+        Mediator m = mgr.getMediator();
         Assert.assertNotNull(m);
     }
 }

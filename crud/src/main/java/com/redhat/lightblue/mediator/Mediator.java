@@ -99,12 +99,10 @@ public class Mediator {
 
     public final Metadata metadata;
     public final Factory factory;
-    public final RequestMetrics metrics;
    
-    public Mediator(Metadata md, Factory factory, RequestMetrics metrics) {
+    public Mediator(Metadata md, Factory factory) {
         this.metadata = md;
         this.factory = factory;
-        this.metrics = metrics;
     }    
     /**
      * Inserts data
@@ -116,8 +114,7 @@ public class Mediator {
      * implementation can perform further validations.
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response insert(InsertionRequest req) {
-        RequestMetrics.Context metricCtx = null;
+    public Response insert(InsertionRequest req, RequestMetrics.Context metricCtx) {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -127,7 +124,6 @@ public class Mediator {
             ctx.measure.begin("insert");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
-            metricCtx = metrics.startEntityRequest("insert", md.getName(), md.getVersion().getValue());
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "insert " + ctx.getTopLevelEntityName()));
@@ -164,26 +160,19 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
-            if(metricCtx!=null) {
-                metricCtx.endRequestMonitoring();
-            }
             if(ctx!=null) {
                 ctx.measure.end("insert");
                 METRICS.debug("insert: {}",ctx.measure);
             }
             Error.pop();
+            markRequestErrors(response.getErrors(), metricCtx);
+            metricCtx.endRequestMonitoring();
         }
         return response;
     }
@@ -201,8 +190,7 @@ public class Mediator {
      *
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response save(SaveRequest req) {
-        RequestMetrics.Context metricCtx = null;        
+    public Response save(SaveRequest req, RequestMetrics.Context metricCtx) {        
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -212,7 +200,6 @@ public class Mediator {
             ctx.measure.begin("save");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
-            metricCtx = metrics.startEntityRequest("save", md.getName(), md.getVersion().getValue());
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -249,26 +236,19 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
-            if(metricCtx!=null) {
-                metricCtx.endRequestMonitoring();
-            }
             if(ctx!=null) {
                 ctx.measure.end("save");
                 METRICS.debug("save: {}",ctx.measure);
             }
             Error.pop();
+            markRequestErrors(response.getErrors(), metricCtx);
+            metricCtx.endRequestMonitoring();
         }
         return response;
     }
@@ -287,8 +267,7 @@ public class Mediator {
      * the documents that pass those validations.
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response update(UpdateRequest req) {
-        RequestMetrics.Context metricCtx = null;
+    public Response update(UpdateRequest req, RequestMetrics.Context metricCtx) {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -298,7 +277,6 @@ public class Mediator {
             ctx.measure.begin("update");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
-            metricCtx = metrics.startEntityRequest("update", md.getName(), md.getVersion().getValue());
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "update " + ctx.getTopLevelEntityName()));
@@ -347,33 +325,25 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
-            if(metricCtx!=null) {
-                metricCtx.endRequestMonitoring();
-            }
              if(ctx!=null) {
                 ctx.measure.end("update");
                 METRICS.debug("update: {}",ctx.measure);
             }
            Error.pop();
+           markRequestErrors(response.getErrors(), metricCtx);
+           metricCtx.endRequestMonitoring();           
         }
         return response;
     }
 
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response delete(DeleteRequest req) {
-        RequestMetrics.Context metricCtx = null;
+    public Response delete(DeleteRequest req, RequestMetrics.Context metricCtx) {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -383,7 +353,6 @@ public class Mediator {
             ctx.measure.begin("delete");
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
-            metricCtx = metrics.startEntityRequest("delete", md.getName(), md.getVersion().getValue());
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "delete " + ctx.getTopLevelEntityName()));
@@ -421,26 +390,19 @@ public class Mediator {
                 ctx.getHookManager().callQueuedHooks();
             }
         } catch (Error e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
-            if(metricCtx!=null) {
-                metricCtx.endRequestMonitoring();
-            }
             if(ctx!=null) {
                 ctx.measure.end("delete");
                 METRICS.debug("delete: {}",ctx.measure);
             }
             Error.pop();
+            markRequestErrors(response.getErrors(), metricCtx);
+            metricCtx.endRequestMonitoring();            
         }
         return response;
     }
@@ -519,8 +481,7 @@ public class Mediator {
      * The implementation passes the request to the back-end.
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator", sizeCalculatorClass = "com.redhat.lightblue.mediator.ResponsePayloadSizeCalculator")
-    public Response find(FindRequest req) {
-        RequestMetrics.Context metricCtx = null;        
+    public Response find(FindRequest req, RequestMetrics.Context metricCtx) {
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");        
         OperationContext ctx=null;
@@ -530,9 +491,8 @@ public class Mediator {
             ctx = newCtx(req, CRUDOperation.FIND);
             ctx.measure.begin("find");
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
-            metricCtx = metrics.startEntityRequest("find", md.getName(), md.getVersion().getValue());
             
-            StreamingResponse r=_findAndStream(req,ctx);
+            StreamingResponse r=_findAndStream(req, ctx, metricCtx);
             
             response = new Response(r);
             if(response.getErrors()==null||response.getErrors().isEmpty()) {
@@ -557,48 +517,40 @@ public class Mediator {
                 response.setMatchCount(r.matchCount == null ? 0 : r.matchCount);
             }
          } catch (Error e) {
-             if(metricCtx!=null) {
-                 metricCtx.markRequestException(e);
-             }
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             LOGGER.debug("Exception during find:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
-            if(metricCtx!=null) {
-                metricCtx.endRequestMonitoring();
-            }
             if(ctx!=null) {
                 ctx.measure.end("find");
                 METRICS.debug("find: {}",ctx.measure);
             }
             Error.pop();
+            markRequestErrors(response.getErrors(), metricCtx);
+            metricCtx.endRequestMonitoring();            
         }
         
         return response;
     }
 
-    public StreamingResponse findAndStream(FindRequest req) {
+    public StreamingResponse findAndStream(FindRequest req, RequestMetrics.Context metricCtx) {
         LOGGER.debug("findAndStream {}", req.getEntityVersion());
         Error.push("findAndStream(" + req.getEntityVersion().toString() + ")");        
         OperationContext ctx=null;
+        StreamingResponse response=new StreamingResponse();
         try {
             ctx = newCtx(req, CRUDOperation.FIND);
             ctx.setComputeCounts(false);
             ctx.measure.begin("find");
-            return _findAndStream(req,ctx);
+            return _findAndStream(req,ctx,metricCtx);
         } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
-            StreamingResponse response=new StreamingResponse();
             response.getErrors().add(e);
             return response;
         } catch (Exception e) {
             LOGGER.debug("Exception during find:{}", e);
-            StreamingResponse response=new StreamingResponse();
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             return response;
         } finally {
@@ -607,10 +559,12 @@ public class Mediator {
                 METRICS.debug("find: {}",ctx.measure);
             }
             Error.pop();
+            markRequestErrors(response.getErrors(), metricCtx);
+            metricCtx.endRequestMonitoring();              
         }
     }
 
-    private StreamingResponse _findAndStream(FindRequest req,OperationContext ctx) {
+    private StreamingResponse _findAndStream(FindRequest req, OperationContext ctx, RequestMetrics.Context metricCtx) {
         StreamingResponse response = new StreamingResponse(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
         response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
@@ -657,8 +611,7 @@ public class Mediator {
      * back-end specifics
      */
     @StopWatch(loggerName = "stopwatch.com.redhat.lightblue.mediator.Mediator")
-    public Response explain(FindRequest req) {
-        RequestMetrics.Context metricCtx = null;
+    public Response explain(FindRequest req, RequestMetrics.Context metricCtx) {
         LOGGER.debug("explain {}", req.getEntityVersion());
         Error.push("explain(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
@@ -667,7 +620,6 @@ public class Mediator {
             OperationContext ctx = newCtx(req, CRUDOperation.FIND);
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
-            metricCtx = metrics.startEntityRequest("explain", md.getName(), md.getVersion().getValue());
             Finder finder;
             if (ctx.isSimple()) {
                 LOGGER.debug("Simple entity");
@@ -697,22 +649,15 @@ public class Mediator {
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
         } catch (Error e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             LOGGER.debug("Error during explain:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
-            if(metricCtx!=null) {
-                metricCtx.markRequestException(e);
-            }
             LOGGER.debug("Exception during explain:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
-            if(metricCtx!=null) {
-                metricCtx.endRequestMonitoring();
-            }
             Error.pop();
+            markRequestErrors(response.getErrors(), metricCtx);
+            metricCtx.endRequestMonitoring();
         }
         return response;        
     }
@@ -730,22 +675,28 @@ public class Mediator {
         }
     }
 
-    protected Callable<Response> getFutureRequest(final Request req) {
+    protected Callable<Response> getFutureRequest(final Request req, RequestMetrics metrics) {
         return new Callable<Response>() {
             @Override
             public Response call() {
+            	RequestMetrics.Context requestCtx = null;
                 LOGGER.debug("Starting a future {} request",req.getOperation());
                 switch (req.getOperation()) {
                     case FIND:
-                        return find((FindRequest) req);
+                    	requestCtx = metrics.startEntityRequest("find", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                        return find((FindRequest) req, requestCtx);
                     case INSERT:
-                        return insert((InsertionRequest) req);
+                    	requestCtx = metrics.startEntityRequest("insert", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                        return insert((InsertionRequest) req, requestCtx);
                     case DELETE:
-                        return delete((DeleteRequest) req);
+                    	requestCtx = metrics.startEntityRequest("delete", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                        return delete((DeleteRequest) req, requestCtx);
                     case UPDATE:
-                        return update((UpdateRequest) req);
+                    	requestCtx = metrics.startEntityRequest("update", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                        return update((UpdateRequest) req, requestCtx);
                     case SAVE:
-                        return save((SaveRequest) req);
+                    	requestCtx = metrics.startEntityRequest("save", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                        return save((SaveRequest) req, requestCtx);
                     default:
                         throw new UnsupportedOperationException("CRUD operation '"+req.getOperation()+"' is not supported!");
                 }
@@ -753,11 +704,11 @@ public class Mediator {
         };
     }
 
-    public BulkResponse bulkRequest(BulkRequest requests) {
-        RequestMetrics.Context metricCtx = metrics.startBulkRequest();
+    public BulkResponse bulkRequest(BulkRequest requests, RequestMetrics.Context metricCtx, RequestMetrics metrics) {
         LOGGER.debug("Bulk request start");
         Error.push("bulk operation");
         ExecutorService executor = Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
+        RequestMetrics.Context requestCtx = null;
         try {
             LOGGER.debug("Executing up to {} requests in parallel, ordered = {}", factory.getBulkParallelExecutions(), requests.isOrdered());
             List<Request> requestList = requests.getEntries();
@@ -770,28 +721,32 @@ public class Mediator {
                 if (requests.isOrdered()) {
                     // ordered - only consecutive finds in parallel
                     if (req.getOperation() == CRUDOperation.FIND) {
-                        ctx.futures[i] = executor.submit(getFutureRequest(req));
+                        ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                     } else {
                         wait(ctx);
                         switch (req.getOperation()) {
                             case INSERT:
-                                ctx.setResponseAt(i, insert((InsertionRequest) req));
+                            	requestCtx = metrics.startEntityRequest("insert", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                                ctx.setResponseAt(i, insert((InsertionRequest) req, requestCtx));
                                 break;
                             case DELETE:
-                                ctx.setResponseAt(i, delete((DeleteRequest) req));
+                            	requestCtx = metrics.startEntityRequest("delete", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                                ctx.setResponseAt(i, delete((DeleteRequest) req, requestCtx));
                                 break;
                             case UPDATE:
-                                ctx.setResponseAt(i, update((UpdateRequest) req));
+                            	requestCtx = metrics.startEntityRequest("update", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                                ctx.setResponseAt(i, update((UpdateRequest) req, requestCtx));
                                 break;
                             case SAVE:
-                                ctx.setResponseAt(i, save((SaveRequest) req));
+                            	requestCtx = metrics.startEntityRequest("save", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                                ctx.setResponseAt(i, save((SaveRequest) req, requestCtx));
                                 break;
                         }
                     }
                 } else {
                     LOGGER.debug("Scheduling a future operation");
                     // unordered - do them all in parallel
-                    ctx.futures[i] = executor.submit(getFutureRequest(req));
+                    ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                 }
             }
 
@@ -928,4 +883,10 @@ public class Mediator {
         }
         return dataErrors;
     }
+    
+	private void markRequestErrors(List<Error> errors, RequestMetrics.Context metricCtx) {
+		for (Error e : errors) {
+			metricCtx.markRequestException(e, e.getErrorCode());
+		}
+	}
 }

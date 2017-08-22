@@ -53,6 +53,9 @@ import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
+import com.redhat.lightblue.util.metrics.MetricRegistryFactory;
+import com.redhat.lightblue.util.metrics.RequestMetrics;
 
 /**
  * This class is the main access point to saved searches. It loads
@@ -181,8 +184,9 @@ public class SavedSearchCache {
                                          ClientIdentification clid,
                                          String searchName,
                                          String entity,
-                                         String version) {
-        
+                                         String version,
+                                         RequestMetrics metrics) {
+    	RequestMetrics.Context metricCtx = metrics.startEntityRequest("find", savedSearchEntity, savedSearchVersion);
         FindRequest findRequest=new FindRequest();
         findRequest.setEntityVersion(new EntityVersion(savedSearchEntity,savedSearchVersion));
         findRequest.setClientId(clid);
@@ -210,7 +214,7 @@ public class SavedSearchCache {
         LOGGER.debug("Searching {}",q);
         findRequest.setQuery(q);
         findRequest.setProjection(FieldProjection.ALL);
-        Response response=m.find(findRequest);
+        Response response=m.find(findRequest, metricCtx);
         if(response.getErrors()!=null&&!response.getErrors().isEmpty())
             throw new RetrievalError(response.getErrors());
         LOGGER.debug("Found {}",response.getEntityData());
@@ -233,7 +237,8 @@ public class SavedSearchCache {
                                    ClientIdentification clid,
                                    String searchName,
                                    String entity,
-                                   String version) {
+                                   String version,
+                                   RequestMetrics metrics) {
         LOGGER.debug("Loading {}:{}:{}",searchName,entity,version);
         ObjectNode doc=null;
         String loadVersion;
@@ -257,7 +262,7 @@ public class SavedSearchCache {
         }
         if(doc==null) {
             LOGGER.debug("Loading {} from DB",searchName);
-            JsonNode node=getSavedSearchFromDB(m,clid,searchName,entity,loadVersion);
+            JsonNode node=getSavedSearchFromDB(m,clid,searchName,entity,loadVersion,metrics);
             if(node instanceof ObjectNode) {
                 LOGGER.debug("Loaded a single search");
                 doc=(ObjectNode)node;
