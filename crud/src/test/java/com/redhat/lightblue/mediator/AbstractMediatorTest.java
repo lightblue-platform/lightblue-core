@@ -39,8 +39,6 @@ import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
 import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
 import org.junit.Assert;
 import org.junit.Before;

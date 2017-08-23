@@ -18,44 +18,46 @@
  */
 package com.redhat.lightblue.savedsearch;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
+import java.util.List;
+import java.util.ArrayList;
+
 import java.util.concurrent.TimeUnit;
+
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.Response;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.EntityVersion;
-import com.redhat.lightblue.Response;
+
 import com.redhat.lightblue.config.SavedSearchConfiguration;
-import com.redhat.lightblue.crud.CrudConstants;
+
 import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.CrudConstants;
+
 import com.redhat.lightblue.mediator.Mediator;
+
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.query.ArrayContainsExpression;
-import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.query.ContainsOperator;
-import com.redhat.lightblue.query.FieldProjection;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.query.ValueComparisonExpression;
+
+import com.redhat.lightblue.query.*;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
-import com.redhat.lightblue.util.metrics.MetricRegistryFactory;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * This class is the main access point to saved searches. It loads
@@ -184,9 +186,8 @@ public class SavedSearchCache {
                                          ClientIdentification clid,
                                          String searchName,
                                          String entity,
-                                         String version,
-                                         RequestMetrics metrics) {
-    	RequestMetrics.Context metricCtx = metrics.startEntityRequest("find", savedSearchEntity, savedSearchVersion);
+                                         String version) {
+        
         FindRequest findRequest=new FindRequest();
         findRequest.setEntityVersion(new EntityVersion(savedSearchEntity,savedSearchVersion));
         findRequest.setClientId(clid);
@@ -214,7 +215,7 @@ public class SavedSearchCache {
         LOGGER.debug("Searching {}",q);
         findRequest.setQuery(q);
         findRequest.setProjection(FieldProjection.ALL);
-        Response response=m.find(findRequest, metricCtx);
+        Response response=m.find(findRequest);
         if(response.getErrors()!=null&&!response.getErrors().isEmpty())
             throw new RetrievalError(response.getErrors());
         LOGGER.debug("Found {}",response.getEntityData());
@@ -237,8 +238,7 @@ public class SavedSearchCache {
                                    ClientIdentification clid,
                                    String searchName,
                                    String entity,
-                                   String version,
-                                   RequestMetrics metrics) {
+                                   String version) {
         LOGGER.debug("Loading {}:{}:{}",searchName,entity,version);
         ObjectNode doc=null;
         String loadVersion;
@@ -262,7 +262,7 @@ public class SavedSearchCache {
         }
         if(doc==null) {
             LOGGER.debug("Loading {} from DB",searchName);
-            JsonNode node=getSavedSearchFromDB(m,clid,searchName,entity,loadVersion,metrics);
+            JsonNode node=getSavedSearchFromDB(m,clid,searchName,entity,loadVersion);
             if(node instanceof ObjectNode) {
                 LOGGER.debug("Loaded a single search");
                 doc=(ObjectNode)node;

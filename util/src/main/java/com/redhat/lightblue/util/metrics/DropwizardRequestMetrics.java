@@ -23,10 +23,12 @@ import static com.codahale.metrics.MetricRegistry.name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import com.redhat.lightblue.util.Error;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.MetricRegistry;
@@ -119,15 +121,15 @@ public class DropwizardRequestMetrics implements RequestMetrics {
 
         @Override
         public void markRequestException(Exception e, String errorCode) {
-        	System.out.println(errorNamespace(metricNamespace, e));
-        	System.out.println(name(errorNamespace(metricNamespace, e), errorCode));
             metricsRegistry.meter(name(errorNamespace(metricNamespace, e), errorCode)).mark();
         }
-        
+
         @Override
-        public void endRequestMonitoringWithException(Exception e) {
+        public void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors) {
+            for (Error e : errors) {
+               markRequestException(e, e.getErrorCode());
+             }
             endRequestMonitoring();
-            markRequestException(e);
         }
     }
 }

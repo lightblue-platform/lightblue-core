@@ -63,13 +63,10 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 
 public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
     private Mediator mediator;
-    private RequestMetrics metrics = new NoopRequestMetrics();
 
     private class TestMetadata extends DatabaseMetadata {
         @Override
@@ -97,7 +94,8 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
     private static final class TestMediator extends Mediator {
         OperationContext ctx;
 
-        public TestMediator(Metadata md, Factory factory) {
+        public TestMediator(Metadata md,
+                            Factory factory) {
             super(md, factory);
         }
 
@@ -181,7 +179,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
     @Test
     public void findNoneTest() throws Exception {
         SavedSearchCache cache=new SavedSearchCache(null);
-        Assert.assertNull(cache.getSavedSearch(mediator,null,"testSearch","test","1.0",metrics));
+        Assert.assertNull(cache.getSavedSearch(mediator,null,"testSearch","test","1.0"));
     }
 
     @Test
@@ -189,7 +187,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         SavedSearchCache cache=new SavedSearchCache(null);
         foundDocs=new ArrayList<JsonDoc>();
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","1.0.0"));
-        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0",metrics);
+        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0");
         Assert.assertTrue(doc instanceof ObjectNode);
     }
 
@@ -199,7 +197,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         SavedSearchCache cache=new SavedSearchCache(null);
         foundDocs=new ArrayList<JsonDoc>();
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}"));
-        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0",metrics);
+        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0");
         Assert.assertTrue(doc instanceof ObjectNode);
     }
 
@@ -210,7 +208,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         foundDocs=new ArrayList<JsonDoc>();
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}"));
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","1.0.0"));
-        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0",metrics);
+        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0");
         Assert.assertTrue(doc instanceof ObjectNode);
         Assert.assertEquals("1.0.0",doc.get("versions").get(0).asText());
     }
@@ -222,7 +220,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         foundDocs=new ArrayList<JsonDoc>();
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}"));
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","1.0"));
-        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0",metrics);
+        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0");
         Assert.assertTrue(doc instanceof ObjectNode);
         Assert.assertEquals("1.0",doc.get("versions").get(0).asText());
     }
@@ -234,7 +232,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         foundDocs=new ArrayList<JsonDoc>();
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}"));
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","1"));
-        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0",metrics);
+        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","1.0.0");
         Assert.assertTrue(doc instanceof ObjectNode);
         Assert.assertEquals("1",doc.get("versions").get(0).asText());
     }
@@ -246,7 +244,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         foundDocs=new ArrayList<JsonDoc>();
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","3"));
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","1"));
-        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","2.0.0",metrics);
+        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","2.0.0");
         Assert.assertNull(doc);
     }
 
@@ -258,7 +256,7 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","3"));
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}","1"));
         foundDocs.add(makeSearch("testSearch","test","{\"field\":\"a\",\"op\":\"=\",\"rvalue\":1}"));
-        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","2.0.0",metrics);
+        JsonNode doc=cache.getSavedSearch(mediator,null,"testSearch","test","2.0.0");
         Assert.assertEquals(0,doc.get("versions").size());
     }
 

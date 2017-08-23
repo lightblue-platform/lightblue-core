@@ -121,7 +121,7 @@ public final class LightblueFactory implements Serializable {
             mediator = new Mediator(getMetadata(), getFactory());
         }
     }
-    
+
     private synchronized void initializeCrudConfiguration()
         throws IOException {
         if(crudConfiguration==null) {
@@ -353,7 +353,7 @@ public final class LightblueFactory implements Serializable {
 
         return mediator;
     }
-    
+
     public CrudConfiguration getCrudConfiguration() throws IOException {
         if(crudConfiguration==null)
             initializeCrudConfiguration();

@@ -59,5 +59,5 @@ public class MetricRegistryFactory {
             initializeJMXReporting();
         }
         return METRIC_REGISTRY;
-	}
+    }
 }

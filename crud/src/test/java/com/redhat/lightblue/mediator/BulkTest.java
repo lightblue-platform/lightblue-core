@@ -55,7 +55,6 @@ public class BulkTest extends AbstractMediatorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkTest.class);
     private final RequestMetrics metrics = new NoopRequestMetrics();
-    private final RequestMetrics.Context metricCtx = metrics.startBulkRequest();
 
     public interface FindCb {
         Response call(FindRequest req);
@@ -75,20 +74,20 @@ public class BulkTest extends AbstractMediatorTest {
         }
 
         @Override
-        public Response find(FindRequest req, RequestMetrics.Context metricCtx) {
+        public Response find(FindRequest req) {
             if (findCb != null) {
                 return findCb.call(req);
             } else {
-                return super.find(req, metricCtx);
+                return super.find(req);
             }
         }
 
         @Override
-        public Response insert(InsertionRequest req, RequestMetrics.Context metricCtx) {
+        public Response insert(InsertionRequest req) {
             if (insertCb != null) {
                 return insertCb.call(req);
             } else {
-                return super.insert(req, metricCtx);
+                return super.insert(req);
             }
         }
     }
@@ -115,7 +114,7 @@ public class BulkTest extends AbstractMediatorTest {
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         mockCrudController.insertResponse.setNumInserted(1);
 
-        BulkResponse bresp = mediator.bulkRequest(breq, metricCtx, metrics);
+        BulkResponse bresp = mediator.bulkRequest(breq, metrics);
 
         Response response = bresp.getEntries().get(0);
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
@@ -172,7 +171,7 @@ public class BulkTest extends AbstractMediatorTest {
 
         mediator.factory.setWarnResultSetSizeB(10);
 
-        BulkResponse bresp = mediator.bulkRequest(breq, metricCtx, metrics);
+        BulkResponse bresp = mediator.bulkRequest(breq, metrics);
         Assert.assertEquals(2, breq.getEntries().size());
 
         Response responseInsert = bresp.getEntries().get(0);
@@ -183,7 +182,7 @@ public class BulkTest extends AbstractMediatorTest {
 
         mediator.factory.setMaxResultSetSizeForReadsB(12630); // the limit is more than each request alone
 
-        bresp = mediator.bulkRequest(breq, metricCtx, metrics);
+        bresp = mediator.bulkRequest(breq, metrics);
 
         responseInsert = bresp.getEntries().get(0);
         responseFind = bresp.getEntries().get(1);
@@ -341,7 +340,7 @@ public class BulkTest extends AbstractMediatorTest {
         validator.start();
 
         LOGGER.debug("Ordered exec");
-        BulkResponse bresp = mediator.bulkRequest(breq, metricCtx, metrics);
+        BulkResponse bresp = mediator.bulkRequest(breq, metrics);
         validator.join();
         LOGGER.debug("Ordered exec done");
 
@@ -402,7 +401,7 @@ public class BulkTest extends AbstractMediatorTest {
         };
         validator.start();
         LOGGER.debug("Unordered exec");
-        mediator.bulkRequest(breq, metricCtx, metrics);
+        mediator.bulkRequest(breq, metrics);
         validator.join();
         LOGGER.debug("Unordered exec done");
 
