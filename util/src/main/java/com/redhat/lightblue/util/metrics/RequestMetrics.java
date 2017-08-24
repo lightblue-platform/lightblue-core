@@ -21,31 +21,77 @@ package com.redhat.lightblue.util.metrics;
 import java.util.List;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Start timers and counters for each request. Use the returned context to
+ * complete the request and optionally mark errors if they occur.
+ * 
+ * Each request is monitored within a unique namespace, which is created
+ * by using the information available in each request. 
+ *
+ */
 public interface RequestMetrics {
-    /**
-     * Start timers and counters for the request. Use the returned context to
-     * complete the request and optionally mark errors if they occur.
-     *
-     * <p>
-     * The returned context itself is not completely thread safe, it is expected to
-     * be used by one and only one thread concurrently.
+
+    /** 
+     * Starts monitoring for a simple request. This will handle all LB  
+     * CRUD operations. 
      */
     Context startEntityRequest(String operation, String entity, String version);
-    
+
+    /** 
+     * Starts monitoring for a streaming request. This will handle all streaming LB 
+     * CRUD operations 
+     */
     Context startStreamingEntityRequest(String operation, String entity, String version);
 
+    /** 
+     * Starts monitoring for a locking request
+     *  
+     */
     Context startLockRequest(String lockOperation, String domain);
 
+    /** 
+     * Starts monitoring for a bulk request. Individual requests within the bulk requests
+     * are tracked using startEntityRequest(...) 
+     *  
+     */
     Context startBulkRequest();
 
+    /**
+     * Context information for a request. Context is created when monitoring starts for any request 
+     * and is further monitoring actions on that request are tracked using this context.
+     * 
+     * The returned context itself is not completely thread safe, it is expected to
+     * be used by one and only one thread concurrently.
+     * 
+     */
     interface Context {
         
+        /** 
+         * Ends request monitoring for all types of requests.
+         *  
+         */
         void endRequestMonitoring();
-        
+
+        /** 
+         * Mark request as exception and include exception type in metric namespace.
+         * Used for tracking all requests which resulted in that particular exception
+         *  
+         */
         void markRequestException(Exception e);
-        
+
+        /** 
+         * Mark request as exception with exception type and error message in 
+         * metric namespace. Creates more specific exception namespace based on 
+         * error messages within that exception type.
+         *  
+         */
         void markRequestException(Exception e, String message);
-        
+
+        /** 
+         * Mark all the individual errors within their own exception namespace
+         * and end monitoring for the request
+         *  
+         */
         void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors);
         
     }

@@ -112,7 +112,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
                 activeRequests.dec();
                 context.stop();
             } else {
-                LOGGER.warn("Request already ended");
+                LOGGER.warn("Request already ended for :: " + metricNamespace);
             }
         }
 
