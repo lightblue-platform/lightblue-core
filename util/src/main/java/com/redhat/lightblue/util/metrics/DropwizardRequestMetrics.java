@@ -40,6 +40,8 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     private static final String API = "api";
 
     private final MetricRegistry metricsRegistry;
+    
+    private final String REGEX = "[-@#!$%^&*()_+|~={}:;'<>?,\"\\s]";
 
     public DropwizardRequestMetrics(MetricRegistry metricRegistry) {
         metricsRegistry = metricRegistry;
@@ -120,8 +122,9 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
 
         @Override
-        public void markRequestException(Exception e, String errorCode) {
-            metricsRegistry.meter(name(errorNamespace(metricNamespace, e), errorCode)).mark();
+        public void markRequestException(Exception e, String message) {
+        	message = message.replaceAll(REGEX, ".");
+            metricsRegistry.meter(name(errorNamespace(metricNamespace, e), message)).mark();
         }
 
         @Override

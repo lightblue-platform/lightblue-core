@@ -668,31 +668,26 @@ public class Mediator {
             @Override
             public Response call() {
                 LOGGER.debug("Starting a future {} request",req.getOperation());
-                RequestMetrics.Context metricCtx = null;
                 Response resp = null;
+                RequestMetrics.Context metricCtx = metrics.startEntityRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                 switch (req.getOperation()) {
                     case FIND:
-                        metricCtx = metrics.startEntityRequest("find", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         resp = find((FindRequest) req);
                         metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                         return resp;
                     case INSERT:
-                        metricCtx = metrics.startEntityRequest("insert", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         resp = insert((InsertionRequest) req);
                         metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                         return resp;
                     case DELETE:
-                        metricCtx  = metrics.startEntityRequest("delete", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         resp = delete((DeleteRequest) req);
                         metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                         return resp; 
                     case UPDATE:
-                        metricCtx = metrics.startEntityRequest("update", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         resp = update((UpdateRequest) req);
                         metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                         return resp;
                     case SAVE:
-                        metricCtx = metrics.startEntityRequest("save", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         resp = save((SaveRequest) req);
                         metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                         return resp;
@@ -714,7 +709,6 @@ public class Mediator {
             BulkExecutionContext ctx = new BulkExecutionContext(n);
             ctx.setResultSizeThresholds(factory.getMaxResultSetSizeForReadsB(), factory.getWarnResultSetSizeB(), requests);
             for (int i = 0; i < n; i++) {
-            	RequestMetrics.Context metricCtx = null;
             	Response resp = null;
                 Request req = requestList.get(i);
                 if (requests.isOrdered()) {
@@ -723,32 +717,26 @@ public class Mediator {
                         ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                     } else {
                         wait(ctx);
+                        RequestMetrics.Context metricCtx = metrics.startEntityRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         switch (req.getOperation()) {
                             case INSERT:
-                            	metricCtx = metrics.startEntityRequest("insert", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                             	resp = insert((InsertionRequest) req);
-                                metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                                 ctx.setResponseAt(i, resp);
                                 break;
                             case DELETE:
-                                metricCtx = metrics.startEntityRequest("delete", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                                 resp = delete((DeleteRequest) req);
-                                metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                                 ctx.setResponseAt(i, resp);
                                 break;
                             case UPDATE:
-                                metricCtx = metrics.startEntityRequest("update", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                                 resp = update((UpdateRequest) req);
-                                metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
                                 ctx.setResponseAt(i, resp);
                                 break;
                             case SAVE:
-                                metricCtx = metrics.startEntityRequest("save", req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                                 resp = save((SaveRequest) req);
-                                metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());                                
                                 ctx.setResponseAt(i, resp);
                                 break;
                         }
+                        metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());  
                     }
                 } else {
                     LOGGER.debug("Scheduling a future operation");
