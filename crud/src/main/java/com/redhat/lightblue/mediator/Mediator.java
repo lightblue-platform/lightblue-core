@@ -673,27 +673,24 @@ public class Mediator {
                 switch (req.getOperation()) {
                     case FIND:
                         resp = find((FindRequest) req);
-                        metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
-                        return resp;
+                        break;
                     case INSERT:
                         resp = insert((InsertionRequest) req);
-                        metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
-                        return resp;
+                        break;
                     case DELETE:
                         resp = delete((DeleteRequest) req);
-                        metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
-                        return resp; 
+                        break;
                     case UPDATE:
                         resp = update((UpdateRequest) req);
-                        metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
-                        return resp;
+                        break;
                     case SAVE:
                         resp = save((SaveRequest) req);
-                        metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
-                        return resp;
+                        break;
                     default:
-                        throw new UnsupportedOperationException("CRUD operation '"+req.getOperation()+"' is not supported!");
+                        throw new UnsupportedOperationException("CRUD operation '" + req.getOperation() + "' is not supported!");
                 }
+                metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
+                return resp;                
             }
         };
     }

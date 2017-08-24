@@ -123,7 +123,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
 
         @Override
         public void markRequestException(Exception e, String message) {
-        	message = message.replaceAll(REGEX, ".");
+            message = message.replaceAll(REGEX, ".");
             metricsRegistry.meter(name(errorNamespace(metricNamespace, e), message)).mark();
         }
 
