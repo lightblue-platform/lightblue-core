@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.util.metrics;
 
+import java.util.List;
+import com.redhat.lightblue.util.Error;
+
 public interface RequestMetrics {
     /**
      * Start timers and counters for the request. Use the returned context to
@@ -44,8 +47,10 @@ public interface RequestMetrics {
         void endRequestMonitoring();
         
         void markRequestException(Exception e);
-
-        void endRequestMonitoringWithException(Exception e);
-
+        
+        void markRequestException(Exception e, String message);
+        
+        void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors);
+        
     }
 }

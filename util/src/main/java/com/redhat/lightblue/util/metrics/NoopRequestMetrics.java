@@ -1,5 +1,9 @@
 package com.redhat.lightblue.util.metrics;
 
+import com.redhat.lightblue.util.Error;
+
+import java.util.List;
+
 public class NoopRequestMetrics implements RequestMetrics {
 
     private static final NoopContext NOOP_CONTEXT = new NoopContext();
@@ -46,8 +50,13 @@ public class NoopRequestMetrics implements RequestMetrics {
         }
 
         @Override
-        public void endRequestMonitoringWithException(Exception e) {
-    
+        public void markRequestException(Exception e, String message) {
+
+        }
+
+        @Override
+        public void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors) {
+			
         }
     }
 }

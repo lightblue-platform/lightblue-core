@@ -67,7 +67,6 @@ import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
 import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.TestDataStoreParser;
@@ -232,7 +231,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
         fr.setProjection(projection("{'field':'*','recursive':1}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
     }
@@ -242,7 +241,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         FindRequest fr = new FindRequest();
         fr.setQuery(query("{'field':'base_images.*._id','op':'=','rvalue':'1'}"));
         fr.setEntityVersion(new EntityVersion("self_ref_err", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         assertTrue(response.getErrors().get(0).getErrorCode().equals(CrudConstants.ERR_METADATA_APPEARS_TWICE));
     }
 
@@ -251,13 +250,13 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         FindRequest fr = new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
         fr.setEntityVersion(new EntityVersion("self_ref", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         assertTrue(response.getErrors().isEmpty());
 
         fr = new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
         fr.setEntityVersion(new EntityVersion("self_ref_default", "1.0.0"));
-        response = mediator.find(fr, new NoopRequestMetrics());
+        response = mediator.find(fr);
         assertTrue(response.getErrors().isEmpty());
     }
 
@@ -267,7 +266,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
         QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
@@ -282,7 +281,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'obj1.c.*._id','op':'=','rvalue':'CDEEP2'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("ADEEP2", response.getEntityData().get(0).get("_id").asText());
     }
@@ -293,7 +292,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setEntityVersion(new EntityVersion("A_def", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
         QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
@@ -309,7 +308,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setSort(sort("{'_id':'$asc'}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(3, response.getEntityData().size());
         Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
         Assert.assertEquals(1, response.getEntityData().get(0).get("b").size());
@@ -325,7 +324,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'$in','values':['A01','A02','A03']}"));
         fr.setSort(sort("{'_id':'$asc'}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println("Null proj:" + response);
         Assert.assertEquals(3, response.getEntityData().size());
     }
@@ -337,10 +336,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setSort(sort("{'_id':'$asc'}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
 
         fr.setQuery(query("{'field':'objectType','op':'=','rvalue':'A'}"));
-        Response response2 = mediator.find(fr, new NoopRequestMetrics());
+        Response response2 = mediator.find(fr);
 
         Assert.assertEquals(response2.getEntityData().size(), response.getEntityData().size());
     }
@@ -352,7 +351,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'nonid_b'}]"));
         fr.setSort(sort("{'_id':'$asc'}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(2, response.getEntityData().size());
         Assert.assertEquals(2, response.getMatchCount());
         Assert.assertEquals("MANYB1", response.getEntityData().get(0).get("_id").asText());
@@ -370,7 +369,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setFrom(0l);
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("MANYB1", response.getEntityData().get(0).get("_id").asText());
         Assert.assertEquals(2, response.getEntityData().get(0).get("nonid_b").size());
@@ -385,7 +384,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setFrom(0l);
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(2, response.getMatchCount());
     }
@@ -396,7 +395,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'obj1.c.*.field1','op':'=','rvalue':'ABFPwrjyx-o5DQWWZmSEfKf3W1z'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("A09", response.getEntityData().get(0).get("_id").asText());
         System.out.println(response.getEntityData().get(0));
@@ -414,7 +413,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setFrom(0l);
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
     }
 
@@ -426,7 +425,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setFrom(0l);
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.explain(fr, new NoopRequestMetrics());
+        Response response = mediator.explain(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         JsonNode doc=response.getEntityData().get(0);
         // Make sure explain descends all the way to the  controller
@@ -439,7 +438,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'$and': [ {'field':'_id','op':'=','rvalue':'A09'}, {'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'} ] }"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("A09", response.getEntityData().get(0).get("_id").asText());
         QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
@@ -454,7 +453,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'ADEEP'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
@@ -468,7 +467,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
@@ -483,7 +482,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref','match':{'field':'field1','op':'=','rvalue':'nothing'}}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertNull(JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref")));
@@ -496,7 +495,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'A.*','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("jB", "1.0.1-SNAPSHOT"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(2, response.getEntityData().size());
     }
@@ -508,7 +507,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'A.*','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("jB", "1.0.1-SNAPSHOT"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(2, response.getEntityData().size());
         Assert.assertNull(JsonDoc.get(response.getEntityData().get(0), new Path("_id")));
@@ -520,7 +519,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'level1.arr1.*.ref.*.field1','op':'=','rvalue':'bdeep1'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
         Assert.assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
@@ -533,7 +532,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'level1.arr1', 'elemMatch': {'field':'ref.*.field1','op':'=','rvalue':'bdeep1'}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
         Assert.assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
@@ -546,7 +545,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'level1.arr1.*.ref', 'elemMatch': {'field':'field1','op':'=','rvalue':'bdeep1'}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
         Assert.assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
@@ -560,7 +559,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("{'field':'relationships.*','recursive':1}"));
         fr.setEntityVersion(new EntityVersion("parent_w_elem", "1.0.0"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -575,7 +574,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         fr.setFrom(0l);
         fr.setTo(-1l);
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(0, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -604,7 +603,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("{'field':'relationships.*','recursive':1}"));
         fr.setEntityVersion(new EntityVersion("parent_w_elem", "1.0.0"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("child1", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0._id")).asText());
         Assert.assertEquals("A", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.code1")).asText());
@@ -614,7 +613,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'code1','op':'=','rvalue':'A'}"));
         fr.setProjection(projection("[{'field':'relationships.*','recursive':1},{'field':'relationships.*.tree.*.child.ref'}]"));
         fr.setEntityVersion(new EntityVersion("parent_w_elem", "1.0.0"));
-        response = mediator.find(fr, new NoopRequestMetrics());
+        response = mediator.find(fr);
         System.out.println("Deep retrieval:" + response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("child1", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0._id")).asText());
@@ -629,7 +628,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity' }]"));
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("l1", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.name")).asText());
     }
@@ -641,7 +640,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity' }]"));
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
 
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals("l1", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.name")).asText());
         Assert.assertEquals("arr0", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.arr.0")).asText());
@@ -655,7 +654,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         urq.setUpdateExpression(update("{'$set':{'field1':1}}"));
         urq.setEntityVersion(new EntityVersion("A", "1.0.0"));
 
-        Response response = mediator.update(urq, new NoopRequestMetrics());
+        Response response = mediator.update(urq);
         Assert.assertNotNull(updateQuery);
         Assert.assertTrue(updateQuery instanceof ValueComparisonExpression);
     }
@@ -666,7 +665,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         drq.setQuery(query("{'array':'level1.arr1', 'elemMatch': {'field':'ref.*.field1','op':'=','rvalue':'bdeep1'}}"));
         drq.setEntityVersion(new EntityVersion("A", "1.0.0"));
 
-        Response response = mediator.delete(drq, new NoopRequestMetrics());
+        Response response = mediator.delete(drq);
         Assert.assertNotNull(updateQuery);
         Assert.assertTrue(updateQuery instanceof ValueComparisonExpression);
     }
@@ -686,7 +685,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'us.*.authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'us','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("L", "0.0.1"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(2, response.getEntityData().get(0).get("us").size());
@@ -698,7 +697,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'us.*.authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'us','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("L", "0.0.1"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
     }
@@ -711,7 +710,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("L", "0.0.1"));
         fr.setFrom(0l);
         fr.setTo(-1l);
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         Assert.assertEquals(1, response.getMatchCount());
         Assert.assertEquals(0, response.getEntityData().size());
     }
@@ -722,7 +721,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'userRedHatPrincipal','op':'=','rvalue':'a'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'users','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -736,7 +735,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
         fr.setFrom(0l);
         fr.setTo(-1l);
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(0, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -748,7 +747,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'users.*.legalEntities.*.emails','elemMatch':{'field':'address','op':'=','rvalue':'email@x.com'}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'users','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -762,7 +761,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
         fr.setFrom(0l);
         fr.setTo(-1l);
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(0, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -777,14 +776,14 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("L", "0.0.1"));
         findError = Error.get("NoAccess", "blah");
         errorEntity = "U";
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertTrue(response.getEntityData()==null||response.getEntityData().size()==0);
         Assert.assertEquals(1, response.getErrors().size());
 
         findError = Error.get("NoAccess", "blah");
         errorEntity = "L";
-        response = mediator.find(fr, new NoopRequestMetrics());
+        response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertTrue(response.getEntityData()==null||response.getEntityData().size()==0);
         Assert.assertEquals(1, response.getErrors().size());
@@ -797,7 +796,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'$and': [ {'array':'authentications','elemMatch':{'field':'providerName','op':'$nin','values':['x',null]}}, {'field':'_id','op':'$in','values':[1,2]}]}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
     }
@@ -808,7 +807,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'$and': [ {'field':'authentications.*.providerName','op':'$nin','values':['x',null]},{'field':'_id','op':'$in','values':[1,2]}]}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
     }
@@ -820,7 +819,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'$and': [ {'field':'_id','op':'$in','values':['A99','ADEEP']}, {'field':'level1.arr1.*.ref.*.field1','op':'=','rvalue':'bdeep1'} ] }"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("A_with_index", "1.0.0"));
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -835,7 +834,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A_with_index", "1.0.0"));
         fr.setFrom(0l);
         fr.setTo(-1l);
-        Response response = mediator.find(fr, new NoopRequestMetrics());
+        Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(0, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -847,7 +846,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'ref'}]"));
         fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(3,response.getEntityData().get(0).get("ref").size());
@@ -859,7 +858,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'2'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'ref'}]"));
         fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertNull(response.getEntityData().get(0).get("ref"));
@@ -871,7 +870,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'3'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'ref'}]"));
         fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertNull(response.getEntityData().get(0).get("ref"));
@@ -884,7 +883,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'obj1.c','elemMatch':{'field':'b.*.field1','op':'=','rvalue':'F, BLYO4OjLMAT aG.4qJ'}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -898,7 +897,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'obj1.c','elemMatch':{'field':'_id','op':'=','rvalue':'C50'}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c.*.b'}]"));
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -912,7 +911,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'obj1.c','elemMatch':{'field':'_id','op':'=','rvalue':'C50'}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c', 'match':{'field':'_id','op':'!=','rvalue':''},'projection':{'field':'b','match':{'field':'_id','op':'!=','rvalue':''},'projection':{'field':'field1'}}}]"));
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -927,7 +926,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'array':'obj1.c','elemMatch':{'$and':[{'field':'obj1.d.*.field1','regex':'lw'}]}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -942,7 +941,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
         fr.setFrom(0l);
         fr.setTo(-1l);
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(0, response.getEntityData().size());
         Assert.assertEquals(1, response.getMatchCount());
@@ -964,7 +963,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
                           "]}"));
         fr.setProjection(projection("[{'field':'*'},{'field':'refchild'}]"));
         fr.setEntityVersion(new EntityVersion("root_loop","1.0.0."));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(4,response.getMatchCount());
     }
@@ -987,7 +986,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
                           "]}"));
         fr.setProjection(projection("[{'field':'*'},{'field':'refchild'}]"));
         fr.setEntityVersion(new EntityVersion("root_loop","1.0.0."));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(5,response.getMatchCount());
     }
@@ -1008,7 +1007,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
                           "]}"));
         fr.setProjection(projection("[{'field':'*'},{'field':'refchild'}]"));
         fr.setEntityVersion(new EntityVersion("containerRepository","1.0.0."));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(3,response.getMatchCount());
     }
@@ -1031,7 +1030,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("containerRepository","1.0.0."));
         fr.setFrom(0l);
         fr.setTo(1l);
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(3,response.getMatchCount());
         Assert.assertEquals(2,response.getEntityData().size());
@@ -1043,7 +1042,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'!=','rvalue':''}"));
         fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'test_reference'}]"));
         fr.setEntityVersion(new EntityVersion("self_ref_array_contains","0.0.1-SNAPSHOT"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         // Every doc should have all the others in reference
         for(JsonNode doc:response.getEntityData()) {
@@ -1062,7 +1061,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'!=','rvalue':''}"));
         fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'test_reference'}]"));
         fr.setEntityVersion(new EntityVersion("self_ref_array_not_contains","0.0.1-SNAPSHOT"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         for(JsonNode doc:response.getEntityData()) {
             String id=doc.get("_id").asText();
@@ -1089,7 +1088,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'img1'}"));
         fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'vulnerabilities.*.packages.*.fixed_by_images.*'}]"));
         fr.setEntityVersion(new EntityVersion("containerImage-self","0.0.1"));
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertTrue(response.getEntityData().get(0).get("vulnerabilities").get(0).get("packages").get(0).get("fixed_by_images").size()==1);
@@ -1103,7 +1102,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':true},{'field':'repositories.*.repositories.*.vendors','recursive':true}]"));
         fr.setEntityVersion(new EntityVersion("containerImage","1.0.0"));
         fr.setTo(2l);
-        Response response=mediator.find(fr, new NoopRequestMetrics());
+        Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(3,response.getEntityData().size());
     }

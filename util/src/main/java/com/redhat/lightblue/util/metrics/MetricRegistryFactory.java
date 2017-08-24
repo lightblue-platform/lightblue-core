@@ -52,12 +52,12 @@ public class MetricRegistryFactory {
         jmxReporter.start();
     }
     
-    public static synchronized MetricRegistry getMetricRegistry() {
+    public static synchronized MetricRegistry getJmxMetricRegistry() {
         if (METRIC_REGISTRY == null) {
             METRIC_REGISTRY = new MetricRegistry();
             initializeJVMMetrics();
             initializeJMXReporting();
         }
         return METRIC_REGISTRY;
-	}
+    }
 }

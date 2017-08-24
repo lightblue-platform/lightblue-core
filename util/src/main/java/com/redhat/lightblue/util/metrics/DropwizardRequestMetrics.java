@@ -21,14 +21,17 @@ package com.redhat.lightblue.util.metrics;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.List;
 import java.util.Objects;
 
 import static com.codahale.metrics.MetricRegistry.name;
+
 
 public class DropwizardRequestMetrics implements RequestMetrics {
     
@@ -37,6 +40,8 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     private static final String API = "api";
 
     private final MetricRegistry metricsRegistry;
+    
+    private final String REGEX = "[-@#!$%^&*()_+|~={}:;'<>?,\"\\s]";
 
     public DropwizardRequestMetrics(MetricRegistry metricRegistry) {
         metricsRegistry = metricRegistry;
@@ -127,9 +132,17 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
 
         @Override
-        public void endRequestMonitoringWithException(Exception e) {
+        public void markRequestException(Exception e, String message) {
+            message = message.replaceAll(REGEX, ".");
+            metricsRegistry.meter(name(errorNamespace(metricNamespace, e), message)).mark();
+        }
+
+        @Override
+        public void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors) {
+            for (Error e : errors) {
+               markRequestException(e, e.getErrorCode());
+             }
             endRequestMonitoring();
-            markRequestException(e);
         }
     }
 }

@@ -57,9 +57,6 @@ import com.redhat.lightblue.query.*;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
-import com.redhat.lightblue.util.metrics.MetricRegistryFactory;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
@@ -86,9 +83,6 @@ public class SavedSearchCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(SavedSearchCache.class);
 
     public static final String ERR_SAVED_SEARCH="crud:saved-search";
-    
-    private static final RequestMetrics metrics =
-            new DropwizardRequestMetrics(MetricRegistryFactory.getMetricRegistry());
 
     Cache<Key,ObjectNode> cache;
 
@@ -221,7 +215,7 @@ public class SavedSearchCache {
         LOGGER.debug("Searching {}",q);
         findRequest.setQuery(q);
         findRequest.setProjection(FieldProjection.ALL);
-        Response response=m.find(findRequest, metrics);
+        Response response=m.find(findRequest);
         if(response.getErrors()!=null&&!response.getErrors().isEmpty())
             throw new RetrievalError(response.getErrors());
         LOGGER.debug("Found {}",response.getEntityData());
