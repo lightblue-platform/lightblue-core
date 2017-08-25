@@ -51,9 +51,9 @@ public class DropwizardRequestMetrics implements RequestMetrics {
      * Create exception namespace for metric reporting based on exception name
      * 
      */
-    private static String errorNamespace(String metricNamespace, Throwable exception) {
+    private static String errorNamespace(String metricNamespace, Throwable exception, String errorMessage) {
         Class<? extends Throwable> actualExceptionClass = unravelReflectionExceptions(exception);
-        return name(metricNamespace, "requests", "exception", actualExceptionClass.getSimpleName());
+        return name(metricNamespace, "requests", "exception", actualExceptionClass.getSimpleName(), errorMessage);
     }
 
     /**
@@ -117,20 +117,21 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
 
         @Override
-        public void markRequestException(Exception e) {
-            metricsRegistry.meter(errorNamespace(metricNamespace, e)).mark();
+        public void markRequestException(Error e) {
+            String errorCode = e.getErrorCode().replaceAll(REGEX, ".");
+            metricsRegistry.meter(errorNamespace(metricNamespace, e, errorCode)).mark();            
         }
-
+        
         @Override
-        public void markRequestException(Exception e, String message) {
-            message = message.replaceAll(REGEX, ".");
-            metricsRegistry.meter(name(errorNamespace(metricNamespace, e), message)).mark();
+        public void markRequestException(Exception e) {
+        	String errorMessage = e.getMessage().replaceAll(REGEX, ".");
+        	metricsRegistry.meter(errorNamespace(metricNamespace, e, errorMessage)).mark();
         }
 
         @Override
         public void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors) {
             for (Error e : errors) {
-               markRequestException(e, e.getErrorCode());
+               markRequestException(e);
              }
             endRequestMonitoring();
         }

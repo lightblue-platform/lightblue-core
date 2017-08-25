@@ -73,22 +73,21 @@ public interface RequestMetrics {
         void endRequestMonitoring();
 
         /** 
-         * Mark request as exception and include exception type in metric namespace.
-         * Used for tracking all requests which resulted in that particular exception
+         * Mark request as exception with error type and error code in 
+         * metric namespace. Use this to track cases where LB Error object is available.
+         *  
+         */
+        void markRequestException(Error e);
+        
+        /** 
+         * Mark request as exception with exception type and exception message in 
+         * metric namespace. Use this to track cases where LB Error object is not available
          *  
          */
         void markRequestException(Exception e);
-
+        
         /** 
-         * Mark request as exception with exception type and error message in 
-         * metric namespace. Creates more specific exception namespace based on 
-         * error messages within that exception type.
-         *  
-         */
-        void markRequestException(Exception e, String message);
-
-        /** 
-         * Mark all the individual errors within their own exception namespace
+         * Mark all the individual errors within their own error namespace
          * and end monitoring for the request
          *  
          */

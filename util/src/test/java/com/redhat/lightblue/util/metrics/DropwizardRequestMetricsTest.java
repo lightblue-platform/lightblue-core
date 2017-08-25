@@ -25,9 +25,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-
-import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
+import com.redhat.lightblue.util.Error;
 
 public class DropwizardRequestMetricsTest {
     // Use fresh registry for each test
@@ -64,9 +62,9 @@ public class DropwizardRequestMetricsTest {
     @Test
     public void testMarkRequestException() {
         DropwizardRequestMetrics.Context context = requestMetrics.startEntityRequest("insert", "name", "version");
-        context.markRequestException(new NullPointerException());
+        context.markRequestException(Error.get("errorCode"));
         
-        Meter exceptionMeter = metricsRegistry.meter("api.insert.name.version.requests.exception.NullPointerException");
+        Meter exceptionMeter = metricsRegistry.meter("api.insert.name.version.requests.exception.Error.errorCode");
         Assert.assertEquals(1, exceptionMeter.getCount());
     }
 }
