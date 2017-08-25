@@ -1,7 +1,5 @@
 package com.redhat.lightblue.mediator;
 
-import java.util.ArrayList;
-
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -10,8 +8,8 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.extensions.Extension;
 import com.redhat.lightblue.extensions.ExtensionSupport;
 import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
@@ -22,6 +20,10 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public final class MockCrudController implements CRUDController, ExtensionSupport {
     CRUDUpdateResponse updateResponse;
@@ -110,7 +112,9 @@ public final class MockCrudController implements CRUDController, ExtensionSuppor
 
     @Override
     public CRUDHealth checkHealth() {
-        return new CRUDHealth(true, "Return always healthy for test");
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("ping", "OK");
+        return new CRUDHealth(true, details);
     }
 
 }
