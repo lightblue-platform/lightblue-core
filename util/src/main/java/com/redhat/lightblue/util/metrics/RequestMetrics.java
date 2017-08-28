@@ -49,6 +49,12 @@ public interface RequestMetrics {
      *  
      */
     Context startLockRequest(String lockOperation, String domain);
+    
+    /** 
+     * Starts monitoring for a saved search request
+     *  
+     */
+    Context startSavedSearchRequest(String searchName, String entity, String version);    
 
     /**
      * Starts monitoring for a diagnostics check request.

@@ -18,14 +18,16 @@
  */
 package com.redhat.lightblue.util.metrics;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.redhat.lightblue.util.Error;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DropwizardRequestMetricsTest {
     // Use fresh registry for each test
@@ -60,12 +62,53 @@ public class DropwizardRequestMetricsTest {
     }
 
     @Test
-    public void testMarkRequestException() {
-        DropwizardRequestMetrics.Context context = requestMetrics.startEntityRequest("insert", "name", "version");
+    public void testMarkRequestExceptionWithError() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startStreamingEntityRequest("find", "name", "version");
         context.markRequestException(Error.get("errorCode"));
         
-        Meter exceptionMeter = metricsRegistry.meter("api.insert.name.version.requests.exception.Error.errorCode");
+        Meter exceptionMeter = metricsRegistry.meter("api.stream.find.name.version.requests.exception.Error.errorCode");
         Assert.assertEquals(1, exceptionMeter.getCount());
     }
+
+    @Test
+    public void testMarkRequestExceptionWithException() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startBulkRequest();
+        context.markRequestException(new Exception("bulk request exception"));
+        Meter exceptionMeter = metricsRegistry.meter("api.bulk.requests.exception.Exception.bulk.request.exception");
+        Assert.assertEquals(1, exceptionMeter.getCount());
+    }
+    
+    @Test
+    public void testMarkRequestExceptionWithRegex() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startLockRequest("lockcommand", "domain");
+        context.markRequestException(new NullPointerException("this@tests$the_regex#pattern"));
+        Meter exceptionMeter = metricsRegistry.meter("api.lock.domain.lockcommand.requests.exception.NullPointerException.this.tests.the.regex.pattern");
+        Assert.assertEquals(1, exceptionMeter.getCount());
+    }
+    
+    @Test
+    public void testmarkAllErrorsAndEndRequestMonitoring() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startSavedSearchRequest("find", "name", "version");
+
+        List<Error> errors = new ArrayList<>();
+        Error error1 =  Error.get("rest-crud:SavedSearchError");
+        Error error2 =  Error.get("mongo-crud:DatabaseError");
+        errors.add(error1);
+        errors.add(error2);
+
+        context.markAllErrorsAndEndRequestMonitoring(errors);
+
+        Counter activeRequestCounter = metricsRegistry.counter("api.savedsearch.find.name.version.requests.active");
+        Timer completedRequestTimer = metricsRegistry.timer("api.savedsearch.find.name.version.requests.latency");
+        Meter restExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.rest.crud.SavedSearchError");
+        Meter mongoExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.mongo.crud.DatabaseError");
+
+        Assert.assertEquals(0, activeRequestCounter.getCount());
+        Assert.assertEquals(1, completedRequestTimer.getCount());
+        Assert.assertNotNull(restExceptionMeter.getOneMinuteRate());
+        Assert.assertEquals(1, restExceptionMeter.getCount());
+        Assert.assertNotNull(mongoExceptionMeter.getMeanRate());
+        Assert.assertEquals(1, mongoExceptionMeter.getCount());
+    }    
 }
 

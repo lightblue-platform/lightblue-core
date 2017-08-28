@@ -34,6 +34,11 @@ public class NoopRequestMetrics implements RequestMetrics {
     }
 
     @Override
+    public Context startSavedSearchRequest(String searchName, String entity, String version) {
+        return NOOP_CONTEXT;
+    }
+
+    @Override
     public Context startBulkRequest() {
         return NOOP_CONTEXT;
     }
