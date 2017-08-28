@@ -48,6 +48,12 @@ public interface RequestMetrics {
      *  
      */
     Context startLockRequest(String lockOperation, String domain);
+    
+    /** 
+     * Starts monitoring for a saved search request
+     *  
+     */
+    Context startSavedSearchRequest(String operation, String searchName, String entity, String version);    
 
     /** 
      * Starts monitoring for a bulk request. Individual requests within the bulk requests

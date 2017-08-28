@@ -41,6 +41,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
 
     private final MetricRegistry metricsRegistry;
     
+    // replace any special characters in error message with standard metric separator
     private final String REGEX = "[-@#!$%^&*()_+|~={}:;'<>?,\"\\s]";
 
     public DropwizardRequestMetrics(MetricRegistry metricRegistry) {
@@ -85,6 +86,11 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         return new DropwizardContext(name(API, "lock", domain, lockOperation));
     }
 
+    @Override
+    public Context startSavedSearchRequest(String operation, String searchName, String entity, String version) {
+        return new DropwizardContext(name(API, operation, searchName, entity, version));
+    }
+    
     @Override
     public Context startBulkRequest() {
         return new DropwizardContext(name(API, "bulk"));

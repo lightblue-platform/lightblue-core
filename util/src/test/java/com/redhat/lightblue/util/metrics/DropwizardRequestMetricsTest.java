@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.util.metrics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,12 +63,53 @@ public class DropwizardRequestMetricsTest {
     }
 
     @Test
-    public void testMarkRequestException() {
-        DropwizardRequestMetrics.Context context = requestMetrics.startEntityRequest("insert", "name", "version");
+    public void testMarkRequestExceptionWithError() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startStreamingEntityRequest("find", "name", "version");
         context.markRequestException(Error.get("errorCode"));
         
-        Meter exceptionMeter = metricsRegistry.meter("api.insert.name.version.requests.exception.Error.errorCode");
+        Meter exceptionMeter = metricsRegistry.meter("api.stream.find.name.version.requests.exception.Error.errorCode");
         Assert.assertEquals(1, exceptionMeter.getCount());
     }
+
+    @Test
+    public void testMarkRequestExceptionWithException() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startBulkRequest();
+        context.markRequestException(new Exception("bulk request exception"));
+        Meter exceptionMeter = metricsRegistry.meter("api.bulk.requests.exception.Exception.bulk.request.exception");
+        Assert.assertEquals(1, exceptionMeter.getCount());
+    }
+    
+    @Test
+    public void testMarkRequestExceptionWithRegex() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startLockRequest("lockcommand", "domain");
+        context.markRequestException(new NullPointerException("this@tests$the_regex#pattern"));
+        Meter exceptionMeter = metricsRegistry.meter("api.lock.domain.lockcommand.requests.exception.NullPointerException.this.tests.the.regex.pattern");
+        Assert.assertEquals(1, exceptionMeter.getCount());
+    }
+    
+    @Test
+    public void testmarkAllErrorsAndEndRequestMonitoring() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startSavedSearchRequest("savedSearch", "find", "name", "version");
+
+        List<Error> errors = new ArrayList<>();
+        Error error1 =  Error.get("rest-crud:SavedSearchError");
+        Error error2 =  Error.get("mongo-crud:DatabaseError");
+        errors.add(error1);
+        errors.add(error2);
+
+        context.markAllErrorsAndEndRequestMonitoring(errors);
+
+        Counter activeRequestCounter = metricsRegistry.counter("api.savedSearch.find.name.version.requests.active");
+        Timer completedRequestTimer = metricsRegistry.timer("api.savedSearch.find.name.version.requests.latency");
+        Meter restExceptionMeter = metricsRegistry.meter("api.savedSearch.find.name.version.requests.exception.Error.rest.crud.SavedSearchError");
+        Meter mongoExceptionMeter = metricsRegistry.meter("api.savedSearch.find.name.version.requests.exception.Error.mongo.crud.DatabaseError");
+
+        Assert.assertEquals(0, activeRequestCounter.getCount());
+        Assert.assertEquals(1, completedRequestTimer.getCount());
+        Assert.assertNotNull(restExceptionMeter.getOneMinuteRate());
+        Assert.assertEquals(1, restExceptionMeter.getCount());
+        Assert.assertNotNull(mongoExceptionMeter.getMeanRate());
+        Assert.assertEquals(1, mongoExceptionMeter.getCount());
+    }    
 }
 
