@@ -53,7 +53,7 @@ public interface RequestMetrics {
      * Starts monitoring for a saved search request
      *  
      */
-    Context startSavedSearchRequest(String operation, String searchName, String entity, String version);    
+    Context startSavedSearchRequest(String searchName, String entity, String version);    
 
     /** 
      * Starts monitoring for a bulk request. Individual requests within the bulk requests

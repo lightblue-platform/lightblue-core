@@ -87,8 +87,8 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     }
 
     @Override
-    public Context startSavedSearchRequest(String operation, String searchName, String entity, String version) {
-        return new DropwizardContext(name(API, operation, searchName, entity, version));
+    public Context startSavedSearchRequest(String searchName, String entity, String version) {
+        return new DropwizardContext(name(API, "savedsearch", searchName, entity, version));
     }
     
     @Override

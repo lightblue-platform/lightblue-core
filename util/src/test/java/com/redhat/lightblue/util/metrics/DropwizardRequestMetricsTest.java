@@ -89,7 +89,7 @@ public class DropwizardRequestMetricsTest {
     
     @Test
     public void testmarkAllErrorsAndEndRequestMonitoring() {
-        DropwizardRequestMetrics.Context context = requestMetrics.startSavedSearchRequest("savedSearch", "find", "name", "version");
+        DropwizardRequestMetrics.Context context = requestMetrics.startSavedSearchRequest("find", "name", "version");
 
         List<Error> errors = new ArrayList<>();
         Error error1 =  Error.get("rest-crud:SavedSearchError");
@@ -99,10 +99,10 @@ public class DropwizardRequestMetricsTest {
 
         context.markAllErrorsAndEndRequestMonitoring(errors);
 
-        Counter activeRequestCounter = metricsRegistry.counter("api.savedSearch.find.name.version.requests.active");
-        Timer completedRequestTimer = metricsRegistry.timer("api.savedSearch.find.name.version.requests.latency");
-        Meter restExceptionMeter = metricsRegistry.meter("api.savedSearch.find.name.version.requests.exception.Error.rest.crud.SavedSearchError");
-        Meter mongoExceptionMeter = metricsRegistry.meter("api.savedSearch.find.name.version.requests.exception.Error.mongo.crud.DatabaseError");
+        Counter activeRequestCounter = metricsRegistry.counter("api.savedsearch.find.name.version.requests.active");
+        Timer completedRequestTimer = metricsRegistry.timer("api.savedsearch.find.name.version.requests.latency");
+        Meter restExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.rest.crud.SavedSearchError");
+        Meter mongoExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.mongo.crud.DatabaseError");
 
         Assert.assertEquals(0, activeRequestCounter.getCount());
         Assert.assertEquals(1, completedRequestTimer.getCount());
