@@ -36,18 +36,18 @@ public class DropwizardRequestMetricsTest {
 
     @Test
     public void testStartRequestMonitoring() {
-        requestMetrics.startEntityRequest("bulk", null, null);
+        requestMetrics.startEntityRequest("save", "name", null);
         Assert.assertNotNull(metricsRegistry.getCounters());
         Assert.assertNotNull(metricsRegistry.getTimers());
 
-        Counter activeRequestCounter = metricsRegistry.counter("api.bulk.requests.active");
-        Timer completedRequestTimer = metricsRegistry.timer("api.bulk.requests.completed");
+        Counter activeRequestCounter = metricsRegistry.counter("api.save.name.default.requests.active");
+        Timer completedRequestTimer = metricsRegistry.timer("api.save.name.default.requests.latency");
 
         Assert.assertEquals(1, activeRequestCounter.getCount());
         Assert.assertEquals(0, completedRequestTimer.getCount());
         Assert.assertNotNull(completedRequestTimer.getMeanRate());
     }
-
+    
     @Test
     public void testEndRequestMonitoring() {
         DropwizardRequestMetrics.Context context = requestMetrics.startEntityRequest("explain", "name", "version");
@@ -62,6 +62,22 @@ public class DropwizardRequestMetricsTest {
     }
 
     @Test
+    public void testStartRequestMonitoringNullVersion() {
+        DropwizardRequestMetrics.Context context = requestMetrics.startEntityRequest("delete", "name", "version");
+        Assert.assertNotNull(metricsRegistry.getCounters());
+        Assert.assertNotNull(metricsRegistry.getTimers());
+
+        Counter activeRequestCounter = metricsRegistry.counter("api.delete.name.version.requests.active");
+        Timer completedRequestTimer = metricsRegistry.timer("api.delete.name.version.requests.latency");
+        Assert.assertEquals(1, activeRequestCounter.getCount());
+        Assert.assertEquals(0, completedRequestTimer.getCount());
+        
+        context.endRequestMonitoring();
+        Assert.assertEquals(1, completedRequestTimer.getCount());
+        Assert.assertNotNull(completedRequestTimer.getMeanRate());
+    }
+    
+    @Test
     public void testMarkRequestExceptionWithError() {
         DropwizardRequestMetrics.Context context = requestMetrics.startStreamingEntityRequest("find", "name", "version");
         context.markRequestException(Error.get("errorCode"));
@@ -73,17 +89,25 @@ public class DropwizardRequestMetricsTest {
     @Test
     public void testMarkRequestExceptionWithException() {
         DropwizardRequestMetrics.Context context = requestMetrics.startBulkRequest();
-        context.markRequestException(new Exception("bulk request exception"));
-        Meter exceptionMeter = metricsRegistry.meter("api.bulk.requests.exception.Exception.bulk.request.exception");
+        context.markRequestException(new NullPointerException());
+        Meter exceptionMeter = metricsRegistry.meter("api.bulk.requests.exception.NullPointerException");
         Assert.assertEquals(1, exceptionMeter.getCount());
     }
     
     @Test
     public void testMarkRequestExceptionWithRegex() {
-        DropwizardRequestMetrics.Context context = requestMetrics.startLockRequest("lockcommand", "domain");
-        context.markRequestException(new NullPointerException("this@tests$the_regex#pattern"));
-        Meter exceptionMeter = metricsRegistry.meter("api.lock.domain.lockcommand.requests.exception.NullPointerException.this.tests.the.regex.pattern");
-        Assert.assertEquals(1, exceptionMeter.getCount());
+        DropwizardRequestMetrics.Context errorContext1 = requestMetrics.startLockRequest("lockcommand", "domain");
+        errorContext1.markRequestException(Error.get("mongo-crud:SaveError:InsertionAttemptWithNoUpsert"));
+        Meter exceptionMeter1 = metricsRegistry.meter("api.lock.domain.lockcommand.requests.exception.Error.mongo.crud.SaveError.InsertionAttemptWithNoUpsert");
+        Assert.assertEquals(1, exceptionMeter1.getCount());
+        Assert.assertNotNull(exceptionMeter1.getOneMinuteRate());
+        
+        DropwizardRequestMetrics.Context errorContext2 = requestMetrics.startEntityRequest("find", "name", null);
+        errorContext2.markRequestException(Error.get("mongo-crud:SaveClobblersHiddenFields"));
+        Meter exceptionMeter2 = metricsRegistry.meter("api.find.name.default.requests.exception.Error.mongo.crud.SaveClobblersHiddenFields");
+        Assert.assertEquals(1, exceptionMeter2.getCount());
+        Assert.assertNotNull(exceptionMeter2.getMeanRate());
+
     }
     
     @Test
