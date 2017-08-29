@@ -20,18 +20,19 @@ package com.redhat.lightblue.util.metrics;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Objects;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import com.redhat.lightblue.util.Error;
 import com.codahale.metrics.Counter;
-import com.codahale.metrics.Timer;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.redhat.lightblue.util.Error;
 
 public class DropwizardRequestMetrics implements RequestMetrics {
     
@@ -71,14 +72,20 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         return e.getClass();
     }
 
+    private String checkNullVersion(String version) {
+       if (StringUtils.isEmpty(version))
+    	  return "default";
+       else
+    	  return version;
+    }
     @Override
     public Context startEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, operation, entity, version));
+        return new DropwizardContext(name(API, operation, entity, checkNullVersion(version)));
     }
 
     @Override
     public Context startStreamingEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, "stream", operation, entity, version));
+        return new DropwizardContext(name(API, "stream", operation, entity, checkNullVersion(version)));
     }
     
     @Override
@@ -88,7 +95,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
 
     @Override
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
-        return new DropwizardContext(name(API, "savedsearch", searchName, entity, version));
+        return new DropwizardContext(name(API, "savedsearch", searchName, entity, checkNullVersion(version)));
     }
     
     @Override
@@ -130,8 +137,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         
         @Override
         public void markRequestException(Exception e) {
-        	String errorMessage = e.getMessage().replaceAll(REGEX, ".");
-        	metricsRegistry.meter(errorNamespace(metricNamespace, e, errorMessage)).mark();
+        	metricsRegistry.meter(errorNamespace(metricNamespace, e, null)).mark();
         }
 
         @Override
