@@ -41,16 +41,13 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     private static final String API = "api";
 
     private final MetricRegistry metricsRegistry;
-    
-    // replace any special characters in error message with standard metric separator
-    private final String REGEX = "[-@#!$%^&*()_+|~={}:;'<>?,\"\\s]";
 
     public DropwizardRequestMetrics(MetricRegistry metricRegistry) {
         metricsRegistry = metricRegistry;
     }
 
     /**
-     * Create exception namespace for metric reporting based on exception name
+     * Create exception namespace for metric reporting based on exception name.
      * 
      */
     private static String errorNamespace(String metricNamespace, Throwable exception, String errorMessage) {
@@ -72,20 +69,25 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         return e.getClass();
     }
 
-    private String checkNullVersion(String version) {
+    /**
+     * If version is null,replace with default.
+     * Also replace all . in version with _ as graphite treats . as standard separator and can cause issues in queries.
+     * 
+     */
+    private String checkVersion(String version) {
        if (StringUtils.isEmpty(version))
     	  return "default";
        else
-    	  return version;
+    	  return version.replace(".", "_");
     }
     @Override
     public Context startEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, operation, entity, checkNullVersion(version)));
+        return new DropwizardContext(name(API, operation, entity, checkVersion(version)));
     }
 
     @Override
     public Context startStreamingEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, "stream", operation, entity, checkNullVersion(version)));
+        return new DropwizardContext(name(API, "stream", operation, entity, checkVersion(version)));
     }
     
     @Override
@@ -95,7 +97,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
 
     @Override
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
-        return new DropwizardContext(name(API, "savedsearch", searchName, entity, checkNullVersion(version)));
+        return new DropwizardContext(name(API, "savedsearch", searchName, entity, checkVersion(version)));
     }
     
     @Override
@@ -131,7 +133,9 @@ public class DropwizardRequestMetrics implements RequestMetrics {
 
         @Override
         public void markRequestException(Error e) {
-            String errorCode = e.getErrorCode().replaceAll(REGEX, ".");
+            // Presence of : in metricnamespace makes it's display a bit weird in visualvm.
+            // This might not effect the metric in graphite, but replacing it as a precaution.
+            String errorCode = e.getErrorCode().replace(":", "-");
             metricsRegistry.meter(errorNamespace(metricNamespace, e, errorCode)).mark();            
         }
         

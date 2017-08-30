@@ -447,29 +447,29 @@ public class BulkTest extends AbstractMediatorTest {
         
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
-        Assert.assertEquals(0, metricsRegistry.counter("api.insert.user.1.0.requests.active").getCount());
-        Assert.assertEquals(1, metricsRegistry.timer("api.insert.user.1.0.requests.latency").getCount());
-        Assert.assertNotNull(metricsRegistry.timer("api.insert.user.1.0.requests.latency").getOneMinuteRate());
+        Assert.assertEquals(0, metricsRegistry.counter("api.insert.user.1_0.requests.active").getCount());
+        Assert.assertEquals(1, metricsRegistry.timer("api.insert.user.1_0.requests.latency").getCount());
+        Assert.assertNotNull(metricsRegistry.timer("api.insert.user.1_0.requests.latency").getOneMinuteRate());
 
         response = bresp.getEntries().get(1);
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(1, response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
-        Assert.assertEquals(0,metricsRegistry.counter("api.find.country.2.0.requests.active").getCount());
-        Assert.assertEquals(1, metricsRegistry.timer("api.find.country.2.0.requests.latency").getCount());
-        Assert.assertEquals(1, metricsRegistry.meter("api.find.country.2.0.requests.exception.Error.crud.NoAccess").getCount());
-        Assert.assertNotNull(metricsRegistry.meter("api.find.country.2.0.requests.exception.Error.crud.NoAccess").getOneMinuteRate());
+        Assert.assertEquals(0,metricsRegistry.counter("api.find.country.2_0.requests.active").getCount());
+        Assert.assertEquals(1, metricsRegistry.timer("api.find.country.2_0.requests.latency").getCount());
+        Assert.assertEquals(1, metricsRegistry.meter("api.find.country.2_0.requests.exception.Error.crud-NoAccess").getCount());
+        Assert.assertNotNull(metricsRegistry.meter("api.find.country.2_0.requests.exception.Error.crud-NoAccess").getOneMinuteRate());
 
         response = bresp.getEntries().get(2);
         
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(1, response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
-        Assert.assertEquals(0,metricsRegistry.counter("api.delete.test.3.0.requests.active").getCount());
-        Assert.assertEquals(1, metricsRegistry.timer("api.delete.test.3.0.requests.latency").getCount());
-        Assert.assertEquals(1, metricsRegistry.meter("api.delete.test.3.0.requests.exception.Error.crud.NoAccess").getCount());
-        Assert.assertNotNull(metricsRegistry.meter("api.delete.test.3.0.requests.exception.Error.crud.NoAccess").getOneMinuteRate());
+        Assert.assertEquals(0,metricsRegistry.counter("api.delete.test.3_0.requests.active").getCount());
+        Assert.assertEquals(1, metricsRegistry.timer("api.delete.test.3_0.requests.latency").getCount());
+        Assert.assertEquals(1, metricsRegistry.meter("api.delete.test.3_0.requests.exception.Error.crud-NoAccess").getCount());
+        Assert.assertNotNull(metricsRegistry.meter("api.delete.test.3_0.requests.exception.Error.crud-NoAccess").getOneMinuteRate());
         
     }
 }
