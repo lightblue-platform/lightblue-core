@@ -29,6 +29,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.EntityVersion;
@@ -37,9 +41,11 @@ import com.redhat.lightblue.Response;
 import com.redhat.lightblue.ResultMetadata;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.BulkResponse;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
@@ -48,10 +54,14 @@ import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
+import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
+import com.redhat.lightblue.util.metrics.RequestMetrics;
 
 public class BulkTest extends AbstractMediatorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkTest.class);
+    private final RequestMetrics noopMetrics = new NoopRequestMetrics();
 
     public interface FindCb {
         Response call(FindRequest req);
@@ -111,7 +121,7 @@ public class BulkTest extends AbstractMediatorTest {
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         mockCrudController.insertResponse.setNumInserted(1);
 
-        BulkResponse bresp = mediator.bulkRequest(breq);
+        BulkResponse bresp = mediator.bulkRequest(breq, noopMetrics);
 
         Response response = bresp.getEntries().get(0);
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
@@ -168,7 +178,7 @@ public class BulkTest extends AbstractMediatorTest {
 
         mediator.factory.setWarnResultSetSizeB(10);
 
-        BulkResponse bresp = mediator.bulkRequest(breq);
+        BulkResponse bresp = mediator.bulkRequest(breq, noopMetrics);
         Assert.assertEquals(2, breq.getEntries().size());
 
         Response responseInsert = bresp.getEntries().get(0);
@@ -179,7 +189,7 @@ public class BulkTest extends AbstractMediatorTest {
 
         mediator.factory.setMaxResultSetSizeForReadsB(12630); // the limit is more than each request alone
 
-        bresp = mediator.bulkRequest(breq);
+        bresp = mediator.bulkRequest(breq, noopMetrics);
 
         responseInsert = bresp.getEntries().get(0);
         responseFind = bresp.getEntries().get(1);
@@ -337,7 +347,7 @@ public class BulkTest extends AbstractMediatorTest {
         validator.start();
 
         LOGGER.debug("Ordered exec");
-        BulkResponse bresp = mediator.bulkRequest(breq);
+        BulkResponse bresp = mediator.bulkRequest(breq, noopMetrics);
         validator.join();
         LOGGER.debug("Ordered exec done");
 
@@ -398,10 +408,68 @@ public class BulkTest extends AbstractMediatorTest {
         };
         validator.start();
         LOGGER.debug("Unordered exec");
-        mediator.bulkRequest(breq);
+        mediator.bulkRequest(breq, noopMetrics);
         validator.join();
         LOGGER.debug("Unordered exec done");
 
         Assert.assertTrue(validator.valid);
+    }
+    
+    @Test
+    public void metricsBulkTest() throws Exception {
+        MetricRegistry metricsRegistry = new MetricRegistry();
+        RequestMetrics metrics = new DropwizardRequestMetrics(metricsRegistry);
+        
+        BulkRequest breq = new BulkRequest();
+
+        InsertionRequest ireq = new InsertionRequest();
+        ireq.setEntityVersion(new EntityVersion("user", "1.0"));
+        ireq.setEntityData(loadJsonNode("./sample1.json"));
+        ireq.setReturnFields(null);
+        ireq.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
+        breq.add(ireq);
+
+        FindRequest freq = new FindRequest();
+        freq.setEntityVersion(new EntityVersion("country", "2.0"));
+        breq.add(freq);
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        mockCrudController.insertResponse.setNumInserted(1);
+
+        DeleteRequest dreq = new DeleteRequest();
+        dreq.setEntityVersion(new EntityVersion("test", "3.0"));
+        breq.add(dreq);
+        mockCrudController.deleteResponse=new CRUDDeleteResponse();
+        mockCrudController.deleteResponse.setNumDeleted(1);
+
+        BulkResponse bresp = mediator.bulkRequest(breq, metrics);
+
+        Response response = bresp.getEntries().get(0);
+        
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, metricsRegistry.counter("api.insert.user.1_0.requests.active").getCount());
+        Assert.assertEquals(1, metricsRegistry.timer("api.insert.user.1_0.requests.latency").getCount());
+        Assert.assertNotNull(metricsRegistry.timer("api.insert.user.1_0.requests.latency").getOneMinuteRate());
+
+        response = bresp.getEntries().get(1);
+
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals(0,metricsRegistry.counter("api.find.country.2_0.requests.active").getCount());
+        Assert.assertEquals(1, metricsRegistry.timer("api.find.country.2_0.requests.latency").getCount());
+        Assert.assertEquals(1, metricsRegistry.meter("api.find.country.2_0.requests.exception.Error.crud_NoAccess").getCount());
+        Assert.assertNotNull(metricsRegistry.meter("api.find.country.2_0.requests.exception.Error.crud_NoAccess").getOneMinuteRate());
+
+        response = bresp.getEntries().get(2);
+        
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals(0,metricsRegistry.counter("api.delete.test.3_0.requests.active").getCount());
+        Assert.assertEquals(1, metricsRegistry.timer("api.delete.test.3_0.requests.latency").getCount());
+        Assert.assertEquals(1, metricsRegistry.meter("api.delete.test.3_0.requests.exception.Error.crud_NoAccess").getCount());
+        Assert.assertNotNull(metricsRegistry.meter("api.delete.test.3_0.requests.exception.Error.crud_NoAccess").getOneMinuteRate());
+        
     }
 }

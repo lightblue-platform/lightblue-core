@@ -79,6 +79,7 @@ import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.metrics.RequestMetrics;
 import com.redhat.lightblue.util.stopwatch.StopWatch;
 
 /**
@@ -484,8 +485,8 @@ public class Mediator {
             ctx = newCtx(req, CRUDOperation.FIND);
             ctx.measure.begin("find");
 
-            StreamingResponse r=_findAndStream(req,ctx);
-            
+            StreamingResponse r=_findAndStream(req, ctx);
+
             response = new Response(r);
             if(response.getErrors()==null||response.getErrors().isEmpty()) {
                 DocumentStream<DocCtx> docStream=r.documentStream;
@@ -553,7 +554,7 @@ public class Mediator {
         }
     }
 
-    private StreamingResponse _findAndStream(FindRequest req,OperationContext ctx) {
+    private StreamingResponse _findAndStream(FindRequest req, OperationContext ctx) {
         StreamingResponse response = new StreamingResponse(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
         response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
@@ -662,30 +663,39 @@ public class Mediator {
         }
     }
 
-    protected Callable<Response> getFutureRequest(final Request req) {
+    protected Callable<Response> getFutureRequest(final Request req, RequestMetrics metrics) {
         return new Callable<Response>() {
             @Override
             public Response call() {
                 LOGGER.debug("Starting a future {} request",req.getOperation());
+                Response resp = null;
+                RequestMetrics.Context metricCtx = metrics.startEntityRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                 switch (req.getOperation()) {
                     case FIND:
-                        return find((FindRequest) req);
+                        resp = find((FindRequest) req);
+                        break;
                     case INSERT:
-                        return insert((InsertionRequest) req);
+                        resp = insert((InsertionRequest) req);
+                        break;
                     case DELETE:
-                        return delete((DeleteRequest) req);
+                        resp = delete((DeleteRequest) req);
+                        break;
                     case UPDATE:
-                        return update((UpdateRequest) req);
+                        resp = update((UpdateRequest) req);
+                        break;
                     case SAVE:
-                        return save((SaveRequest) req);
+                        resp = save((SaveRequest) req);
+                        break;
                     default:
-                        throw new UnsupportedOperationException("CRUD operation '"+req.getOperation()+"' is not supported!");
+                        throw new UnsupportedOperationException("CRUD operation '" + req.getOperation() + "' is not supported!");
                 }
+                metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());
+                return resp;                
             }
         };
     }
 
-    public BulkResponse bulkRequest(BulkRequest requests) {
+    public BulkResponse bulkRequest(BulkRequest requests, RequestMetrics metrics) {
         LOGGER.debug("Bulk request start");
         Error.push("bulk operation");
         ExecutorService executor = Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
@@ -695,34 +705,40 @@ public class Mediator {
             int n = requestList.size();
             BulkExecutionContext ctx = new BulkExecutionContext(n);
             ctx.setResultSizeThresholds(factory.getMaxResultSetSizeForReadsB(), factory.getWarnResultSetSizeB(), requests);
-
             for (int i = 0; i < n; i++) {
+            	Response resp = null;
                 Request req = requestList.get(i);
                 if (requests.isOrdered()) {
                     // ordered - only consecutive finds in parallel
                     if (req.getOperation() == CRUDOperation.FIND) {
-                        ctx.futures[i] = executor.submit(getFutureRequest(req));
+                        ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                     } else {
                         wait(ctx);
+                        RequestMetrics.Context metricCtx = metrics.startEntityRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         switch (req.getOperation()) {
                             case INSERT:
-                                ctx.setResponseAt(i, insert((InsertionRequest) req));
+                            	resp = insert((InsertionRequest) req);
+                                ctx.setResponseAt(i, resp);
                                 break;
                             case DELETE:
-                                ctx.setResponseAt(i, delete((DeleteRequest) req));
+                                resp = delete((DeleteRequest) req);
+                                ctx.setResponseAt(i, resp);
                                 break;
                             case UPDATE:
-                                ctx.setResponseAt(i, update((UpdateRequest) req));
+                                resp = update((UpdateRequest) req);
+                                ctx.setResponseAt(i, resp);
                                 break;
                             case SAVE:
-                                ctx.setResponseAt(i, save((SaveRequest) req));
+                                resp = save((SaveRequest) req);
+                                ctx.setResponseAt(i, resp);
                                 break;
                         }
+                        metricCtx.markAllErrorsAndEndRequestMonitoring(resp.getErrors());  
                     }
                 } else {
                     LOGGER.debug("Scheduling a future operation");
                     // unordered - do them all in parallel
-                    ctx.futures[i] = executor.submit(getFutureRequest(req));
+                    ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                 }
             }
 

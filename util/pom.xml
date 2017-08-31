@@ -78,6 +78,14 @@
             <artifactId>aspectjrt</artifactId>
             <version>1.8.9</version>
         </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jvm</artifactId>
+        </dependency>         
     </dependencies>
     <build>
         <plugins>
