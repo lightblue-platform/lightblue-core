@@ -41,6 +41,9 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     private static final String API = "api";
 
     private final MetricRegistry metricsRegistry;
+    
+    // replace any special characters in error message with _
+    private final String REGEX = "[-@#!$%^&*()+|~={}:;'<>?,\"\\\\////\\s]";
 
     public DropwizardRequestMetrics(MetricRegistry metricRegistry) {
         metricsRegistry = metricRegistry;
@@ -74,7 +77,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
      * Also replace all . in version with _ as graphite treats . as standard separator and can cause issues in queries.
      * 
      */
-    private String checkVersion(String version) {
+    private String formatVersion(String version) {
        if (StringUtils.isEmpty(version))
     	  return "default";
        else
@@ -82,12 +85,12 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     }
     @Override
     public Context startEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, operation, entity, checkVersion(version)));
+        return new DropwizardContext(name(API, operation, entity, formatVersion(version)));
     }
 
     @Override
     public Context startStreamingEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, "stream", operation, entity, checkVersion(version)));
+        return new DropwizardContext(name(API, "stream", operation, entity, formatVersion(version)));
     }
     
     @Override
@@ -97,7 +100,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
 
     @Override
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
-        return new DropwizardContext(name(API, "savedsearch", searchName, entity, checkVersion(version)));
+        return new DropwizardContext(name(API, "savedsearch", searchName, entity, formatVersion(version)));
     }
     
     @Override
@@ -135,7 +138,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         public void markRequestException(Error e) {
             // Presence of : in metricnamespace makes it's display a bit weird in visualvm.
             // This might not effect the metric in graphite, but replacing it as a precaution.
-            String errorCode = e.getErrorCode().replace(":", "-");
+            String errorCode = e.getErrorCode().replaceAll(REGEX, "_");
             metricsRegistry.meter(errorNamespace(metricNamespace, e, errorCode)).mark();            
         }
         

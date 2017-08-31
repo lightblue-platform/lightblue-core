@@ -90,16 +90,36 @@ public class DropwizardRequestMetricsTest {
     public void testMarkRequestExceptionWithError() {
         DropwizardRequestMetrics.Context errorContext1 = requestMetrics.startLockRequest("lockcommand", "domain");
         errorContext1.markRequestException(Error.get("mongo-crud:SaveError:InsertionAttemptWithNoUpsert"));
-        Meter exceptionMeter1 = metricsRegistry.meter("api.lock.domain.lockcommand.requests.exception.Error.mongo-crud-SaveError-InsertionAttemptWithNoUpsert");
+        Meter exceptionMeter1 = metricsRegistry.meter("api.lock.domain.lockcommand.requests.exception.Error.mongo_crud_SaveError_InsertionAttemptWithNoUpsert");
         Assert.assertEquals(1, exceptionMeter1.getCount());
         Assert.assertNotNull(exceptionMeter1.getOneMinuteRate());
         
         DropwizardRequestMetrics.Context errorContext2 = requestMetrics.startEntityRequest("find", "name", null);
         errorContext2.markRequestException(Error.get("mongo-crud:SaveClobblersHiddenFields"));
-        Meter exceptionMeter2 = metricsRegistry.meter("api.find.name.default.requests.exception.Error.mongo-crud-SaveClobblersHiddenFields");
+        Meter exceptionMeter2 = metricsRegistry.meter("api.find.name.default.requests.exception.Error.mongo_crud_SaveClobblersHiddenFields");
+        Assert.assertEquals(1, exceptionMeter2.getCount());
+        Assert.assertNotNull(exceptionMeter2.getMeanRate());
+    }
+    
+    @Test
+    public void testMarkRequestExceptionWithRegex() {
+        DropwizardRequestMetrics.Context errorContext1 = requestMetrics.startLockRequest("lockcommand", "domain");
+        errorContext1.markRequestException(Error.get("(just-checking@some#regex!replace$in%action^)"));
+        Meter exceptionMeter1 = metricsRegistry.meter("api.lock.domain.lockcommand.requests.exception.Error._just_checking_some_regex_replace_in_action__");
+        Assert.assertEquals(1, exceptionMeter1.getCount());
+        Assert.assertNotNull(exceptionMeter1.getOneMinuteRate());
+        
+        DropwizardRequestMetrics.Context errorContext2 = requestMetrics.startEntityRequest("find", "name", null);
+        errorContext2.markRequestException(Error.get("{testing&some*more+regex~replace=in;action'}"));
+        Meter exceptionMeter2 = metricsRegistry.meter("api.find.name.default.requests.exception.Error._testing_some_more_regex_replace_in_action__");
         Assert.assertEquals(1, exceptionMeter2.getCount());
         Assert.assertNotNull(exceptionMeter2.getMeanRate());
 
+        DropwizardRequestMetrics.Context errorContext3 = requestMetrics.startEntityRequest("delete", "name", "version");
+        errorContext3.markRequestException(Error.get("\\yet<more>regex?replace,action\"in here\\"));
+        Meter exceptionMeter3 = metricsRegistry.meter("api.delete.name.version.requests.exception.Error._yet_more_regex_replace_action_in_here_");
+        Assert.assertEquals(1, exceptionMeter3.getCount());
+        Assert.assertNotNull(exceptionMeter3.getMeanRate());
     }
     
     @Test
@@ -116,8 +136,8 @@ public class DropwizardRequestMetricsTest {
 
         Counter activeRequestCounter = metricsRegistry.counter("api.savedsearch.find.name.version.requests.active");
         Timer completedRequestTimer = metricsRegistry.timer("api.savedsearch.find.name.version.requests.latency");
-        Meter restExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.rest-crud-SavedSearchError");
-        Meter mongoExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.mongo-crud-DatabaseError");
+        Meter restExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.rest_crud_SavedSearchError");
+        Meter mongoExceptionMeter = metricsRegistry.meter("api.savedsearch.find.name.version.requests.exception.Error.mongo_crud_DatabaseError");
 
         Assert.assertEquals(0, activeRequestCounter.getCount());
         Assert.assertEquals(1, completedRequestTimer.getCount());
