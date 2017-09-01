@@ -1,13 +1,15 @@
 package com.redhat.lightblue.crud;
 
+import java.util.Map;
+
 /**
  * Contains health information for the CRUD layer (CRUD controllers)
  */
 public class CRUDHealth {
     private final boolean isHealthy;
-    private final String details;
+    private final Map<String, Object> details;
 
-    public CRUDHealth(boolean isHealthy, String details) {
+    public CRUDHealth(boolean isHealthy, Map<String, Object> details) {
         this.isHealthy = isHealthy;
         this.details = details;
     }
@@ -16,7 +18,7 @@ public class CRUDHealth {
         return isHealthy;
     }
 
-    public String details() {
+    public Map<String, Object> details() {
         return details;
     }
     

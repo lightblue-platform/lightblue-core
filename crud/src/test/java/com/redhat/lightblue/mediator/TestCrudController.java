@@ -18,39 +18,31 @@
  */
 package com.redhat.lightblue.mediator;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.CRUDInsertionResponse;
-import com.redhat.lightblue.crud.CRUDSaveResponse;
-import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDHealth;
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
+import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.ListDocumentStream;
-import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
-
+import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.metadata.MetadataListener;
-import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
-
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.EntityMetadata;
-
 import com.redhat.lightblue.util.JsonDoc;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TestCrudController implements CRUDController {
 
@@ -142,6 +134,8 @@ public class TestCrudController implements CRUDController {
 
     @Override
     public CRUDHealth checkHealth() {
-        return new CRUDHealth(true, "Return always healthy for test");
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("ping", "OK");
+        return new CRUDHealth(true, details);
     }
 }

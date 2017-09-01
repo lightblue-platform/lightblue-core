@@ -18,17 +18,16 @@
  */
 package com.redhat.lightblue.util.metrics;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.redhat.lightblue.util.Error;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DropwizardRequestMetricsTest {
     // Use fresh registry for each test

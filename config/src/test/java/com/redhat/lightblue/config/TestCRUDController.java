@@ -33,6 +33,9 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  *
  * @author nmalik
@@ -79,6 +82,8 @@ public class TestCRUDController implements CRUDController {
 
     @Override
     public CRUDHealth checkHealth() {
-        return new CRUDHealth(true, "Return always healthy for test");
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("ping", "OK");
+        return new CRUDHealth(true, details);
     }
 }

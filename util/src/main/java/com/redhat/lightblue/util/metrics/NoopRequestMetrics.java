@@ -1,9 +1,8 @@
 package com.redhat.lightblue.util.metrics;
 
-import java.util.List;
-
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.metrics.RequestMetrics;
+
+import java.util.List;
 
 public class NoopRequestMetrics implements RequestMetrics {
 
@@ -25,10 +24,20 @@ public class NoopRequestMetrics implements RequestMetrics {
     }
 
     @Override
+    public Context startDiagnosticsRequest() {
+        return NOOP_CONTEXT;
+    }
+
+    @Override
+    public Context startHealthRequest() {
+        return NOOP_CONTEXT;
+    }
+
+    @Override
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
         return NOOP_CONTEXT;
     }
-    
+
     @Override
     public Context startBulkRequest() {
         return NOOP_CONTEXT;

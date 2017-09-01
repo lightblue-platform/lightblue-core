@@ -18,21 +18,22 @@
  */
 package com.redhat.lightblue.util.metrics;
 
-import static com.codahale.metrics.MetricRegistry.name;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.redhat.lightblue.util.Error;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.codahale.metrics.MetricRegistry.name;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.redhat.lightblue.util.Error;
 
 public class DropwizardRequestMetrics implements RequestMetrics {
     
@@ -99,6 +100,15 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     }
 
     @Override
+    public Context startHealthRequest() {
+        return new DropwizardContext(name(API, "checkHealth"));
+    }
+
+    @Override
+    public Context startDiagnosticsRequest() {
+        return new DropwizardContext(name(API, "checkDiagnostics"));
+    }
+
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
         return new DropwizardContext(name(API, "savedsearch", searchName, entity, formatVersion(version)));
     }
@@ -107,7 +117,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     public Context startBulkRequest() {
         return new DropwizardContext(name(API, "bulk"));
     }
-
+    
     public class DropwizardContext implements Context {
         
         private final String metricNamespace;

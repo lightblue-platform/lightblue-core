@@ -18,13 +18,6 @@
  */
 package com.redhat.lightblue.savedsearch;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -34,6 +27,7 @@ import com.redhat.lightblue.TestDataStoreParser;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.CRUDHealth;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
@@ -42,7 +36,6 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.DocumentStream;
 import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.CRUDHealth;
 import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
@@ -64,6 +57,14 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
     private Mediator mediator;
@@ -163,7 +164,9 @@ public class SavedSearchCacheTest extends AbstractJsonSchemaTest {
 
         @Override
         public CRUDHealth checkHealth() {
-            return new CRUDHealth(true, "Return always healthy for test");
+            Map<String, Object> details = new LinkedHashMap<>();
+            details.put("ping", "OK");
+            return new CRUDHealth(true, details);
         }
     }
 

@@ -18,8 +18,9 @@
  */
 package com.redhat.lightblue.util.metrics;
 
-import java.util.List;
 import com.redhat.lightblue.util.Error;
+
+import java.util.List;
 
 /**
  * Start timers and counters for each request. Use the returned context to
@@ -54,6 +55,18 @@ public interface RequestMetrics {
      *  
      */
     Context startSavedSearchRequest(String searchName, String entity, String version);    
+
+    /**
+     * Starts monitoring for a diagnostics check request.
+     *
+     */
+    Context startDiagnosticsRequest();
+
+    /**
+     * Starts monitoring for a health check request.
+     *
+     */
+    Context startHealthRequest();
 
     /** 
      * Starts monitoring for a bulk request. Individual requests within the bulk requests

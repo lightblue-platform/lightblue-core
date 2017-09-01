@@ -26,17 +26,15 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.MetadataListener;
-
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
-
 import com.redhat.lightblue.util.JsonDoc;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  *
@@ -88,7 +86,9 @@ public class TestCRUDController implements CRUDController {
 
     @Override
     public CRUDHealth checkHealth() {
-        return new CRUDHealth(true, "Return always healthy for test");
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("ping", "OK");
+        return new CRUDHealth(true, details);
     }
 
 }
