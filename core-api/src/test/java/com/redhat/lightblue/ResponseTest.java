@@ -141,9 +141,11 @@ public class ResponseTest {
         }
 
         public Response buildResponse() {
-            Response response = new Response(jsonNodeFactory);
+            if (status == null) {
+                status = OperationStatus.ERROR;
+            }
+            Response response = new Response(jsonNodeFactory, status);
 
-            response.setStatus(status);
             response.setModifiedCount(modifiedCount);
             response.setMatchCount(matchCount);
             response.setTaskHandle(taskHandle);
@@ -164,7 +166,7 @@ public class ResponseTest {
     @Before
     public void setUp() throws Exception {
         JsonNodeFactory jnf = JsonNodeFactory.withExactBigDecimals(true);
-        response = new Response(jnf);
+        response = new Response(jnf, OperationStatus.COMPLETE);
         builder = new ResponseBuilder(jnf);
     }
 
@@ -376,6 +378,7 @@ public class ResponseTest {
         expectedNode.put("modifiedCount", 0L);
         expectedNode.put("matchCount", 0L);
         expectedNode.put("hostname", InetAddress.getLocalHost().getHostName());
+        expectedNode.put("status","COMPLETE");
 
         assertTrue(response.toJson().equals(expectedNode));
     }

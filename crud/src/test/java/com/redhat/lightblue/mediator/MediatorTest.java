@@ -360,6 +360,25 @@ public class MediatorTest extends AbstractMediatorTest {
     }
 
     @Test
+    public void findAndStream_ErrorHandling() throws Exception {
+        mdManager.md = null;
+
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("foo", "0.0.1"));
+
+        mockCrudController.findCb=ctx->ctx.setDocumentStream(new ListDocumentStream<DocCtx>(new ArrayList<DocCtx>()));
+        mockCrudController.findResponse = new CRUDFindResponse();
+        StreamingResponse response = mediator.findAndStream(req);
+
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_UNKNOWN_ENTITY, response.getErrors().get(0).getErrorCode());
+    }
+
+    @Test
     public void findResultMdTest() throws Exception {
         FindRequest req = new FindRequest();
         req.setEntityVersion(new EntityVersion("test", "1.0"));
