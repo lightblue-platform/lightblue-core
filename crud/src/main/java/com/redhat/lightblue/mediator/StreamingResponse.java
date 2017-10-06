@@ -19,22 +19,26 @@
 package com.redhat.lightblue.mediator;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.BaseResponse;
-
+import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.DocumentStream;
+import com.redhat.lightblue.util.Error;
 
 public class StreamingResponse extends BaseResponse  {
 
+    private static final long serialVersionUID = 1L;
+
     public DocumentStream<DocCtx> documentStream;
     public Long matchCount;
-    
-    public StreamingResponse() {
-        this(JsonNodeFactory.instance);
+
+    public StreamingResponse(JsonNodeFactory jsonNodeFactory, OperationStatus status) {
+        super(jsonNodeFactory, status);
     }
     
-    public StreamingResponse(JsonNodeFactory jsonNodeFactory) {
-        super(jsonNodeFactory);
+    public static StreamingResponse withError(JsonNodeFactory jsonNodeFactory, Error error) {
+        StreamingResponse r = new StreamingResponse(jsonNodeFactory, OperationStatus.ERROR);
+        r.getErrors().add(error);
+        return r;
     }
 }

@@ -119,7 +119,7 @@ public class Mediator {
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response(factory.getNodeFactory());
+        Response response = new Response(factory.getNodeFactory(), OperationStatus.ERROR);
         OperationContext ctx=null;
         try {
             ctx = newCtx(req, CRUDOperation.INSERT);
@@ -193,7 +193,7 @@ public class Mediator {
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response(factory.getNodeFactory());
+        Response response = new Response(factory.getNodeFactory(), OperationStatus.ERROR);
         OperationContext ctx=null;
         try {
             ctx = newCtx(req, CRUDOperation.SAVE);
@@ -268,7 +268,7 @@ public class Mediator {
     public Response update(UpdateRequest req) {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response(factory.getNodeFactory());
+        Response response = new Response(factory.getNodeFactory(), OperationStatus.ERROR);
         OperationContext ctx=null;
         try {
             ctx = newCtx(req, CRUDOperation.UPDATE);
@@ -342,7 +342,7 @@ public class Mediator {
     public Response delete(DeleteRequest req) {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response(factory.getNodeFactory());
+        Response response=new Response(factory.getNodeFactory(), OperationStatus.ERROR);
         OperationContext ctx=null;
         try {
             ctx = newCtx(req, CRUDOperation.DELETE);
@@ -479,8 +479,7 @@ public class Mediator {
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");        
         OperationContext ctx=null;
-        Response response=new Response();
-        response.setStatus(OperationStatus.ERROR);
+        Response response=new Response(factory.getNodeFactory(), OperationStatus.ERROR);
         try {
             ctx = newCtx(req, CRUDOperation.FIND);
             ctx.measure.begin("find");
@@ -537,14 +536,10 @@ public class Mediator {
             return _findAndStream(req,ctx);
         } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
-            StreamingResponse response=new StreamingResponse();
-            response.getErrors().add(e);
-            return response;
+            return StreamingResponse.withError(factory.getNodeFactory(), e);
         } catch (Exception e) {
             LOGGER.debug("Exception during find:{}", e);
-            StreamingResponse response=new StreamingResponse();
-            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
-            return response;
+            return StreamingResponse.withError(factory.getNodeFactory(), Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
             if(ctx!=null) {
                 ctx.measure.end("find");
@@ -555,8 +550,7 @@ public class Mediator {
     }
 
     private StreamingResponse _findAndStream(FindRequest req, OperationContext ctx) {
-        StreamingResponse response = new StreamingResponse(factory.getNodeFactory());
-        response.setStatus(OperationStatus.ERROR);
+        StreamingResponse response = new StreamingResponse(factory.getNodeFactory(), OperationStatus.ERROR);
         response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());
         CompositeMetadata md = ctx.getTopLevelEntityMetadata();
         if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
@@ -580,7 +574,7 @@ public class Mediator {
             CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
             ctx.measure.end("finder.find");
             
-            if(!ctx.hasErrors()) {                    
+            if(!ctx.hasErrors()) {
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.documentStream=ctx.getDocumentStream();
                 if(ctx.isComputeCounts()) {
@@ -604,8 +598,7 @@ public class Mediator {
     public Response explain(FindRequest req) {
         LOGGER.debug("explain {}", req.getEntityVersion());
         Error.push("explain(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response(factory.getNodeFactory());
-        response.setStatus(OperationStatus.ERROR);
+        Response response = new Response(factory.getNodeFactory(), OperationStatus.ERROR);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.FIND);
             response.setEntity(ctx.getTopLevelEntityName(),ctx.getTopLevelEntityVersion());

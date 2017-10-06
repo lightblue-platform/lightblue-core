@@ -34,6 +34,7 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.OperationStatus;
@@ -237,7 +238,7 @@ public class BulkTest extends AbstractMediatorTest {
                 LOGGER.debug("find: nested:"+nested+" waiting");
                 sem.acquire();
                 LOGGER.debug("find: nested:"+nested+" acquired");
-                return new Response();
+                return new Response(JsonNodeFactory.instance, OperationStatus.ERROR);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
@@ -257,7 +258,7 @@ public class BulkTest extends AbstractMediatorTest {
                 LOGGER.debug("insert: nested:"+nested+" waiting");
                 sem.acquire();
                 LOGGER.debug("insert: nested:"+nested+" acquired");
-                return new Response();
+                return new Response(JsonNodeFactory.instance, OperationStatus.ERROR);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {

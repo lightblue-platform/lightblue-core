@@ -18,17 +18,17 @@
  */
 package com.redhat.lightblue;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonObject;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonObject;
+
 
 /**
  * Common response information from mediator APIs
@@ -75,19 +75,12 @@ public class BaseResponse extends JsonObject {
         HOSTNAME = hostName;
     }
 
-    /**
-     * @deprecated use Response(JsonNodeFactory)
-     */
-    @Deprecated
-    public BaseResponse() {
-        this(JsonNodeFactory.withExactBigDecimals(true));
-    }
-
-    public BaseResponse(JsonNodeFactory jsonNodeFactory) {
+    public BaseResponse(JsonNodeFactory jsonNodeFactory, OperationStatus status) {
         this.jsonNodeFactory = jsonNodeFactory;
         this.hostname = HOSTNAME;
         this.dataErrors=new ArrayList<>();
         this.errors=new ArrayList<>();
+        setStatus(status);
     }
 
     public BaseResponse(BaseResponse r) {
@@ -126,7 +119,7 @@ public class BaseResponse extends JsonObject {
      * Status of the completed operation
      */
     public void setStatus(OperationStatus s) {
-        status = s;
+        status = Objects.requireNonNull(s, "Response must always have a status");
     }
 
     public String getHostname() {

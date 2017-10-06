@@ -45,7 +45,7 @@ import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.util.JsonCompare;
 import com.redhat.lightblue.util.DocComparator;
 
-public final class FieldAccessRoleEvaluator {
+public class FieldAccessRoleEvaluator {
     private final EntityMetadata md;
     private final Set<String> roles;
     private JsonCompare comparator;

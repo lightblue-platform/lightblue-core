@@ -38,6 +38,8 @@ import com.redhat.lightblue.util.MemoryMonitor.ThresholdMonitor;
  */
 public class Response extends BaseResponse  {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Response.class);
 
     private static final String PROPERTY_PROCESSED = "processed";
@@ -51,17 +53,8 @@ public class Response extends BaseResponse  {
     // Response has no access to CrudConstants
     public static final String ERR_RESULT_SIZE_TOO_LARGE = "crud:ResultSizeTooLarge";
 
-
-    /**
-     * @deprecated use Response(JsonNodeFactory)
-     */
-    @Deprecated
-    public Response() {
-        super();
-    }
-
-    public Response(JsonNodeFactory jsonNodeFactory) {
-        super(jsonNodeFactory);
+    public Response(JsonNodeFactory jsonNodeFactory, OperationStatus status) {
+        super(jsonNodeFactory, status);
     }
 
     public Response(Response r) {
