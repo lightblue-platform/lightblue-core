@@ -18,15 +18,10 @@
  */
 package com.redhat.lightblue.util.metrics;
 
-import java.lang.management.ManagementFactory;
-import java.util.concurrent.TimeUnit;
-
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jvm.BufferPoolMetricSet;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Registers JVM metrics and initializes JMX reporter to report all metrics, 
@@ -37,15 +32,8 @@ public class MetricRegistryFactory {
     private static MetricRegistry METRIC_REGISTRY = null;
     
     private MetricRegistryFactory(){}
-    
-    private static void initializeJVMMetrics() {
-        METRIC_REGISTRY.register("garbage-collector", new GarbageCollectorMetricSet());
-        METRIC_REGISTRY.register("buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()));
-        METRIC_REGISTRY.register("memory", new MemoryUsageGaugeSet());
-        METRIC_REGISTRY.register("threads", new ThreadStatesGaugeSet());
-    }
-    
-    private static void initializeJMXReporting() {    
+
+    private static void initializeJMXReporting() {
         final JmxReporter jmxReporter = JmxReporter.forRegistry(METRIC_REGISTRY)
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS).build();
@@ -55,7 +43,6 @@ public class MetricRegistryFactory {
     public static synchronized MetricRegistry getJmxMetricRegistry() {
         if (METRIC_REGISTRY == null) {
             METRIC_REGISTRY = new MetricRegistry();
-            initializeJVMMetrics();
             initializeJMXReporting();
         }
         return METRIC_REGISTRY;
