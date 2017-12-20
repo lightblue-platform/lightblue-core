@@ -31,19 +31,20 @@ public class MetricRegistryFactory {
 
     private static MetricRegistry METRIC_REGISTRY = null;
     
-    private MetricRegistryFactory(){}
+    private MetricRegistryFactory() {}
 
     private static void initializeJMXReporting() {
         final JmxReporter jmxReporter = JmxReporter.forRegistry(METRIC_REGISTRY)
                 .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS).build();
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build();
         jmxReporter.start();
     }
     
     public static synchronized MetricRegistry getJmxMetricRegistry() {
         if (METRIC_REGISTRY == null) {
             METRIC_REGISTRY = new MetricRegistry();
-            initializeJMXReporting();
+            //initializeJMXReporting();
         }
         return METRIC_REGISTRY;
     }
