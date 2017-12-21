@@ -662,7 +662,7 @@ public class Mediator {
             public Response call() {
                 LOGGER.debug("Starting a future {} request",req.getOperation());
                 Response resp = null;
-                RequestMetrics.Context metricCtx = metrics.startEntityRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                RequestMetrics.Context metricCtx = metrics.startCrudRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                 switch (req.getOperation()) {
                     case FIND:
                         resp = find((FindRequest) req);
@@ -707,7 +707,7 @@ public class Mediator {
                         ctx.futures[i] = executor.submit(getFutureRequest(req, metrics));
                     } else {
                         wait(ctx);
-                        RequestMetrics.Context metricCtx = metrics.startEntityRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
+                        RequestMetrics.Context metricCtx = metrics.startCrudRequest(req.getOperation().toString().toLowerCase(), req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion());
                         switch (req.getOperation()) {
                             case INSERT:
                             	resp = insert((InsertionRequest) req);

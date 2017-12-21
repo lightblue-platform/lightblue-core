@@ -36,12 +36,12 @@ public class DropwizardRequestMetricsTest {
 
     @Test
     public void testStartRequestMonitoring() {
-        requestMetrics.startEntityRequest("save", "name", null);
+        requestMetrics.startCrudRequest("save", "name", null);
         Assert.assertNotNull(metricsRegistry.getCounters());
         Assert.assertNotNull(metricsRegistry.getTimers());
 
-        Counter activeRequestCounter = metricsRegistry.counter("api.save.name.default.requests.active");
-        Timer completedRequestTimer = metricsRegistry.timer("api.save.name.default.requests.latency");
+        Counter activeRequestCounter = metricsRegistry.counter("api.entity.save.name.default.active");
+        Timer completedRequestTimer = metricsRegistry.timer("api.entity.save.name.default");
 
         Assert.assertEquals(1, activeRequestCounter.getCount());
         Assert.assertEquals(0, completedRequestTimer.getCount());
@@ -50,7 +50,7 @@ public class DropwizardRequestMetricsTest {
     
     @Test
     public void testEndRequestMonitoring() {
-        DropwizardRequestMetrics.Context context = requestMetrics.startEntityRequest("explain", "name", "1.0.0");
+        DropwizardRequestMetrics.Context context = requestMetrics.startCrudRequest("explain", "name", "1.0.0");
         context.endRequestMonitoring();
 
         Counter activeRequestCounter = metricsRegistry.counter("api.explain.name.1_0_0.requests.active");
@@ -63,7 +63,7 @@ public class DropwizardRequestMetricsTest {
 
     @Test
     public void testStartRequestMonitoringNullVersion() {
-        DropwizardRequestMetrics.Context context = requestMetrics.startEntityRequest("delete", "name", "1.2.3");
+        DropwizardRequestMetrics.Context context = requestMetrics.startCrudRequest("delete", "name", "1.2.3");
         Assert.assertNotNull(metricsRegistry.getCounters());
         Assert.assertNotNull(metricsRegistry.getTimers());
 
@@ -93,7 +93,7 @@ public class DropwizardRequestMetricsTest {
         Assert.assertEquals(1, exceptionMeter1.getCount());
         Assert.assertNotNull(exceptionMeter1.getOneMinuteRate());
         
-        DropwizardRequestMetrics.Context errorContext2 = requestMetrics.startEntityRequest("find", "name", null);
+        DropwizardRequestMetrics.Context errorContext2 = requestMetrics.startCrudRequest("find", "name", null);
         errorContext2.markRequestException(Error.get("mongo-crud:SaveClobblersHiddenFields"));
         Meter exceptionMeter2 = metricsRegistry.meter("api.find.name.default.requests.exception.Error.mongo_crud_SaveClobblersHiddenFields");
         Assert.assertEquals(1, exceptionMeter2.getCount());
@@ -108,13 +108,13 @@ public class DropwizardRequestMetricsTest {
         Assert.assertEquals(1, exceptionMeter1.getCount());
         Assert.assertNotNull(exceptionMeter1.getOneMinuteRate());
         
-        DropwizardRequestMetrics.Context errorContext2 = requestMetrics.startEntityRequest("find", "name", null);
+        DropwizardRequestMetrics.Context errorContext2 = requestMetrics.startCrudRequest("find", "name", null);
         errorContext2.markRequestException(Error.get("{testing&some*more+regex~replace=in;action'}"));
         Meter exceptionMeter2 = metricsRegistry.meter("api.find.name.default.requests.exception.Error._testing_some_more_regex_replace_in_action__");
         Assert.assertEquals(1, exceptionMeter2.getCount());
         Assert.assertNotNull(exceptionMeter2.getMeanRate());
 
-        DropwizardRequestMetrics.Context errorContext3 = requestMetrics.startEntityRequest("delete", "name", "version");
+        DropwizardRequestMetrics.Context errorContext3 = requestMetrics.startCrudRequest("delete", "name", "version");
         errorContext3.markRequestException(Error.get("\\yet<more>regex?replace,action\"in here\\"));
         Meter exceptionMeter3 = metricsRegistry.meter("api.delete.name.version.requests.exception.Error._yet_more_regex_replace_action_in_here_");
         Assert.assertEquals(1, exceptionMeter3.getCount());

@@ -36,13 +36,13 @@ public interface RequestMetrics {
      * Starts monitoring for a simple request. This will handle all LB  
      * CRUD operations. 
      */
-    Context startEntityRequest(String operation, String entity, String version);
+    Context startCrudRequest(String operation, String entity, String version);
 
     /** 
      * Starts monitoring for a streaming request. This will handle all streaming LB 
      * CRUD operations 
      */
-    Context startStreamingEntityRequest(String operation, String entity, String version);
+    Context startStreamingCrudRequest(String operation, String entity, String version);
 
     /** 
      * Starts monitoring for a locking request
@@ -74,6 +74,8 @@ public interface RequestMetrics {
      *  
      */
     Context startBulkRequest();
+
+    Context startGenerateRequest(String entity, String version, String field);
 
     /**
      * Context information for a request. Context is created when monitoring starts for any request 

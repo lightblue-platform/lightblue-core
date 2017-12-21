@@ -9,12 +9,12 @@ public class NoopRequestMetrics implements RequestMetrics {
     private static final NoopContext NOOP_CONTEXT = new NoopContext();
 
     @Override
-    public Context startEntityRequest(String operation, String entity, String version) {
+    public Context startCrudRequest(String operation, String entity, String version) {
         return NOOP_CONTEXT;
     }
 
     @Override
-    public Context startStreamingEntityRequest(String operation, String entity, String version) {
+    public Context startStreamingCrudRequest(String operation, String entity, String version) {
         return NOOP_CONTEXT;
     }
     

@@ -73,32 +73,32 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     // app.api.${operation}.${entity}.versions.{$version}.errors.${error}
     //
     @Override
-    public Context startEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(new CrudMetricName(operation, entity, version));
+    public Context startCrudRequest(String operation, String entity, String version) {
+        return new DropwizardContext(new EntityMetric(operation, entity, version));
     }
 
     @Override
-    public Context startStreamingEntityRequest(String operation, String entity, String version) {
-        // TODO
-        return new DropwizardContext(new CrudMetricName("stream-" + operation, entity, version));
+    public Context startStreamingCrudRequest(String operation, String entity, String version) {
+        // TODO own metric type?
+        return new DropwizardContext(new EntityMetric(operation + "-streaming", entity, version));
     }
 
     // metrics:type=timers,lockCommand=acquire,domain=foo
     // app.api.locks.${domain}.${lockCommand}.errors.${error}
     @Override
     public Context startLockRequest(String lockOperation, String domain) {
-        return new DropwizardContext(new LockMetricName(domain, lockOperation));
+        return new DropwizardContext(new LockMetric(domain, lockOperation));
     }
 
     // metrics:type=timers,operation=health,error=*
     @Override
     public Context startHealthRequest() {
-        return new DropwizardContext(new GenericOperationMetricName("health"));
+        return new DropwizardContext(new GenericOperationMetric("health"));
     }
 
     @Override
     public Context startDiagnosticsRequest() {
-        return new DropwizardContext(new GenericOperationMetricName("diagnostics"));
+        return new DropwizardContext(new GenericOperationMetric("diagnostics"));
     }
 
     // metrics:type=timers,savedSearch=byId,entity=foo,version=default,error=*
@@ -106,26 +106,31 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     // app.api.saved-search.${entity}.${savedSearch}.versions.${version}.errors.${error}
     @Override
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
-        return new DropwizardContext(new SavedSearchMetricName(entity, searchName, version));
+        return new DropwizardContext(new SavedSearchMetric(entity, searchName, version));
     }
 
     // metrics:type=timers,operation=bulk,error=*
     // app.api.bulk
     @Override
     public Context startBulkRequest() {
-        return new DropwizardContext(new GenericOperationMetricName("bulk"));
+        return new DropwizardContext(new GenericOperationMetric("bulk"));
+    }
+
+    @Override
+    public Context startGenerateRequest(String entity, String version, String field) {
+        return new DropwizardContext(new GenerateMetric(entity, version, field));
     }
 
     private class DropwizardContext implements Context {
-        private final RequestMetricName metricName;
+        private final Metric metric;
         private final Timer.Context context;
         private final Counter activeRequests;
         private boolean ended = false;
 
-        public DropwizardContext(RequestMetricName metricName) {
-            this.metricName = metricName;
-            this.context = metricName.requestTimer(metricsRegistry).time();
-            this.activeRequests = metricName.activeRequestCounter(metricsRegistry);
+        DropwizardContext(Metric metric) {
+            this.metric = metric;
+            this.context = metric.requestTimer(metricsRegistry).time();
+            this.activeRequests = metric.activeRequestCounter(metricsRegistry);
 
             activeRequests.inc();
         }
@@ -137,24 +142,18 @@ public class DropwizardRequestMetrics implements RequestMetrics {
                 activeRequests.dec();
                 context.stop();
             } else {
-                LOGGER.warn("Request already ended for :: " + metricName);
+                LOGGER.warn("Request already ended for: {}", metric);
             }
         }
 
         @Override
         public void markRequestException(Error e) {
-            // Presence of : in metricnamespace makes it's display a bit weird in visualvm.
-            // This might not effect the metric in graphite, but replacing it as a precaution.
-//            String errorCode = e.getErrorCode().replaceAll(REGEX, "_");
-//            metricsRegistry.meter(errorNamespace(metricNamespace, e, errorCode)).mark();
-            metricName.errorMeter(metricsRegistry, e.getErrorCode()).mark();
+            metric.errorMeter(metricsRegistry, e.getErrorCode()).mark();
         }
 
         @Override
         public void markRequestException(Exception e) {
-            metricName.errorMeter(metricsRegistry, unravelReflectionExceptions(e).getName()).mark();
-//            errorMeter(unravelReflectionExceptions(e).getName()).mark();
-//            metricsRegistry.meter(errorNamespace(metricNamespace, e)).mark();
+            metric.errorMeter(metricsRegistry, unravelReflectionExceptions(e).getName()).mark();
         }
 
         @Override
@@ -173,7 +172,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         public ObjectName createName(String type, String domain, String name) {
             StringTokenizer metricTokens = new StringTokenizer(name, ".");
 
-            if (!metricTokens.hasMoreTokens() || !metricTokens.nextToken().equals("api")) {
+            if (!metricTokens.hasMoreTokens() || !metricTokens.nextToken().equals(API)) {
                 // ??? Use default
                 return _default.createName(type, domain, name);
             }
@@ -194,19 +193,21 @@ public class DropwizardRequestMetrics implements RequestMetrics {
             String namespace = metricTokens.nextToken();
 
             switch (namespace) {
-                case LockMetricName.NAMESPACE:
-                    return LockMetricName.parseProperties(metricTokens);
-                case SavedSearchMetricName.NAMESPACE:
-                    return SavedSearchMetricName.parseProperties(metricTokens);
-                case CrudMetricName.NAMESPACE:
-                    return CrudMetricName.parseProperties(metricTokens);
+                case LockMetric.NAMESPACE:
+                    return LockMetric.parseProperties(metricTokens);
+                case SavedSearchMetric.NAMESPACE:
+                    return SavedSearchMetric.parseProperties(metricTokens);
+                case EntityMetric.NAMESPACE:
+                    return EntityMetric.parseProperties(metricTokens);
+                case GenerateMetric.NAMESPACE:
+                    return GenerateMetric.parseProperties(metricTokens);
                 default:
-                    return GenericOperationMetricName.parseProperties(namespace, metricTokens);
+                    return GenericOperationMetric.parseProperties(namespace, metricTokens);
             }
         }
     }
 
-    private abstract static class RequestMetricName {
+    private abstract static class Metric {
         private static final String ERROR_TOKEN = "errors";
 
         final Timer requestTimer(MetricRegistry registry) {
@@ -238,10 +239,10 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
     }
 
-    private static class GenericOperationMetricName extends RequestMetricName {
+    private static class GenericOperationMetric extends Metric {
         private final String operation;
 
-        GenericOperationMetricName(String unescapedOperation) {
+        GenericOperationMetric(String unescapedOperation) {
             // This request metric is special: no specific namespace / catch-all
             operation = escape(unescapedOperation);
         }
@@ -261,12 +262,12 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
     }
 
-    private static class CrudMetricName extends RequestMetricName {
+    private static class EntityMetric extends Metric {
         static final String NAMESPACE = "crud";
 
         private final String encoded;
 
-        private CrudMetricName(String unescapedOperation, String unescapedEntity,
+        private EntityMetric(String unescapedOperation, String unescapedEntity,
                 String unescapedVersion) {
             String operation = escape(unescapedOperation);
             String entity = escape(unescapedEntity);
@@ -292,12 +293,12 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
     }
 
-    private static class LockMetricName extends RequestMetricName {
+    private static class LockMetric extends Metric {
         static final String NAMESPACE = "locks";
 
         private final String encoded;
 
-        private LockMetricName(String unescapedDomain, String unescapedLockCommand) {
+        private LockMetric(String unescapedDomain, String unescapedLockCommand) {
             encoded = name(NAMESPACE, escape(unescapedDomain), escape(unescapedLockCommand));
         }
 
@@ -316,12 +317,12 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
     }
 
-    private static class SavedSearchMetricName extends RequestMetricName {
+    private static class SavedSearchMetric extends Metric {
         static final String NAMESPACE = "saved-search";
 
         private final String encoded;
 
-        public SavedSearchMetricName(
+        public SavedSearchMetric(
                 String unescapedEntity, String unescapedSearchName, String unescapedVersion) {
             encoded = name(NAMESPACE, escape(unescapedEntity), escape(unescapedSearchName),
                     escapeVersion(unescapedVersion));
@@ -344,15 +345,31 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         }
     }
 
+    private static class GenerateMetric extends Metric {
+
+        public GenerateMetric(String unescapedEntity, String unescapedVersion,
+                String unescapedField) {
+
+        }
+
+        @Override
+        public String toString() {
+            return null;
+        }
+    }
+
+    /**
+     * Replace all . in version with _ as Dropwizard conventions (and metric systems like Graphite)
+     * treat . as a path component separator. In order to have stable meaning of path components, we
+     * must escape . in individual components.
+     */
     private static String escape(String unescaped) {
         if (unescaped == null) return null;
         return unescaped.replace('.', '_');
     }
 
     /**
-     * If version is null,replace with default.
-     * Also replace all . in version with _ as graphite treats . as standard separator and can cause issues in queries.
-     *
+     * If version is null, replace with default. Then calls {@link #escape(String)}.
      */
     private static String escapeVersion(String version) {
         return StringUtils.isEmpty(version) ? "default" : escape(version);
@@ -362,7 +379,6 @@ public class DropwizardRequestMetrics implements RequestMetrics {
      * Get to the cause we actually care about in case the bubbled up exception is a
      * higher level framework exception that encapsulates the stuff we really care
      * about.
-     *
      */
     private static Class<? extends Throwable> unravelReflectionExceptions(Throwable e) {
         while (e.getCause() != null &&
