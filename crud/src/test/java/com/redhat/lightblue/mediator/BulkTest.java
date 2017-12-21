@@ -29,10 +29,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -55,8 +52,10 @@ import com.redhat.lightblue.crud.ListDocumentStream;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.metrics.DefaultMetricNamer;
 import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
 import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
+import com.redhat.lightblue.util.metrics.RequestMetric;
 import com.redhat.lightblue.util.metrics.RequestMetrics;
 
 public class BulkTest extends AbstractMediatorTest {
@@ -417,9 +416,10 @@ public class BulkTest extends AbstractMediatorTest {
     }
     
     @Test
-    public void metricsBulkTest() throws Exception {
+    public void tracksMetricsForRequestsInsideBulkRequest() throws Exception {
         MetricRegistry metricsRegistry = new MetricRegistry();
-        RequestMetrics metrics = new DropwizardRequestMetrics(metricsRegistry);
+        DropwizardRequestMetrics.MetricNamer metricNamer = new DefaultMetricNamer();
+        RequestMetrics metrics = new DropwizardRequestMetrics(metricsRegistry, metricNamer);
         
         BulkRequest breq = new BulkRequest();
 
@@ -448,29 +448,29 @@ public class BulkTest extends AbstractMediatorTest {
         
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
-        Assert.assertEquals(0, metricsRegistry.counter("api.insert.user.1_0.requests.active").getCount());
-        Assert.assertEquals(1, metricsRegistry.timer("api.insert.user.1_0.requests.latency").getCount());
-        Assert.assertNotNull(metricsRegistry.timer("api.insert.user.1_0.requests.latency").getOneMinuteRate());
+
+        RequestMetric insertUser = metricNamer.crud("insert", "user", "1.0");
+
+        Assert.assertEquals(1, insertUser.requestTimer(metricsRegistry).getCount());
 
         response = bresp.getEntries().get(1);
 
+        RequestMetric findCountry = metricNamer.crud("find", "country", "2.0");
+
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(1, response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
-        Assert.assertEquals(0,metricsRegistry.counter("api.find.country.2_0.requests.active").getCount());
-        Assert.assertEquals(1, metricsRegistry.timer("api.find.country.2_0.requests.latency").getCount());
-        Assert.assertEquals(1, metricsRegistry.meter("api.find.country.2_0.requests.exception.Error.crud_NoAccess").getCount());
-        Assert.assertNotNull(metricsRegistry.meter("api.find.country.2_0.requests.exception.Error.crud_NoAccess").getOneMinuteRate());
+        Assert.assertEquals(1, findCountry.requestTimer(metricsRegistry).getCount());
+        Assert.assertEquals(1, findCountry.errorMeter(metricsRegistry, CrudConstants.ERR_NO_ACCESS).getCount());
 
         response = bresp.getEntries().get(2);
+
+        RequestMetric deleteTest = metricNamer.crud("delete", "test", "3.0");
         
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(1, response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
-        Assert.assertEquals(0,metricsRegistry.counter("api.delete.test.3_0.requests.active").getCount());
-        Assert.assertEquals(1, metricsRegistry.timer("api.delete.test.3_0.requests.latency").getCount());
-        Assert.assertEquals(1, metricsRegistry.meter("api.delete.test.3_0.requests.exception.Error.crud_NoAccess").getCount());
-        Assert.assertNotNull(metricsRegistry.meter("api.delete.test.3_0.requests.exception.Error.crud_NoAccess").getOneMinuteRate());
-        
+        Assert.assertEquals(1, deleteTest.requestTimer(metricsRegistry).getCount());
+        Assert.assertEquals(1, deleteTest.errorMeter(metricsRegistry, CrudConstants.ERR_NO_ACCESS).getCount());
     }
 }

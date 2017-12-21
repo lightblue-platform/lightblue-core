@@ -41,7 +41,7 @@ public class DropwizardRequestMetrics implements RequestMetrics {
     private final MetricRegistry metricRegistry;
     private final MetricNamer metricNamer;
 
-    interface MetricNamer {
+    public interface MetricNamer {
         RequestMetric crud(String operation, String entity, String version);
         RequestMetric streamingCrud(String operation, String entity, String version);
         RequestMetric lock(String domain, String lockCommand);
@@ -85,14 +85,11 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         return new DropwizardContext(metricNamer.streamingCrud(operation, entity, version));
     }
 
-    // metrics:type=timers,lockCommand=acquire,domain=foo
-    // app.api.locks.${domain}.${lockCommand}.errors.${error}
     @Override
     public Context startLockRequest(String lockOperation, String domain) {
         return new DropwizardContext(metricNamer.lock(domain, lockOperation));
     }
 
-    // metrics:type=timers,operation=health,error=*
     @Override
     public Context startHealthRequest() {
         return new DropwizardContext(metricNamer.health());
@@ -103,16 +100,11 @@ public class DropwizardRequestMetrics implements RequestMetrics {
         return new DropwizardContext(metricNamer.diagnostics());
     }
 
-    // metrics:type=timers,savedSearch=byId,entity=foo,version=default,error=*
-    // app.api.saved-search.foo.byId.default
-    // app.api.saved-search.${entity}.${savedSearch}.versions.${version}.errors.${error}
     @Override
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
         return new DropwizardContext(metricNamer.savedSearch(entity, searchName, version));
     }
 
-    // metrics:type=timers,operation=bulk,error=*
-    // app.api.bulk
     @Override
     public Context startBulkRequest() {
         return new DropwizardContext(metricNamer.bulk());

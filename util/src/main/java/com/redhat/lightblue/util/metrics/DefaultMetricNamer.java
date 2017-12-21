@@ -17,7 +17,7 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-class DefaultMetricNamer implements DropwizardRequestMetrics.MetricNamer, ObjectNameFactory, MetricFilter {
+public class DefaultMetricNamer implements DropwizardRequestMetrics.MetricNamer, ObjectNameFactory, MetricFilter {
     private static final ObjectNameFactory DEFAULT_ONF = new DefaultObjectNameFactory();
     private static final String PREFIX_TOKEN = "request";
     private static final String ERROR_TOKEN = "errors";
@@ -101,11 +101,16 @@ class DefaultMetricNamer implements DropwizardRequestMetrics.MetricNamer, Object
         return crud(operation + "-streaming", entity, version);
     }
 
+    // metrics:type=timers,lockCommand=acquire,domain=foo
+    // app.api.locks.${domain}.${lockCommand}.errors.${error}
     @Override
     public RequestMetric lock(String domain, String lockCommand) {
         return new ParseableMetric(PREFIX_TOKEN, "lock", escape(domain), escape(lockCommand));
     }
 
+    // metrics:type=timers,savedSearch=byId,entity=foo,version=default,error=*
+    // app.api.saved-search.foo.byId.default
+    // app.api.saved-search.${entity}.${savedSearch}.versions.${version}.errors.${error}
     @Override
     public RequestMetric savedSearch(String entity, String searchName, String version) {
         return new ParseableMetric(PREFIX_TOKEN, "saved-search", escape(entity), escape(searchName),
@@ -117,11 +122,14 @@ class DefaultMetricNamer implements DropwizardRequestMetrics.MetricNamer, Object
         return new ParseableMetric(PREFIX_TOKEN, "diagnostics");
     }
 
+    // metrics:type=timers,operation=health,error=*
     @Override
     public RequestMetric health() {
         return new ParseableMetric(PREFIX_TOKEN, "health");
     }
 
+    // metrics:type=timers,operation=bulk,error=*
+    // app.api.bulk
     @Override
     public RequestMetric bulk() {
         return new ParseableMetric(PREFIX_TOKEN, "bulk");
