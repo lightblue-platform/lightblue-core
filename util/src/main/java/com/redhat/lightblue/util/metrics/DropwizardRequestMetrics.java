@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
-
 public class DropwizardRequestMetrics implements RequestMetrics {
 
     private final Logger LOGGER = LoggerFactory.getLogger(DropwizardRequestMetrics.class);
