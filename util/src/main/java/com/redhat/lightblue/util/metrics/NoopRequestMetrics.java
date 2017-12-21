@@ -42,7 +42,12 @@ public class NoopRequestMetrics implements RequestMetrics {
     public Context startBulkRequest() {
         return NOOP_CONTEXT;
     }
-    
+
+    @Override
+    public Context startGenerateRequest(String entity, String version, String field) {
+        return NOOP_CONTEXT;
+    }
+
     private static class NoopContext implements Context {
         @Override
         public void endRequestMonitoring() {
@@ -61,7 +66,7 @@ public class NoopRequestMetrics implements RequestMetrics {
 
         @Override
         public void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors) {
-			
+
         }
     }
 }
