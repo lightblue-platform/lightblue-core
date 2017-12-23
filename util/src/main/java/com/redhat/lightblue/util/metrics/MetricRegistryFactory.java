@@ -18,10 +18,7 @@
  */
 package com.redhat.lightblue.util.metrics;
 
-import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Registers JVM metrics and initializes JMX reporter to report all metrics, 
@@ -31,19 +28,11 @@ public class MetricRegistryFactory {
 
     private static MetricRegistry METRIC_REGISTRY = null;
     
-    private MetricRegistryFactory(){}
+    private MetricRegistryFactory() {}
 
-    private static void initializeJMXReporting() {
-        final JmxReporter jmxReporter = JmxReporter.forRegistry(METRIC_REGISTRY)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS).build();
-        jmxReporter.start();
-    }
-    
     public static synchronized MetricRegistry getJmxMetricRegistry() {
         if (METRIC_REGISTRY == null) {
             METRIC_REGISTRY = new MetricRegistry();
-            initializeJMXReporting();
         }
         return METRIC_REGISTRY;
     }

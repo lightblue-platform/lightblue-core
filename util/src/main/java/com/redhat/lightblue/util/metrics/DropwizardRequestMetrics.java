@@ -19,115 +19,112 @@
 package com.redhat.lightblue.util.metrics;
 
 import com.codahale.metrics.Counter;
+import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.redhat.lightblue.util.Error;
-import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
-
 public class DropwizardRequestMetrics implements RequestMetrics {
-    
+
     private final Logger LOGGER = LoggerFactory.getLogger(DropwizardRequestMetrics.class);
 
-    private static final String API = "api";
+    private final MetricRegistry metricRegistry;
+    private final MetricNamer metricNamer;
 
-    private final MetricRegistry metricsRegistry;
-    
-    // replace any special characters in error message with _
-    private final String REGEX = "[-@#!$%^&*()+|~={}:;'<>?,\"\\\\////\\s]";
+    public interface MetricNamer {
+        RequestMetric crud(String operation, String entity, String version);
+        RequestMetric streamingCrud(String operation, String entity, String version);
+        RequestMetric lock(String domain, String lockCommand);
+        RequestMetric savedSearch(String entity, String searchName, String version);
+        RequestMetric diagnostics();
+        RequestMetric health();
+        RequestMetric bulk();
+        RequestMetric generate(String entity, String version, String field);
+    }
+
+    public static DropwizardRequestMetrics withDefaultMBeans(MetricRegistry registry) {
+        DefaultMetricNamer metricNamer = new DefaultMetricNamer();
+
+        final JmxReporter jmxReporter = JmxReporter.forRegistry(registry)
+                .filter(metricNamer)
+                .createsObjectNamesWith(metricNamer)
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build();
+        jmxReporter.start();
+
+        return new DropwizardRequestMetrics(registry, metricNamer);
+    }
 
     public DropwizardRequestMetrics(MetricRegistry metricRegistry) {
-        metricsRegistry = metricRegistry;
+        this(metricRegistry, new DefaultMetricNamer());
     }
 
-    /**
-     * Create exception namespace for metric reporting based on exception name.
-     * 
-     */
-    private static String errorNamespace(String metricNamespace, Throwable exception, String errorMessage) {
-        Class<? extends Throwable> actualExceptionClass = unravelReflectionExceptions(exception);
-        return name(metricNamespace, "requests", "exception", actualExceptionClass.getSimpleName(), errorMessage);
-    }
-
-    /**
-     * Get to the cause we actually care about in case the bubbled up exception is a
-     * higher level framework exception that encapsulates the stuff we really care
-     * about.
-     * 
-     */
-    private static Class<? extends Throwable> unravelReflectionExceptions(Throwable e) {
-        while (e.getCause() != null
-                && (e instanceof UndeclaredThrowableException || e instanceof InvocationTargetException)) {
-            e = e.getCause();
-        }
-        return e.getClass();
-    }
-
-    /**
-     * If version is null,replace with default.
-     * Also replace all . in version with _ as graphite treats . as standard separator and can cause issues in queries.
-     * 
-     */
-    private String formatVersion(String version) {
-       if (StringUtils.isEmpty(version))
-    	  return "default";
-       else
-    	  return version.replace(".", "_");
-    }
-    @Override
-    public Context startEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, operation, entity, formatVersion(version)));
+    public DropwizardRequestMetrics(MetricRegistry metricRegistry, MetricNamer metricNamer) {
+        this.metricRegistry = metricRegistry;
+        this.metricNamer = metricNamer;
     }
 
     @Override
-    public Context startStreamingEntityRequest(String operation, String entity, String version) {
-        return new DropwizardContext(name(API, "stream", operation, entity, formatVersion(version)));
+    public Context startCrudRequest(String operation, String entity, String version) {
+        return new DropwizardContext(metricNamer.crud(operation, entity, version));
     }
-    
+
+    @Override
+    public Context startStreamingCrudRequest(String operation, String entity, String version) {
+        return new DropwizardContext(metricNamer.streamingCrud(operation, entity, version));
+    }
+
     @Override
     public Context startLockRequest(String lockOperation, String domain) {
-        return new DropwizardContext(name(API, "lock", domain, lockOperation));
+        return new DropwizardContext(metricNamer.lock(domain, lockOperation));
     }
 
     @Override
     public Context startHealthRequest() {
-        return new DropwizardContext(name(API, "checkHealth"));
+        return new DropwizardContext(metricNamer.health());
     }
 
     @Override
     public Context startDiagnosticsRequest() {
-        return new DropwizardContext(name(API, "checkDiagnostics"));
+        return new DropwizardContext(metricNamer.diagnostics());
     }
 
+    @Override
     public Context startSavedSearchRequest(String searchName, String entity, String version) {
-        return new DropwizardContext(name(API, "savedsearch", searchName, entity, formatVersion(version)));
+        return new DropwizardContext(metricNamer.savedSearch(entity, searchName, version));
     }
-    
+
     @Override
     public Context startBulkRequest() {
-        return new DropwizardContext(name(API, "bulk"));
+        return new DropwizardContext(metricNamer.bulk());
     }
-    
-    public class DropwizardContext implements Context {
-        
-        private final String metricNamespace;
+
+    @Override
+    public Context startGenerateRequest(String entity, String version, String field) {
+        return new DropwizardContext(metricNamer.generate(entity, version, field));
+    }
+
+    private class DropwizardContext implements Context {
+        private final RequestMetric metric;
         private final Timer.Context context;
         private final Counter activeRequests;
         private boolean ended = false;
 
-        public DropwizardContext(String metricNamespace) {
-            this.metricNamespace = Objects.requireNonNull(metricNamespace, "metricNamespace");
-            this.context = metricsRegistry.timer(name(metricNamespace, "requests", "latency")).time();
-            this.activeRequests = metricsRegistry.counter(name(metricNamespace, "requests", "active"));
+        DropwizardContext(RequestMetric metric) {
+            this.metric = metric;
+            this.context = metric.requestTimer(metricRegistry).time();
+            this.activeRequests = metric.activeRequestCounter(metricRegistry);
 
             activeRequests.inc();
         }
@@ -139,29 +136,41 @@ public class DropwizardRequestMetrics implements RequestMetrics {
                 activeRequests.dec();
                 context.stop();
             } else {
-                LOGGER.warn("Request already ended for :: " + metricNamespace);
+                LOGGER.warn("Request already ended for: {}", metric);
             }
         }
 
         @Override
         public void markRequestException(Error e) {
-            // Presence of : in metricnamespace makes it's display a bit weird in visualvm.
-            // This might not effect the metric in graphite, but replacing it as a precaution.
-            String errorCode = e.getErrorCode().replaceAll(REGEX, "_");
-            metricsRegistry.meter(errorNamespace(metricNamespace, e, errorCode)).mark();            
+            metric.errorMeter(metricRegistry, e.getErrorCode()).mark();
         }
-        
+
         @Override
         public void markRequestException(Exception e) {
-        	metricsRegistry.meter(errorNamespace(metricNamespace, e, null)).mark();
+            metric.errorMeter(metricRegistry, unravelReflectionExceptions(e).getName()).mark();
         }
 
         @Override
         public void markAllErrorsAndEndRequestMonitoring(List<? extends Error> errors) {
             for (Error e : errors) {
-               markRequestException(e);
-             }
+                markRequestException(e);
+            }
             endRequestMonitoring();
         }
     }
+
+    /**
+     * Get to the cause we actually care about in case the bubbled up exception is a
+     * higher level framework exception that encapsulates the stuff we really care
+     * about.
+     */
+    private static Class<? extends Throwable> unravelReflectionExceptions(Throwable e) {
+        while (e.getCause() != null &&
+                (e instanceof UndeclaredThrowableException ||
+                        e instanceof InvocationTargetException)) {
+            e = e.getCause();
+        }
+        return e.getClass();
+    }
 }
+
