@@ -10,10 +10,13 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ObjectNameFactory;
 import com.codahale.metrics.Timer;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.util.Hashtable;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
@@ -26,6 +29,8 @@ public class DefaultMetricNamer implements DropwizardRequestMetrics.MetricNamer,
     private final static Pattern ILLEGAL =
             Pattern.compile("[\\.@#!$%^&*()+|~={}:;'<>?,\"\\\\////\\s]");
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultMetricNamer.class);
+
     @Override
     public ObjectName createName(String type, String domain, String name) {
         StringTokenizer metricTokens = new StringTokenizer(name, ".");
@@ -34,55 +39,64 @@ public class DefaultMetricNamer implements DropwizardRequestMetrics.MetricNamer,
             return DEFAULT_ONF.createName(type, domain, name);
         }
 
-        String namespace = metricTokens.nextToken();
-        // Instantiate table per namespace to keep unused capacity low. The metrics handling needs
-        // to be lightweight. These are instantiated once per combination (not once per request),
-        // but there can still be a large amount of combinations in typical cases.
-        Hashtable<String, String> properties;
-
-        switch (namespace) {
-            // Each case uses count(properties) + one for "type" and one for "error".
-            // There may not be an error, but we allocate capacity just in case.
-            case "crud":
-                properties = new Hashtable<>(5);
-                properties.put("operation", metricTokens.nextToken());
-                properties.put("entity", metricTokens.nextToken());
-                properties.put("version", metricTokens.nextToken());
-                break;
-            case "lock":
-                properties = new Hashtable<>(4);
-                properties.put("domain", metricTokens.nextToken());
-                properties.put("lockCommand", metricTokens.nextToken());
-                break;
-            case "saved-search":
-                properties = new Hashtable<>(5);
-                properties.put("entity", metricTokens.nextToken());
-                properties.put("savedSearch", metricTokens.nextToken());
-                properties.put("version", metricTokens.nextToken());
-                break;
-            case "generate":
-                properties = new Hashtable<>(5);
-                properties.put("entity", metricTokens.nextToken());
-                properties.put("version", metricTokens.nextToken());
-                properties.put("field", metricTokens.nextToken());
-            default:
-                properties = new Hashtable<>(3);
-                properties.put("operation", namespace);
-        }
-
-        if (metricTokens.hasMoreTokens() &&
-                ERROR_TOKEN.equals(metricTokens.nextToken()) &&
-                metricTokens.hasMoreTokens()) {
-            properties.put("error", metricTokens.nextToken());
-        }
-
-        properties.put("type", type);
-
         try {
+            String namespace = metricTokens.nextToken();
+            // Instantiate table per namespace to keep unused capacity low. The metrics handling needs
+            // to be lightweight. These are instantiated once per combination (not once per request),
+            // but there can still be a large amount of combinations in typical cases.
+            Hashtable<String, String> properties;
+
+            switch (namespace) {
+                // Each case uses count(properties) + one for "type" and one for "error".
+                // There may not be an error, but we allocate capacity just in case.
+                case "crud":
+                    properties = new Hashtable<>(5);
+                    properties.put("operation", metricTokens.nextToken());
+                    properties.put("entity", metricTokens.nextToken());
+                    properties.put("version", metricTokens.nextToken());
+                    break;
+                case "lock":
+                    properties = new Hashtable<>(4);
+                    properties.put("domain", metricTokens.nextToken());
+                    properties.put("lockCommand", metricTokens.nextToken());
+                    break;
+                case "saved-search":
+                    properties = new Hashtable<>(5);
+                    properties.put("entity", metricTokens.nextToken());
+                    properties.put("savedSearch", metricTokens.nextToken());
+                    properties.put("version", metricTokens.nextToken());
+                    break;
+                case "generate":
+                    properties = new Hashtable<>(5);
+                    properties.put("entity", metricTokens.nextToken());
+                    properties.put("version", metricTokens.nextToken());
+                    properties.put("field", metricTokens.nextToken());
+                default:
+                    properties = new Hashtable<>(3);
+                    properties.put("operation", namespace);
+            }
+
+            if (metricTokens.hasMoreTokens() &&
+                    ERROR_TOKEN.equals(metricTokens.nextToken()) &&
+                    metricTokens.hasMoreTokens()) {
+                properties.put("error", metricTokens.nextToken());
+            }
+
+            properties.put("type", type);
+
             return new ObjectName(domain, properties);
+        } catch (NoSuchElementException e) {
+            log.warn("Unable to parse metric '{}'. Falling back to default ObjectNameFactory: {}",
+                    name, DEFAULT_ONF, e);
+            // fall through
         } catch (MalformedObjectNameException e) {
-            return DEFAULT_ONF.createName(type, domain, name);
+            log.warn("Unable to create ObjectName for metric '{}'. " +
+                    "Falling back to default ObjectNameFactory: {}", name, DEFAULT_ONF, e);
+            // fall through
         }
+
+        // When we can't create an ObjectName ourselves...
+        return DEFAULT_ONF.createName(type, domain, name);
     }
 
     @Override
