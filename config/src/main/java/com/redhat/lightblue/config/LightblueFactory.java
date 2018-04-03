@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,16 +77,18 @@ public final class LightblueFactory implements Serializable {
 
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
+    private transient volatile MetadataConfiguration mdConfiguration;
+    private transient volatile CrudConfiguration crudConfiguration=null;
+
     private volatile Metadata metadata = null;
     private transient volatile JSONMetadataParser parser = null;
     private transient volatile Mediator mediator = null;
     private transient volatile Factory factory;
     private transient volatile JsonTranslator jsonTranslator = null;
     private transient volatile Map<String, LockingSupport> lockingMap = null;
-    private transient volatile CrudConfiguration crudConfiguration=null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
-        this(datasources, null, null);
+        this(datasources, (JsonNode) null, null);
     }
 
     public LightblueFactory(DataSourcesConfiguration datasources, JsonNode crudNode, JsonNode metadataNode) {
@@ -95,6 +98,15 @@ public final class LightblueFactory implements Serializable {
         this.datasources = datasources;
         this.crudNode = crudNode;
         this.metadataNode = metadataNode;
+    }
+
+    public LightblueFactory(DataSourcesConfiguration datasources, MetadataConfiguration mdConfiguration, CrudConfiguration crudConfiguration) {
+        this.crudNode = null;
+        this.metadataNode = null;
+
+        this.datasources = Objects.requireNonNull(datasources, "datasources");
+        this.mdConfiguration = Objects.requireNonNull(mdConfiguration, "mdConfiguration");
+        this.crudConfiguration = Objects.requireNonNull(crudConfiguration, "crudConfiguration");
     }
 
     private synchronized void initializeParser()
@@ -186,27 +198,7 @@ public final class LightblueFactory implements Serializable {
         if (metadata == null) {
             LOGGER.debug("Initializing metadata");
 
-            JsonNode root = metadataNode;
-            if (root == null) {
-                try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
-                    if (null == is) {
-                        throw new FileNotFoundException(MetadataConfiguration.FILENAME);
-                    }
-                    root = JsonUtils.json(is, true);
-                }
-            }
-            LOGGER.debug("Config root:{}", root);
-
-            JsonNode cfgClass = root.get("type");
-            if (cfgClass == null) {
-                throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
-            }
-
-            MetadataConfiguration cfg = (MetadataConfiguration) Thread.currentThread().getContextClassLoader().loadClass(
-                    cfgClass.asText()).newInstance();
-            injectDependencies(cfg);
-
-            cfg.initializeFromJson(root);
+            MetadataConfiguration cfg = getMetadataConfiguration();
 
             // Set validation flag for all metadata requests
             getJsonTranslator().setValidation(EntityMetadata.class, cfg.isValidateRequests());
@@ -217,6 +209,36 @@ public final class LightblueFactory implements Serializable {
 
             factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParsers(), this));
         }
+    }
+
+    private MetadataConfiguration getMetadataConfiguration() throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+        if (mdConfiguration != null) {
+            return mdConfiguration;
+        }
+
+        JsonNode root = metadataNode;
+        if (root == null) {
+            try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
+                if (null == is) {
+                    throw new FileNotFoundException(MetadataConfiguration.FILENAME);
+                }
+                root = JsonUtils.json(is, true);
+            }
+        }
+        LOGGER.debug("Config root:{}", root);
+
+        JsonNode cfgClass = root.get("type");
+        if (cfgClass == null) {
+            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
+        }
+
+        MetadataConfiguration cfg = (MetadataConfiguration) Thread.currentThread().getContextClassLoader().loadClass(
+                cfgClass.asText()).newInstance();
+        injectDependencies(cfg);
+
+        cfg.initializeFromJson(root);
+
+        return mdConfiguration = cfg;
     }
 
     private synchronized void initializeJsonTranslator() {
