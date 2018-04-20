@@ -39,16 +39,23 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
     private static final Logger LOGGER = LoggerFactory.getLogger(ControllerConfiguration.class);
 
     private String backend;
-    private Class<? extends ControllerFactory> controllerFactory;
+    private ControllerFactoryInitializer controllerFactoryInitializer;
     private ObjectNode extensions;
     private ObjectNode options;
 
-    public ControllerConfiguration() {
+    /**
+     * A delegate used to lazily initialize ControllerFactory.
+     *
+     */
+    public static interface ControllerFactoryInitializer {
+        public ControllerFactory newInstance();
     }
+
+    public ControllerConfiguration() {}
 
     public ControllerConfiguration(ControllerConfiguration c) {
         backend = c.backend;
-        controllerFactory = c.controllerFactory;
+        controllerFactoryInitializer = c.controllerFactoryInitializer;
         extensions = c.extensions;
         options=c.options;
     }
@@ -68,17 +75,15 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
     }
 
     /**
-     * @return the controller factory class
+     * @return the controller factory initializer
      */
-    public Class<? extends ControllerFactory> getControllerFactory() {
-        return controllerFactory;
+    public ControllerFactoryInitializer getControllerFactoryInitializer() {
+        return controllerFactoryInitializer;
     }
 
-    /**
-     * @param clazz the class to set
-     */
-    public void setControllerFactory(Class<? extends ControllerFactory> clazz) {
-        controllerFactory = clazz;
+
+    public void setControllerFactoryInitializer(ControllerFactoryInitializer controllerFactoryInitializer) {
+        this.controllerFactoryInitializer = controllerFactoryInitializer;
     }
 
     /**
@@ -120,15 +125,30 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                 }
                 x = node.get("controllerFactory");
                 if (x != null) {
-                    controllerFactory = (Class<ControllerFactory>) Thread.currentThread().getContextClassLoader().loadClass(
-                            x.asText());
+                    final String clazz = x.asText();
+                    controllerFactoryInitializer = new ControllerFactoryInitializer() {
+                        @Override
+                        public ControllerFactory newInstance() {
+                            try {
+                                return (ControllerFactory) Thread.currentThread().getContextClassLoader()
+                                        .loadClass(clazz).newInstance();
+                            } catch (Exception e) {
+                                throw new RuntimeException("Could not initialize ControllerFactory of "+clazz, e);
+                            }
+                        }
+
+                        public String toString() {
+                            return clazz;
+                        }
+                    };
                 }
                 extensions = (ObjectNode) node.get("extensions");
                 options = (ObjectNode) node.get("options");
-                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={} options={}", node, backend, controllerFactory, extensions,options);
+                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={} options={}", node, backend, controllerFactoryInitializer, extensions,options);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
 }

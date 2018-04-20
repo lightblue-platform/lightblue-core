@@ -182,7 +182,7 @@ public final class LightblueFactory implements Serializable {
             new GeneratedFieldInterceptor().register(f.getInterceptors());
 
             for (ControllerConfiguration x : crudConfiguration.getControllers()) {
-                ControllerFactory cfactory = x.getControllerFactory().newInstance();
+                ControllerFactory cfactory = x.getControllerFactoryInitializer().newInstance();
                 CRUDController controller = cfactory.createController(x, datasources);
                 injectDependencies(controller);
                 f.addCRUDController(x.getBackend(), controller);
