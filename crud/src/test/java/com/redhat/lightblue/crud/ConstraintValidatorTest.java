@@ -203,7 +203,35 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void testValidate_elementIdentityUniqueness() throws Exception {
+    public void testValidate_arrayElementIdentityUniqueness() throws Exception {
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-element-identity.json");
+        EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, null);
+        ConstraintValidator validator = createConstraintValidator(entityMetadata);
+        JsonDoc doc=new JsonDoc(JsonNodeFactory.instance.objectNode());
+        doc.modify(new Path("field1.0.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.0.id"),JsonNodeFactory.instance.textNode("1"),true);
+        doc.modify(new Path("field1.1.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.1.id"),JsonNodeFactory.instance.textNode("2"),true);
+        doc.modify(new Path("field1.2.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.2.id"),JsonNodeFactory.instance.textNode("2"),true);
+        doc.modify(new Path("field1.3.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.3.id"),JsonNodeFactory.instance.textNode("-5"),true);
+        doc.modify(new Path("field1.4.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.4.id"),JsonNodeFactory.instance.textNode("-5"),true);
+        doc.modify(new Path("field1.5.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.5.id"),JsonNodeFactory.instance.textNode("302c39c0-d190-402b"),true);
+        doc.modify(new Path("field1.6.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.6.id"),JsonNodeFactory.instance.textNode("c07ba167-bc34-423c"),true);
+        doc.modify(new Path("field1.7.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.7.id"),JsonNodeFactory.instance.textNode("302c39c0-d190-402b"),true);
+        validator.validateDocs(Arrays.asList(doc));
+        Assert.assertTrue(validator.hasErrors());
+        List<Error> errors=validator.getDocErrors().get(doc);
+        Assert.assertEquals(2,errors.size());
+    }
+    
+    @Test
+    public void testValidate_arrayElementIdentityUniqueness_for_positiveIntegerIds() throws Exception {
         JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-element-identity.json");
         EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, null);
         ConstraintValidator validator = createConstraintValidator(entityMetadata);
@@ -223,6 +251,43 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(2,errors.size());
     }
 
+    @Test
+    public void testValidate_arrayElementIdentityUniqueness_for_alphanumericIds() throws Exception {
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-element-identity.json");
+        EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, null);
+        ConstraintValidator validator = createConstraintValidator(entityMetadata);
+        JsonDoc doc=new JsonDoc(JsonNodeFactory.instance.objectNode());
+        doc.modify(new Path("field1.0.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.0.id"),JsonNodeFactory.instance.textNode("302c39c0-d190-402b"),true);
+        doc.modify(new Path("field1.1.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.1.id"),JsonNodeFactory.instance.textNode("c07ba167-bc34-423c"),true);
+        doc.modify(new Path("field1.2.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.2.id"),JsonNodeFactory.instance.textNode("302c39c0-d190-402b"),true);
+        validator.validateDocs(Arrays.asList(doc));
+        Assert.assertTrue(validator.hasErrors());
+        Assert.assertEquals(1,validator.getDocErrors().size());
+        List<Error> errors=validator.getDocErrors().get(doc);
+        Assert.assertEquals(1,errors.size());
+    }
+    
+    @Test
+    public void testValidate_arrayElementIdentityUniqueness_for_negativeIntegerIds() throws Exception {
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-element-identity.json");
+        EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, null);
+        ConstraintValidator validator = createConstraintValidator(entityMetadata);
+        JsonDoc doc=new JsonDoc(JsonNodeFactory.instance.objectNode());
+        doc.modify(new Path("field1.0.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.0.id"),JsonNodeFactory.instance.textNode("-3"),true);
+        doc.modify(new Path("field1.1.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.1.id"),JsonNodeFactory.instance.textNode("-5"),true);
+        doc.modify(new Path("field1.2.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.2.id"),JsonNodeFactory.instance.textNode("-3"),true);
+        doc.modify(new Path("field1.3.f1"),JsonNodeFactory.instance.textNode("text"),true);
+        doc.modify(new Path("field1.3.id"),JsonNodeFactory.instance.textNode("-5"),true);
+        validator.validateDocs(Arrays.asList(doc));
+        Assert.assertEquals(0,validator.getDocErrors().size());
+    }
+    
     /**
      * A {@link EntityConstraint} that does not exist is requested. A
      * {@link Error} is expected.
