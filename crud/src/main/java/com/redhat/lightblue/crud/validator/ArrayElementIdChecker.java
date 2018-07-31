@@ -64,7 +64,7 @@ public class ArrayElementIdChecker implements FieldConstraintDocChecker {
             iterator.next();
             Path fieldName=iterator.getCurrentKey();
             JsonNode value=iterator.getCurrentValue();
-            if(!values.add(t.fromJson(value)))
+            if(value.asInt(0) >= 0 && !values.add(t.fromJson(value)))
                 validator.addDocError(Error.get(CrudConstants.ERR_DUPLICATE_ARRAY_ELEMENT_ID,value==null?"null":value.asText()));
         }
     }
