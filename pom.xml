@@ -131,12 +131,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                 <scope>compile</scope>
             </dependency>
             <dependency>
-                <groupId>com.github.fge</groupId>
-                <artifactId>json-schema-core</artifactId>
-                <version>1.2.4</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>20090211</version>
