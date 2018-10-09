@@ -21,6 +21,9 @@ package com.redhat.lightblue.assoc.ep;
 import java.util.concurrent.ExecutorService;
 
 import com.redhat.lightblue.mediator.OperationContext;
+import com.redhat.lightblue.util.JsonDoc;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Keeps state information for the execution
@@ -61,5 +64,26 @@ public class ExecutionContext {
 
     public void close() {
         executor.shutdown();
+    }
+
+    /**
+     * @see OperationContext#monitorMemory(JsonNode)
+     */
+    public void monitorMemory(JsonDoc doc) {
+        monitorMemory(doc.getRoot());
+    }
+
+    /**
+     * @see OperationContext#monitorMemory(JsonNode)
+     */
+    public void monitorMemory(JsonNode json) {
+        opctx.monitorMemory(json);
+    }
+
+    /**
+     * @see OperationContext#monitorMemory(JsonNode)
+     */
+    public void monitorMemory(ResultDocument document) {
+        monitorMemory(document.getDoc());
     }
 }

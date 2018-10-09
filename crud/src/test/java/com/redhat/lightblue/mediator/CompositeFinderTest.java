@@ -20,6 +20,7 @@ package com.redhat.lightblue.mediator;
 
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -309,6 +310,9 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setSort(sort("{'_id':'$asc'}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
+
+        assertNotNull(response.getEntityData());
+
         Assert.assertEquals(3, response.getEntityData().size());
         Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
         Assert.assertEquals(1, response.getEntityData().get(0).get("b").size());

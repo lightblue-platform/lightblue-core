@@ -24,10 +24,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
+import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,13 +89,13 @@ public class Assemble extends Step<ResultDocument> {
         this.memoryIndexThreshold = memoryIndexThreshold;
     }
 
-    public List<ResultDocument> getResultList(QueryExpression q, ExecutionContext ctx) {
+    private Stream<ResultDocument> getResultList(QueryExpression q, ExecutionContext ctx) {
         LOGGER.debug("getResultList q={} block={}", q, block);
         Retrieve r = block.getStep(Retrieve.class);
         if (r != null) {
             r.setQuery(q);
             StepResult<ResultDocument> results = block.getResultStep().getResults(ctx);
-            return results.stream().collect(Collectors.toList());
+            return results.stream();
         } else {
             throw new IllegalStateException("Cannot find a Retrieve step in block");
         }
@@ -116,7 +119,17 @@ public class Assemble extends Step<ResultDocument> {
         LOGGER.debug("getResults, source:{}, destinations={}", source, destinations);
         // Get the results from the source
         StepResult<ResultDocument> sourceResults = source.getStep().getResults(ctx);
-        List<ResultDocument> results = sourceResults.stream().collect(Collectors.toList());
+
+        // Aggregate all source results, to be "assembled" with associated documents, which are
+        // queried below. Since Assemble is always included within the plan of a composite find,
+        // streaming is ineffective at reducing memory footprint of a query: the assemble step
+        // merely "streams" an already aggregated list, fully loaded in memory. Thus, we count all
+        // results here toward memory consumption, despite that later GC cycles may recover some of
+        // this memory.
+        List<ResultDocument> results = sourceResults.stream()
+                .peek(ctx::monitorMemory)
+                .collect(Collectors.toList());
+
         if (ctx.hasErrors()) {
             return StepResult.EMPTY;
         }
@@ -132,15 +145,15 @@ public class Assemble extends Step<ResultDocument> {
             assemblers.add(ctx.getExecutor().submit(() -> {
                 if (aq.getQuery() == null) {
                     if(aq.isAlwaysTrue()) {
-                        results.stream().forEach(batchAssembler::addDoc);
+                        results.forEach(batchAssembler::addDoc);
                         batchAssembler.endDoc();
                     }
                 } else {
-                    results.stream().forEach(doc -> {
+                    results.forEach(doc -> {
                         batchAssembler.addDoc(doc);
                         Map<ChildSlot, QueryExpression> queries = Searches.
                                 writeChildQueriesFromParentDoc(aq, doc);
-                        queries.values().stream().forEach(batchAssembler::addQuery);
+                        queries.values().forEach(batchAssembler::addQuery);
                         batchAssembler.endDoc();
                     });
                 }
@@ -151,14 +164,16 @@ public class Assemble extends Step<ResultDocument> {
             for (Future x : assemblers) {
                 x.get();
             }
-        } catch (Exception ie) {
-            throw new RuntimeException(ie);
+        } catch (ExecutionException ie) {
+            throw Throwables.propagate(ie.getCause());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         if (ctx.hasErrors()) {
             return StepResult.EMPTY;
         }
         // Stream results
-        return new ListStepResult(results);
+        return new ListStepResult<>(results);
     }
 
     private static class DocAndQ {
@@ -209,7 +224,23 @@ public class Assemble extends Step<ResultDocument> {
                 } else {
                     combinedQuery = null;
                 }
-                List<ResultDocument> destResults = dest.getResultList(combinedQuery, ctx);
+
+                // For the current batch of destination documents (the ones we need to add
+                // associated documents to), query and collect results to be checked against
+                // association queries.
+                //
+                // Consider memory used for all destination documents even though some of these
+                // results may be filtered out with the join projection later. This risks being
+                // over-aggressive at killing high-memory queries that must look at a lot of data
+                // but only return a little. In turn, it will more quickly catch queries that really
+                // will use too much memory.
+                //
+                // The impact to clients is that projections that ultimately limit result size don't
+                // really help reduce your query footprint as far as server is concerned if it still
+                // requires examining a lot of documents to compute.
+                List<ResultDocument> destResults = dest.getResultList(combinedQuery, ctx)
+                        .peek(ctx::monitorMemory)
+                        .collect(Collectors.toList());
                 int numSlots=0;
                 for (DocAndQ parentDocAndQ : docs) {
                     List<ChildSlot> slots=parentDocAndQ.doc.getSlots().get(aq.getReference());

@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.crud;
 
+import static com.redhat.lightblue.Response.ERR_RESULT_SIZE_TOO_LARGE;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,11 +33,21 @@ import java.util.Iterator;
 
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.ExecutionOptions;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Request;
 import com.redhat.lightblue.ResultMetadata;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Measure;
+import com.redhat.lightblue.util.MemoryMonitor;
+import com.redhat.lightblue.util.MemoryMonitor.ThresholdMonitor;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of this class is passed into CRUD operation
@@ -65,6 +77,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
 
     public final Measure measure=new Measure();
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CRUDOperationContext.class);
+
     /**
      * This is the constructor used to represent the context of an operation
      */
@@ -82,6 +96,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
         this.callerRoles = new HashSet<>();
         this.executionOptions = eo;
+
+
     }
 
     public CRUDOperationContext(CRUDOperation op,

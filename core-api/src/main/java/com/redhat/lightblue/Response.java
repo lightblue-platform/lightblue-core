@@ -89,7 +89,6 @@ public class Response extends BaseResponse  {
         memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(warnResultSetSizeB, (current, threshold, doc) -> {
             LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
         }));
-
     }
 
     /**
