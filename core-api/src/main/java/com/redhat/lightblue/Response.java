@@ -83,11 +83,14 @@ public class Response extends BaseResponse  {
             // the counts - matchCount, modifiedCount - are unmodified
             setEntityData(JsonNodeFactory.instance.arrayNode());
             setStatus(OperationStatus.ERROR);
-            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B");
+            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE,
+                    "request=\"" + forRequest + "\" " +
+                    "responseDataSizeB=" + current + " " +
+                    "threshold=" + threshold);
         }));
 
         memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(warnResultSetSizeB, (current, threshold, doc) -> {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={} threshold={}", forRequest, current);
         }));
     }
 

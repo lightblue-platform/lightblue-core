@@ -22,7 +22,6 @@ import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
-import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
@@ -38,12 +37,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.MemoryMonitor;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +55,6 @@ public final class OperationContext extends CRUDOperationContext {
     private final Metadata metadata;
     private OperationStatus status = OperationStatus.COMPLETE;
     private final DefaultMetadataResolver resolver;
-    private final MemoryMonitor<JsonNode> memoryMonitor = new MemoryMonitor<>(JsonUtils::size);
 
     /**
      * Construct operation context
@@ -100,8 +94,6 @@ public final class OperationContext extends CRUDOperationContext {
                 query, projection);
         addCallerRoles(getCallerRoles(resolver.getMetadataRoles(), request.getClientId()));
         LOGGER.debug("Caller roles:{}", getCallerRoles());
-
-        registerMemoryMonitors(factory.getMaxResultSetSizeForReadsB(), factory.getWarnResultSetSizeB(), request);
     }
 
     /**
@@ -123,8 +115,6 @@ public final class OperationContext extends CRUDOperationContext {
         this.resolver = ctx.resolver;
 
         Factory factory = ctx.getFactory();
-
-        registerMemoryMonitors(factory.getMaxResultSetSizeForReadsB(), factory.getWarnResultSetSizeB(), request);
     }
 
     /**
@@ -158,46 +148,6 @@ public final class OperationContext extends CRUDOperationContext {
         this.request = request;
         this.metadata = metadata;
         this.resolver = resolver;
-
-        // TODO: adjust for reads vs writes vs composite reads
-        registerMemoryMonitors(factory.getMaxResultSetSizeForReadsB(), factory.getWarnResultSetSizeB(), request);
-    }
-
-    /**
-     * Result set size threshold is expressed in bytes. This is just an approximation, see @{link {@link JsonUtils#size(JsonNode)} for details.
-     *
-     * @param maxResultSetSizeB error when this threshold is breached
-     * @param warnResultSetSizeB log a warning when this threshold is breached
-     * @param forRequest request which resulted in this response, for logging purposes
-     */
-    private void registerMemoryMonitors(int maxResultSetSizeB, int warnResultSetSizeB, final Request forRequest) {
-        memoryMonitor.registerMonitor(new MemoryMonitor.ThresholdMonitor<>(maxResultSetSizeB, (current, threshold, doc) -> {
-            throw Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, "request=" + forRequest + " responseDataSizeB=" + current + " errorThreshold=" + threshold);
-        }));
-
-        memoryMonitor.registerMonitor(new MemoryMonitor.ThresholdMonitor<>(warnResultSetSizeB, (current, threshold, doc) ->
-                LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={} warnThreshold={}", forRequest, current, threshold)));
-    }
-
-    /**
-     * Monitor the memory usage for JSON objects part of a response that are might not be garbage
-     * collected at all or garbage collected timely enough before they are streamed to clients. Too
-     * much memory may warn or cause this method to throw an {@link Error} based on configured
-     * thresholds.
-     *
-     * <p>Objects which are known to be short lived should not be monitored, such as objects
-     * passing through a {@link java.util.stream.Stream} or {@link java.util.Iterator} that are not
-     * aggregated in a {@link java.util.Collection} or array, etc.
-     *
-     * <p>You <em>may</em> want to monitor objects that are aggregated, depending on how large the
-     * aggregation may be and for how long the objects may be referenced.
-     *
-     * @throws Error {@link com.redhat.lightblue.Response#ERR_RESULT_SIZE_TOO_LARGE} If max result
-     * size threshold is set and triggered.
-     * @see #registerMemoryMonitors(int, int, Request)
-     */
-    public void monitorMemory(JsonNode json) {
-        memoryMonitor.apply(json);
     }
 
     public OperationContext getDerivedOperationContext(String entityName, CRUDFindRequest req) {
@@ -294,9 +244,5 @@ public final class OperationContext extends CRUDOperationContext {
             }
         }
         return callerRoles;
-    }
-
-    public long memoryUsed() {
-        return memoryMonitor.getDataSizeB();
     }
 }

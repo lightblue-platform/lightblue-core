@@ -21,7 +21,6 @@ package com.redhat.lightblue.assoc;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import java.util.concurrent.Executors;
@@ -166,6 +165,7 @@ public class CompositeFindImpl implements Finder {
             StepResult<ResultDocument> results = executionPlan.getResults(executionContext);
             ctx.setDocumentStream(new StepResultDocumentStream(new MakeDocCtx(results)));            	
             response.setSize(executionContext.getMatchCount());
+            LOGGER.debug("executionCtxMemoryUsed={} request={}", executionContext.memoryUsedB(), req);
             LOGGER.debug("Composite find: end");
             return response;
         } finally {

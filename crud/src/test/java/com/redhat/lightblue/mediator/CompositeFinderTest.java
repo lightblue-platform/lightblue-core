@@ -1113,7 +1113,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void obeys_memory_thresholds() throws Exception {
+    public void obeys_memory_thresholds_inside_execution_context() throws Exception {
         FindRequest fr = new FindRequest();
         fr.setQuery(query("{'field':'objectType','op':'=','rvalue':'A'}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
@@ -1125,6 +1125,6 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response = mediator.find(fr);
 
         assertEquals(1, response.getErrors().size());
-        assertEquals(Response.ERR_RESULT_SIZE_TOO_LARGE, response.getErrors().get(0).getErrorCode());
+        assertEquals(CrudConstants.ERR_EXECUTION_CONTEXT_TOO_LARGE, response.getErrors().get(0).getErrorCode());
     }
 }
