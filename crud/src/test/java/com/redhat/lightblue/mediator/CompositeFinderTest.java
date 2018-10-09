@@ -20,6 +20,7 @@ package com.redhat.lightblue.mediator;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -233,8 +234,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("{'field':'*','recursive':1}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
     }
 
     @Test
@@ -268,12 +269,12 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
         QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
         // This one must have A -> B
-        Assert.assertEquals(1, qplan.getSources().length);
-        Assert.assertEquals("A", qplan.getSources()[0].getMetadata().getName());
+        assertEquals(1, qplan.getSources().length);
+        assertEquals("A", qplan.getSources()[0].getMetadata().getName());
     }
 
     @Test
@@ -283,8 +284,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("ADEEP2", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("ADEEP2", response.getEntityData().get(0).get("_id").asText());
     }
 
 
@@ -294,12 +295,12 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setEntityVersion(new EntityVersion("A_def", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
         QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
         // This one must have A -> B
-        Assert.assertEquals(1, qplan.getSources().length);
-        Assert.assertEquals("A_def", qplan.getSources()[0].getMetadata().getName());
+        assertEquals(1, qplan.getSources().length);
+        assertEquals("A_def", qplan.getSources()[0].getMetadata().getName());
     }
 
     @Test
@@ -313,13 +314,13 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         assertNotNull(response.getEntityData());
 
-        Assert.assertEquals(3, response.getEntityData().size());
-        Assert.assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
-        Assert.assertEquals(1, response.getEntityData().get(0).get("b").size());
-        Assert.assertEquals("A02", response.getEntityData().get(1).get("_id").asText());
-        Assert.assertEquals(1, response.getEntityData().get(1).get("b").size());
-        Assert.assertEquals("A03", response.getEntityData().get(2).get("_id").asText());
-        Assert.assertEquals(1, response.getEntityData().get(2).get("b").size());
+        assertEquals(3, response.getEntityData().size());
+        assertEquals("A01", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().get(0).get("b").size());
+        assertEquals("A02", response.getEntityData().get(1).get("_id").asText());
+        assertEquals(1, response.getEntityData().get(1).get("b").size());
+        assertEquals("A03", response.getEntityData().get(2).get("_id").asText());
+        assertEquals(1, response.getEntityData().get(2).get("b").size());
     }
 
     @Test
@@ -330,7 +331,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
         System.out.println("Null proj:" + response);
-        Assert.assertEquals(3, response.getEntityData().size());
+        assertEquals(3, response.getEntityData().size());
     }
 
     @Test
@@ -345,7 +346,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setQuery(query("{'field':'objectType','op':'=','rvalue':'A'}"));
         Response response2 = mediator.find(fr);
 
-        Assert.assertEquals(response2.getEntityData().size(), response.getEntityData().size());
+        assertEquals(response2.getEntityData().size(), response.getEntityData().size());
     }
 
     @Test
@@ -356,12 +357,12 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setSort(sort("{'_id':'$asc'}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(2, response.getEntityData().size());
-        Assert.assertEquals(2, response.getMatchCount());
-        Assert.assertEquals("MANYB1", response.getEntityData().get(0).get("_id").asText());
-        Assert.assertEquals(2, response.getEntityData().get(0).get("nonid_b").size());
-        Assert.assertEquals("MANYB2", response.getEntityData().get(1).get("_id").asText());
-        Assert.assertEquals(2, response.getEntityData().get(1).get("nonid_b").size());
+        assertEquals(2, response.getEntityData().size());
+        assertEquals(2, response.getMatchCount());
+        assertEquals("MANYB1", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(2, response.getEntityData().get(0).get("nonid_b").size());
+        assertEquals("MANYB2", response.getEntityData().get(1).get("_id").asText());
+        assertEquals(2, response.getEntityData().get(1).get("nonid_b").size());
     }
 
     @Test
@@ -374,9 +375,9 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("MANYB1", response.getEntityData().get(0).get("_id").asText());
-        Assert.assertEquals(2, response.getEntityData().get(0).get("nonid_b").size());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("MANYB1", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(2, response.getEntityData().get(0).get("nonid_b").size());
     }
 
     @Test
@@ -389,8 +390,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(2, response.getMatchCount());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(2, response.getMatchCount());
     }
 
     @Test
@@ -400,13 +401,13 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("A09", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("A09", response.getEntityData().get(0).get("_id").asText());
         System.out.println(response.getEntityData().get(0));
         QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
         // This one must have C -> A
-        Assert.assertEquals(1, qplan.getSources().length);
-        Assert.assertEquals("C", qplan.getSources()[0].getMetadata().getName());
+        assertEquals(1, qplan.getSources().length);
+        assertEquals("C", qplan.getSources()[0].getMetadata().getName());
     }
 
     @Test
@@ -418,7 +419,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getEntityData().size());
     }
 
     @Test
@@ -430,7 +431,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(0l);
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.explain(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getEntityData().size());
         JsonNode doc=response.getEntityData().get(0);
         // Make sure explain descends all the way to the  controller
         Assert.assertTrue(doc.toString().indexOf("testController")!=-1);
@@ -443,12 +444,12 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("A09", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("A09", response.getEntityData().get(0).get("_id").asText());
         QueryPlan qplan = (QueryPlan) getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
         // This one must have B -> A
-        Assert.assertEquals(1, qplan.getSources().length);
-        Assert.assertEquals("B", qplan.getSources()[0].getMetadata().getName());
+        assertEquals(1, qplan.getSources().length);
+        assertEquals("B", qplan.getSources()[0].getMetadata().getName());
     }
 
     @Test
@@ -459,8 +460,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
         Assert.assertNull(response.getEntityData().get(0).get("level1").get("arr1").get(0).get("ref"));
     }
 
@@ -473,10 +474,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
-        Assert.assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
-        Assert.assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
+        assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
+        assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
     }
 
     @Test
@@ -488,7 +489,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getEntityData().size());
         Assert.assertNull(JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref")));
     }
 
@@ -501,7 +502,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(2, response.getEntityData().size());
+        assertEquals(2, response.getEntityData().size());
     }
 
     @Test
@@ -513,7 +514,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(2, response.getEntityData().size());
+        assertEquals(2, response.getEntityData().size());
         Assert.assertNull(JsonDoc.get(response.getEntityData().get(0), new Path("_id")));
     }
 
@@ -524,10 +525,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
-        Assert.assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
-        Assert.assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
+        assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
+        assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
     }
 
     @Test
@@ -537,10 +538,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
-        Assert.assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
-        Assert.assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
+        assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
+        assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
     }
 
     @Test
@@ -550,10 +551,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
-        Assert.assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
-        Assert.assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("ADEEP", response.getEntityData().get(0).get("_id").asText());
+        assertEquals("BDEEP1", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.0.ref.0._id")).asText());
+        assertEquals("BDEEP2", JsonDoc.get(response.getEntityData().get(0), new Path("level1.arr1.1.ref.0._id")).asText());
     }
 
     @Test
@@ -565,8 +566,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
    }
 
     @Test
@@ -580,8 +581,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(-1l);
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(0, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(0, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
    }
 
     @Test
@@ -608,9 +609,9 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("parent_w_elem", "1.0.0"));
 
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("child1", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0._id")).asText());
-        Assert.assertEquals("A", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.code1")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("child1", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0._id")).asText());
+        assertEquals("A", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.code1")).asText());
         Assert.assertNull(JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.ref")));
 
         fr = new FindRequest();
@@ -619,10 +620,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("parent_w_elem", "1.0.0"));
         response = mediator.find(fr);
         System.out.println("Deep retrieval:" + response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("child1", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0._id")).asText());
-        Assert.assertEquals("A", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.code1")).asText());
-        Assert.assertEquals("A", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.ref.0.code1")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("child1", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0._id")).asText());
+        assertEquals("A", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.code1")).asText());
+        assertEquals("A", JsonDoc.get(response.getEntityData().get(0), new Path("relationships.0.tree.0.child.ref.0.code1")).asText());
     }
 
     @Test
@@ -633,8 +634,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
 
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("l1", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.name")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("l1", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.name")).asText());
     }
 
     @Test
@@ -645,9 +646,9 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
 
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals("l1", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.name")).asText());
-        Assert.assertEquals("arr0", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.arr.0")).asText());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals("l1", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.name")).asText());
+        assertEquals("arr0", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.arr.0")).asText());
     }
 
     @Test
@@ -691,8 +692,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("L", "0.0.1"));
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(2, response.getEntityData().get(0).get("us").size());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(2, response.getEntityData().get(0).get("us").size());
     }
 
    @Test
@@ -702,8 +703,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'us','recursive':1}]"));
         fr.setEntityVersion(new EntityVersion("L", "0.0.1"));
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
    @Test
@@ -715,8 +716,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setFrom(0l);
         fr.setTo(-1l);
         Response response = mediator.find(fr);
-        Assert.assertEquals(1, response.getMatchCount());
-        Assert.assertEquals(0, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
+        assertEquals(0, response.getEntityData().size());
     }
 
     @Test
@@ -727,8 +728,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
     @Test
@@ -741,8 +742,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(-1l);
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(0, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(0, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
     @Test
@@ -753,8 +754,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
     @Test
@@ -767,8 +768,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(-1l);
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(0, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(0, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
     // Errors during association retrieval should propagate
@@ -783,14 +784,14 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertTrue(response.getEntityData()==null||response.getEntityData().size()==0);
-        Assert.assertEquals(1, response.getErrors().size());
+        assertEquals(1, response.getErrors().size());
 
         findError = Error.get("NoAccess", "blah");
         errorEntity = "L";
         response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertTrue(response.getEntityData()==null||response.getEntityData().size()==0);
-        Assert.assertEquals(1, response.getErrors().size());
+        assertEquals(1, response.getErrors().size());
 
     }
 
@@ -802,7 +803,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getEntityData().size());
     }
 
     @Test
@@ -813,7 +814,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getEntityData().size());
     }
 
     @Test
@@ -825,8 +826,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A_with_index", "1.0.0"));
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
     @Test
@@ -840,8 +841,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(-1l);
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(0, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(0, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
     @Test
@@ -852,8 +853,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(3,response.getEntityData().get(0).get("ref").size());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(3,response.getEntityData().get(0).get("ref").size());
     }
 
     @Test
@@ -864,7 +865,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getEntityData().size());
         Assert.assertNull(response.getEntityData().get(0).get("ref"));
     }
 
@@ -876,7 +877,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("arr_parent","1.0.0"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getEntityData().size());
         Assert.assertNull(response.getEntityData().get(0).get("ref"));
     }
 
@@ -889,10 +890,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
-        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
-        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
+        assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
+        assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
     }
 
     @Test
@@ -903,10 +904,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
-        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
-        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
+        assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
+        assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
     }
 
     @Test
@@ -917,10 +918,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
-        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
-        Assert.assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
+        assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").size());
+        assertEquals(1,response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").size());
         Assert.assertNotNull(response.getEntityData().get(0).get("obj1").get("c").get(0).get("b").get(0).get("field1"));
     }
 
@@ -932,8 +933,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(1, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
         Assert.assertTrue(response.getEntityData().get(0).get("obj1").get("c").get(0).get("obj1").get("d").get(0).get("field1").asText()!=null);
     }
 
@@ -947,8 +948,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(-1l);
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(0, response.getEntityData().size());
-        Assert.assertEquals(1, response.getMatchCount());
+        assertEquals(0, response.getEntityData().size());
+        assertEquals(1, response.getMatchCount());
     }
 
     @Test
@@ -969,7 +970,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("root_loop","1.0.0."));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(4,response.getMatchCount());
+        assertEquals(4,response.getMatchCount());
     }
 
     @Test
@@ -992,7 +993,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("root_loop","1.0.0."));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(5,response.getMatchCount());
+        assertEquals(5,response.getMatchCount());
     }
 
     @Test
@@ -1013,7 +1014,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("containerRepository","1.0.0."));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(3,response.getMatchCount());
+        assertEquals(3,response.getMatchCount());
     }
 
     @Test
@@ -1036,8 +1037,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(1l);
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(3,response.getMatchCount());
-        Assert.assertEquals(2,response.getEntityData().size());
+        assertEquals(3,response.getMatchCount());
+        assertEquals(2,response.getEntityData().size());
     }
 
     @Test
@@ -1051,7 +1052,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         // Every doc should have all the others in reference
         for(JsonNode doc:response.getEntityData()) {
             String id=doc.get("_id").asText();
-            Assert.assertEquals(3,doc.get("test_reference").size());
+            assertEquals(3,doc.get("test_reference").size());
             for(Iterator<JsonNode> itr=doc.get("test_reference").elements();itr.hasNext();) {
                 JsonNode node=itr.next();
                 Assert.assertTrue(!id.equals(node.get("_id")));
@@ -1070,16 +1071,16 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         for(JsonNode doc:response.getEntityData()) {
             String id=doc.get("_id").asText();
             if("Q".equals(id)) {
-                Assert.assertEquals(2,doc.get("test_reference").size());
+                assertEquals(2,doc.get("test_reference").size());
                 Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(0).get("_id").asText())!=-1);
                 Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(1).get("_id").asText())!=-1);
             } else if("R".equals(id)) {
-                Assert.assertEquals(2,doc.get("test_reference").size());
+                assertEquals(2,doc.get("test_reference").size());
                 Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(0).get("_id").asText())!=-1);
                 Assert.assertTrue("ST".indexOf(doc.get("test_reference").get(1).get("_id").asText())!=-1);
             } else if("S".equals(id)) {
-                Assert.assertEquals(1,doc.get("test_reference").size());
-                Assert.assertEquals("T",doc.get("test_reference").get(0).get("_id").asText());
+                assertEquals(1,doc.get("test_reference").size());
+                assertEquals("T",doc.get("test_reference").get(0).get("_id").asText());
             } else {
                 Assert.assertNull(doc.get("test_reference"));
             }
@@ -1094,7 +1095,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setEntityVersion(new EntityVersion("containerImage-self","0.0.1"));
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(1,response.getEntityData().size());
+        assertEquals(1,response.getEntityData().size());
         Assert.assertTrue(response.getEntityData().get(0).get("vulnerabilities").get(0).get("packages").get(0).get("fixed_by_images").size()==1);
     }
 
@@ -1108,6 +1109,22 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setTo(2l);
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
-        Assert.assertEquals(3,response.getEntityData().size());
+        assertEquals(3,response.getEntityData().size());
+    }
+
+    @Test
+    public void obeys_memory_thresholds() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'objectType','op':'=','rvalue':'A'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+        fr.setSort(sort("{'_id':'$asc'}"));
+        fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
+
+        mediator.factory.setMaxResultSetSizeForReadsB(10000);
+
+        Response response = mediator.find(fr);
+
+        assertEquals(1, response.getErrors().size());
+        assertEquals(Response.ERR_RESULT_SIZE_TOO_LARGE, response.getErrors().get(0).getErrorCode());
     }
 }

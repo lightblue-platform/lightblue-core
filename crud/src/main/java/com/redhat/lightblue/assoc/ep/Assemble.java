@@ -125,7 +125,7 @@ public class Assemble extends Step<ResultDocument> {
         // streaming is ineffective at reducing memory footprint of a query: the assemble step
         // merely "streams" an already aggregated list, fully loaded in memory. Thus, we count all
         // results here toward memory consumption, despite that later GC cycles may recover some of
-        // this memory.
+        // this memory (in case of projections for example).
         List<ResultDocument> results = sourceResults.stream()
                 .peek(ctx::monitorMemory)
                 .collect(Collectors.toList());
