@@ -1115,7 +1115,26 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         fr.setSort(sort("{'_id':'$asc'}"));
         fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
 
-        mediator.factory.setMaxResultSetSizeForReadsB(10000);
+        mediator.factory.setMaxExecutionContextSizeForCompositeFindB(10000);
+
+        Response response = mediator.find(fr);
+
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_EXECUTION_CONTEXT_TOO_LARGE, response.getErrors().get(0).getErrorCode());
+    }
+
+    @Test
+    public void obeys_memory_thresholds_inside_execution_context_before_response_size_limits() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'objectType','op':'=','rvalue':'A'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+        fr.setSort(sort("{'_id':'$asc'}"));
+        fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
+
+        mediator.factory.setMaxExecutionContextSizeForCompositeFindB(10000);
+        // Set max result size for reads as well because we expect execution size limit to be hit
+        // first.
+        mediator.factory.setMaxResultSetSizeForReadsB(1);
 
         Response response = mediator.find(fr);
 

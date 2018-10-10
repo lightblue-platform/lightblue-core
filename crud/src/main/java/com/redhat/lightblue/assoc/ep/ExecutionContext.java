@@ -51,7 +51,7 @@ public class ExecutionContext {
         Factory factory = ctx.getFactory();
 
         registerMemoryMonitors(
-                factory.getMaxResultSetSizeForReadsB(),
+                factory.getMaxExecutionContextSizeForCompositeFindB(),
                 factory.getWarnResultSetSizeB(),
                 ctx.getRequest());
     }
@@ -119,6 +119,9 @@ public class ExecutionContext {
         memoryMonitor.apply(json);
     }
 
+    /**
+     * Experimental! Use carefully.
+     */
     public void deductMemoryIfCountable(Object object) {
         if (object instanceof JsonNode) {
             deductMemory((JsonNode) object);
@@ -129,14 +132,23 @@ public class ExecutionContext {
         }
     }
 
+    /**
+     * Experimental! Use carefully.
+     */
     public void deductMemory(ResultDocument document) {
         deductMemory(document.getDoc());
     }
 
+    /**
+     * Experimental! Use carefully.
+     */
     public void deductMemory(JsonDoc doc) {
         deductMemory(doc.getRoot());
     }
 
+    /**
+     * Experimental! Use carefully.
+     */
     public void deductMemory(JsonNode json) {
         memoryMonitor.deduct(json);
     }
