@@ -89,7 +89,6 @@ public class Response extends BaseResponse  {
             setEntityData(JsonNodeFactory.instance.arrayNode());
             setStatus(OperationStatus.ERROR);
             throw Error.get(ERR_RESULT_SIZE_TOO_LARGE,
-                    "request=\"" + forRequest + "\" " +
                     "responseDataSizeB=" + current + " " +
                     "threshold=" + threshold);
         }));
