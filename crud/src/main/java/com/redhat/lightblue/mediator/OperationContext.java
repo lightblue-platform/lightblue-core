@@ -18,34 +18,34 @@
  */
 package com.redhat.lightblue.mediator;
 
-import com.redhat.lightblue.ClientIdentification;
-import com.redhat.lightblue.EntityVersion;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Request;
-import com.redhat.lightblue.crud.CRUDFindRequest;
-import com.redhat.lightblue.crud.CRUDOperation;
-import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.DocCtx;
-import com.redhat.lightblue.crud.DocRequest;
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.FindRequest;
-import com.redhat.lightblue.crud.WithProjection;
-import com.redhat.lightblue.crud.WithQuery;
-import com.redhat.lightblue.hooks.HookManager;
-import com.redhat.lightblue.metadata.CompositeMetadata;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.util.JsonDoc;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.redhat.lightblue.EntityVersion;
+import com.redhat.lightblue.ClientIdentification;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.crud.DocRequest;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.CRUDOperation;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.CRUDFindRequest;
+import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.WithQuery;
+import com.redhat.lightblue.crud.WithProjection;
+import com.redhat.lightblue.hooks.HookManager;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.CompositeMetadata;
+import com.redhat.lightblue.util.JsonDoc;
 
 public final class OperationContext extends CRUDOperationContext {
 
@@ -113,8 +113,6 @@ public final class OperationContext extends CRUDOperationContext {
         this.request = request;
         this.metadata = ctx.metadata;
         this.resolver = ctx.resolver;
-
-        Factory factory = ctx.getFactory();
     }
 
     /**
