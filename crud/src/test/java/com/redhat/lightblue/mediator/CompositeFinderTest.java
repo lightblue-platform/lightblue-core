@@ -1106,4 +1106,20 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         System.out.println(response.getEntityData());
         Assert.assertEquals(3,response.getEntityData().size());
     }
+
+    @Test
+    public void obeys_memory_thresholds_inside_execution_context() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'objectType','op':'=','rvalue':'A'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+        fr.setSort(sort("{'_id':'$asc'}"));
+        fr.setEntityVersion(new EntityVersion("A", "1.0.0"));
+
+        mediator.factory.setMaxResultSetSizeForReadsB(10000);
+
+        Response response = mediator.find(fr);
+
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_EXECUTION_CONTEXT_TOO_LARGE, response.getErrors().get(0).getErrorCode());
+    }
 }
