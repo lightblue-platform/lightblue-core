@@ -111,14 +111,35 @@ public class ExecutionContext {
      * <p>You <em>may</em> want to monitor objects that are aggregated, depending on how large the
      * aggregation may be and for how long the objects may be referenced.
      *
-     * @throws Error {@link com.redhat.lightblue.Response#ERR_RESULT_SIZE_TOO_LARGE} If max result
-     * size threshold is set and triggered.
+     * @throws Error {@link CrudConstants#ERR_EXECUTION_CONTEXT_TOO_LARGE} If max result size
+     * threshold is set and triggered.
      * @see #registerMemoryMonitors(int, int, Request)
      */
     public void monitorMemory(JsonNode json) {
         memoryMonitor.apply(json);
     }
 
+    public void deductMemoryIfCountable(Object object) {
+        if (object instanceof JsonNode) {
+            deductMemory((JsonNode) object);
+        } else if (object instanceof JsonDoc) {
+            deductMemory((JsonDoc) object);
+        } else if (object instanceof ResultDocument) {
+            deductMemory((ResultDocument) object);
+        }
+    }
+
+    public void deductMemory(ResultDocument document) {
+        deductMemory(document.getDoc());
+    }
+
+    public void deductMemory(JsonDoc doc) {
+        deductMemory(doc.getRoot());
+    }
+
+    public void deductMemory(JsonNode json) {
+        memoryMonitor.deduct(json);
+    }
 
     /**
      * Result set size threshold is expressed in bytes. This is just an approximation, see @{link {@link JsonUtils#size(JsonNode)} for details.
@@ -128,15 +149,15 @@ public class ExecutionContext {
      * @param forRequest request which resulted in this response, for logging purposes
      */
     private void registerMemoryMonitors(int maxResultSetSizeB, int warnResultSetSizeB, final Request forRequest) {
-        memoryMonitor.registerMonitor(new MemoryMonitor.ThresholdMonitor<>(maxResultSetSizeB, (current, threshold, doc) -> {
-            throw Error.get(CrudConstants.ERR_EXECUTION_CONTEXT_TOO_LARGE,
-                    "request=\"" + forRequest + "\" " +
-                    "executionDataSizeB=" + current + " " +
-                    "threshold=" + threshold);
-        }));
-
+        // Order is significant – warn first for request in log output.
         memoryMonitor.registerMonitor(new MemoryMonitor.ThresholdMonitor<>(warnResultSetSizeB, (current, threshold, doc) ->
                 LOGGER.warn("crud:ExecutionContextIsLarge: request={}, executionDataSizeB={} threshold={}", forRequest, current, threshold)));
+
+        memoryMonitor.registerMonitor(new MemoryMonitor.ThresholdMonitor<>(maxResultSetSizeB, (current, threshold, doc) -> {
+            throw Error.get(CrudConstants.ERR_EXECUTION_CONTEXT_TOO_LARGE,
+                    "executionDataSizeB=" + current + " " +
+                            "threshold=" + threshold);
+        }));
     }
 
     public int memoryUsedB() {

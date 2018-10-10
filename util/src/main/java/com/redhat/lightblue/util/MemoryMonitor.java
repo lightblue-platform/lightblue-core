@@ -88,13 +88,19 @@ public class MemoryMonitor<T> {
      * @param value
      * @return
      */
-    public T apply(final T value) {
+    public synchronized T apply(final T value) {
         if (counted.add(value)) {
             dataSizeB += sizeCalculator.size(value);
 
             checkThresholdMonitors(value);
         }
 
+        return value;
+    }
+
+    public synchronized T deduct(T value) {
+        dataSizeB -= sizeCalculator.size(value);
+        counted.remove(value);
         return value;
     }
 

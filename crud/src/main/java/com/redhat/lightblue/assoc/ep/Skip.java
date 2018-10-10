@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,6 +44,7 @@ public class Skip<T> extends Step<T> {
 
     @Override
     public StepResult<T> getResults(ExecutionContext ctx) {
+        // TODO: Consider deducting skipped results from memory monitor
         return new StepResultWrapper<T>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<T> stream() {
