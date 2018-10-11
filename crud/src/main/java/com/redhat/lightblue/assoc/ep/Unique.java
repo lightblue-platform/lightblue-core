@@ -69,7 +69,9 @@ public class Unique extends Step<ResultDocument> {
                 }
             };
         if(recordResultSetSize) {
-            List<ResultDocument> list=result.stream().collect(Collectors.toList());
+            List<ResultDocument> list=result.stream()
+                    .peek(ctx::monitorMemory)
+                    .collect(Collectors.toList());
             result=new ListStepResult<ResultDocument>(list);
             ctx.setMatchCount(list.size());
         }

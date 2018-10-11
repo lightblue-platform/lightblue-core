@@ -1,7 +1,10 @@
 package com.redhat.lightblue.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Utility class for tracking memory usage for given type (assuming it's an immutable value).
@@ -44,6 +47,7 @@ public class MemoryMonitor<T> {
     private SizeCalculator<T> sizeCalculator;
 
     private List<ThresholdMonitor<T>> monitors = new ArrayList<>();
+    private Set<T> counted = Collections.newSetFromMap(new WeakHashMap<>());
 
     /**
      * Adds a monitor with a callback which fires when specified threshold is exceeded. The callback will fire only once.
@@ -78,16 +82,25 @@ public class MemoryMonitor<T> {
     }
 
     /**
-     * Add this value's size to the total.
+     * Add this value's size to the total, unless this object (by reference) has already been
+     * counted.
      *
      * @param value
      * @return
      */
-    public T apply(final T value) {
-        dataSizeB += sizeCalculator.size(value);
+    public synchronized T apply(final T value) {
+        if (counted.add(value)) {
+            dataSizeB += sizeCalculator.size(value);
 
-        checkThresholdMonitors(value);
+            checkThresholdMonitors(value);
+        }
 
+        return value;
+    }
+
+    public synchronized T deduct(T value) {
+        dataSizeB -= sizeCalculator.size(value);
+        counted.remove(value);
         return value;
     }
 

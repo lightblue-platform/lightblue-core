@@ -77,19 +77,21 @@ public class Response extends BaseResponse  {
     public void setResultSizeThresholds(int maxResultSetSizeB, int warnResultSetSizeB, final Request forRequest) {
         this.memoryMonitor = new MemoryMonitor<>((jsonNode) -> JsonUtils.size(jsonNode));
 
+        // Order is significant – warn first for request in log output.
+        memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(warnResultSetSizeB, (current, threshold, doc) -> {
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={} threshold={}", forRequest, current);
+        }));
+
         memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(maxResultSetSizeB, (current, threshold, doc) -> {
             // empty data
             // returning incomplete result set could be useful, but also confusing and thus dangerous
             // the counts - matchCount, modifiedCount - are unmodified
             setEntityData(JsonNodeFactory.instance.arrayNode());
             setStatus(OperationStatus.ERROR);
-            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B");
+            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE,
+                    "responseDataSizeB=" + current + " " +
+                    "threshold=" + threshold);
         }));
-
-        memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(warnResultSetSizeB, (current, threshold, doc) -> {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
-        }));
-
     }
 
     /**

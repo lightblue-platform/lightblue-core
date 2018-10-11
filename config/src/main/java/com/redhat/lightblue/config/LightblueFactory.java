@@ -176,6 +176,7 @@ public final class LightblueFactory implements Serializable {
             f.setMaxResultSetSizeForReadsB(crudConfiguration.getMaxResultSetSizeForReadsB());
             f.setWarnResultSetSizeB(crudConfiguration.getWarnResultSetSizeB());
             f.setMaxResultSetSizeForWritesB(crudConfiguration.getMaxResultSetSizeForWritesB());
+            f.setMaxExecutionContextSizeForCompositeFindB(crudConfiguration.getMaxExecutionContextSizeForCompositeFindB());
 
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());

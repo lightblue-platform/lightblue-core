@@ -51,6 +51,7 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
     private int memoryIndexThreshold = 16;
     private int maxResultSetSizeForReadsB = 50 * 1024 * 1024; // 50 MB
     private int maxResultSetSizeForWritesB = 50 * 1024 * 1024; // 50 MB
+    private int maxExecutionContextSizeForCompositeFindB = 100 * 1024 * 1024; // 50mb
     private int warnResultSetSizeB = 10 * 1024 * 1024; // 10 MB
 
     public boolean isValidateRequests() {
@@ -153,6 +154,11 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
             if (x != null) {
                 maxResultSetSizeForWritesB = x.intValue();
             }
+
+            x = node.get("maxExecutionContextSizeForCompositeFindB");
+            if (x != null) {
+                maxExecutionContextSizeForCompositeFindB = x.intValue();
+            }
         }
     }
 
@@ -186,5 +192,13 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
 
     public void setMaxResultSetSizeForWritesB(int maxResultSetSizeForWritesB) {
         this.maxResultSetSizeForWritesB = maxResultSetSizeForWritesB;
+    }
+
+    public int getMaxExecutionContextSizeForCompositeFindB() {
+        return maxExecutionContextSizeForCompositeFindB;
+    }
+
+    public void setMaxExecutionContextSizeForCompositeFindB(int maxExecutionContextSizeForCompositeFindB) {
+        this.maxExecutionContextSizeForCompositeFindB = maxExecutionContextSizeForCompositeFindB;
     }
 }

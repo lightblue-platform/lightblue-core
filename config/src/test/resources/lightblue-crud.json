@@ -1,4 +1,8 @@
 {
+  "maxResultSetSizeForReadsB": 51,
+  "maxResultSetSizeForWritesB": 52,
+  "maxExecutionContextSizeForCompositeFindB": 53,
+  "warnResultSetSizeB": 54,
    "validateRequests" : false,
    "controllers" : [
       {

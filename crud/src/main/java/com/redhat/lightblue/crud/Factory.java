@@ -65,6 +65,7 @@ public class Factory implements Serializable {
     private int maxResultSetSizeForReadsB;
     private int warnResultSetSizeB;
     private int maxResultSetSizeForWritesB;
+    private int maxExecutionContextSizeForCompositeFindB;
 
     /**
      * Adds a field constraint validator
@@ -253,6 +254,14 @@ public class Factory implements Serializable {
 
     public void setMaxResultSetSizeForWritesB(int maxResultSetSizeForWritesB) {
         this.maxResultSetSizeForWritesB = maxResultSetSizeForWritesB;
+    }
+
+    public int getMaxExecutionContextSizeForCompositeFindB() {
+        return maxExecutionContextSizeForCompositeFindB;
+    }
+
+    public void setMaxExecutionContextSizeForCompositeFindB(int maxExecutionContextSizeForCompositeFindB) {
+        this.maxExecutionContextSizeForCompositeFindB = maxExecutionContextSizeForCompositeFindB;
     }
 
     @Override

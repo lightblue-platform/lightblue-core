@@ -191,7 +191,6 @@ public class ExecutionPlan {
                                     edgeData.getConjuncts());
                             block.setAssociationQuery(source, aq);
                         }
-
                     }
 
                     // Block has sources. Join them

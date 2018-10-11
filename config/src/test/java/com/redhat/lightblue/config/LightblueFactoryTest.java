@@ -18,11 +18,15 @@
  */
 package com.redhat.lightblue.config;
 
+import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.mediator.Mediator;
 import org.junit.Assert;
 import org.junit.Test;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  *
@@ -44,5 +48,14 @@ public class LightblueFactoryTest {
 
         Mediator m = mgr.getMediator();
         Assert.assertNotNull(m);
+    }
+
+    @Test
+    public void crudConfigurationIsLoaded() throws Exception {
+        Factory factory = new LightblueFactory(new DataSourcesConfiguration()).getFactory();
+        Assert.assertEquals(51, factory.getMaxResultSetSizeForReadsB());
+        Assert.assertEquals(52, factory.getMaxResultSetSizeForWritesB());
+        Assert.assertEquals(53, factory.getMaxExecutionContextSizeForCompositeFindB());
+        Assert.assertEquals(54, factory.getWarnResultSetSizeB());
     }
 }

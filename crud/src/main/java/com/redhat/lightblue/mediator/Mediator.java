@@ -507,6 +507,7 @@ public class Mediator {
                 docStream.close();
                 response.setResultMetadata(rmd);
                 response.setMatchCount(r.matchCount == null ? 0 : r.matchCount);
+                LOGGER.debug("responseMemoryUsed={} request={}", response.getResponseDataSizeB(), req);
             }
          } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
