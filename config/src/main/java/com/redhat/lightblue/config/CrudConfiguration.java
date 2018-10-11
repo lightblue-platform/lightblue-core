@@ -51,7 +51,7 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
     private int memoryIndexThreshold = 16;
     private int maxResultSetSizeForReadsB = 50 * 1024 * 1024; // 50 MB
     private int maxResultSetSizeForWritesB = 50 * 1024 * 1024; // 50 MB
-    private int maxExecutionContextSizeForCompositeFindB = 100 * 1024 * 1024; // 50mb
+    private int maxExecutionContextSizeForCompositeFindB = 100 * 1024 * 1024; // 100mb
     private int warnResultSetSizeB = 10 * 1024 * 1024; // 10 MB
 
     public boolean isValidateRequests() {
