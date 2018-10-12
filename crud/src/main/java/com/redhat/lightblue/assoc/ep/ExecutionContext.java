@@ -166,9 +166,9 @@ public class ExecutionContext {
                 LOGGER.warn("crud:ExecutionContextIsLarge: request={}, executionDataSizeB={} threshold={}", forRequest, current, threshold)));
 
         memoryMonitor.registerMonitor(new MemoryMonitor.ThresholdMonitor<>(maxResultSetSizeB, (current, threshold, doc) -> {
-            throw Error.get(CrudConstants.ERR_EXECUTION_CONTEXT_TOO_LARGE,
-                    "executionDataSizeB=" + current + " " +
-                            "threshold=" + threshold);
+            throw Error.get(
+                    CrudConstants.ERR_EXECUTION_CONTEXT_TOO_LARGE,
+                    current + "B > " + threshold + "B");
         }));
     }
 

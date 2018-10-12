@@ -89,7 +89,7 @@ public class HookManager {
         this.monitor = new MemoryMonitor<>((node) -> JsonUtils.size(node), initialDataSizeB);
 
         this.monitor.registerMonitor(new ThresholdMonitor<>(warnQueuedHooksSizeB, (current, threshold, node) -> {
-            LOGGER.warn("crud:ResultSizeIsLarge: query={}, queuedHooksSizeB={}", query, current);
+            LOGGER.warn("crud:ResultSizeIsLarge: query={}, queuedHooksSizeB={} threshold={}", query, current, threshold);
         }));
 
         this.monitor.registerMonitor(new ThresholdMonitor<>(maxQueuedHooksSizeB, (current, threshold, node) -> {

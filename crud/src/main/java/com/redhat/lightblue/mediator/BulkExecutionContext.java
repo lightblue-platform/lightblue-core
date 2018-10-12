@@ -39,24 +39,21 @@ public class BulkExecutionContext {
 
         this.memoryMonitor = new MemoryMonitor<>((response) -> response.getResponseDataSizeB());
 
+        memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(warnResultSetSizeB, (current, threshold, response) -> {
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={} threshold={}", forRequest, current, threshold);
+        }));
+
         memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(maxResultSetSizeB, (current, threshold, response) -> {
             // remove data
             response.setEntityData(JsonNodeFactory.instance.arrayNode());
             response.getErrors().add(Error.get(Response.ERR_RESULT_SIZE_TOO_LARGE, current+"B > "+threshold+"B"));
         }));
 
-        memoryMonitor.registerMonitor(new ThresholdMonitor<Response>(warnResultSetSizeB, (current, threshold, response) -> {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={}", forRequest, current);
-        }));
-
     }
 
     /**
-     * This method is not thread safe (specifically, managing responseDataSizeB isn't). That's ok, because a single thread gathers
-     * responses from requests processed in parallel and adds them to {@link BulkExecutionContext}.
-     *
-     * @param index
-     * @param response
+     * This method is thread safe post threshold initialization (specifically,
+     * {@link MemoryMonitor} is synchronized).
      */
     public void setResponseAt(int index, Response response) {
         if (memoryMonitor != null) {

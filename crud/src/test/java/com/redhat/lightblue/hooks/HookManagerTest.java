@@ -309,8 +309,9 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         int expectedSizeB = 0;
         int updateHookCount = 3;
         for(DocCtx doc: ctx.getInputDocuments()) {
+            // Root docs are not copied, so share memory
+            expectedSizeB += JsonUtils.size(doc.getOriginalDocument().getRoot());
             expectedSizeB += updateHookCount * (
-                    JsonUtils.size(doc.getOriginalDocument().getRoot()) + // original doc
                     JsonUtils.size(doc.getOriginalDocument().getRoot()) + // pre copy
                     JsonUtils.size(doc.getUpdatedDocument().getRoot()));  // post copy
         }

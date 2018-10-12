@@ -448,7 +448,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.findCb=ctx->{
             ArrayList<DocCtx> docs=new ArrayList<>();
             for(int i=0;i<10;i++) {
-                docs.add(new DocCtx(new JsonDoc(sampleDoc),getRmd(Integer.toString(i))));
+                docs.add(new DocCtx(new JsonDoc(sampleDoc.deepCopy()),getRmd(Integer.toString(i))));
             }
             ctx.setDocumentStream(new ListDocumentStream<DocCtx>(docs));
         };
@@ -488,7 +488,7 @@ public class MediatorTest extends AbstractMediatorTest {
         mockCrudController.updateCb=ctx->{
             ArrayList<DocCtx> docs=new ArrayList<>();
             for(int i=0;i<10;i++) {
-                docs.add(new DocCtx(new JsonDoc(sampleDoc),getRmd(Integer.toString(i))));
+                docs.add(new DocCtx(new JsonDoc(sampleDoc.deepCopy()),getRmd(Integer.toString(i))));
             }
             ctx.setInputDocuments(docs);
         };

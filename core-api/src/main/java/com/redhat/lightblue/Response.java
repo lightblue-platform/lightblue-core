@@ -79,7 +79,7 @@ public class Response extends BaseResponse  {
 
         // Order is significant – warn first for request in log output.
         memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(warnResultSetSizeB, (current, threshold, doc) -> {
-            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={} threshold={}", forRequest, current);
+            LOGGER.warn("crud:ResultSizeIsLarge: request={}, responseDataSizeB={} threshold={}", forRequest, current, threshold);
         }));
 
         memoryMonitor.registerMonitor(new ThresholdMonitor<JsonNode>(maxResultSetSizeB, (current, threshold, doc) -> {
@@ -88,9 +88,7 @@ public class Response extends BaseResponse  {
             // the counts - matchCount, modifiedCount - are unmodified
             setEntityData(JsonNodeFactory.instance.arrayNode());
             setStatus(OperationStatus.ERROR);
-            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE,
-                    "responseDataSizeB=" + current + " " +
-                    "threshold=" + threshold);
+            throw Error.get(ERR_RESULT_SIZE_TOO_LARGE, current + "B > " + threshold + "B");
         }));
     }
 

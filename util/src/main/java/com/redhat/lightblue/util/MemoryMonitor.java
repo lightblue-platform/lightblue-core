@@ -1,5 +1,8 @@
 package com.redhat.lightblue.util;
 
+import com.google.common.collect.MapMaker;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +50,19 @@ public class MemoryMonitor<T> {
     private SizeCalculator<T> sizeCalculator;
 
     private List<ThresholdMonitor<T>> monitors = new ArrayList<>();
-    private Set<T> counted = Collections.newSetFromMap(new WeakHashMap<>());
+
+    /**
+     * Set of objects which have already been counted. This set does not obey normal Set contracts,
+     * intentionally. First, it is backed by a map with weak keys. That is, the objects added to the
+     * set will not prevent them from being garbage collected. Second, the objects in the set are
+     * compared using reference equality.
+     */
+    private Set<T> counted = Collections.newSetFromMap(new MapMaker()
+            // Modifications are already synchronized, so only one thread will ever modify map.
+            // Hence, concurrency level of 1. Higher concurrency level wastes space and time.
+            .concurrencyLevel(1)
+            .weakKeys()
+            .makeMap());
 
     /**
      * Adds a monitor with a callback which fires when specified threshold is exceeded. The callback will fire only once.

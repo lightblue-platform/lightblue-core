@@ -24,7 +24,6 @@ public class MemoryMonitorTest {
         Assert.assertEquals(el1.length()+el2.length(), m.getDataSizeB());
         m.apply(el3);
         Assert.assertEquals(el1.length()+el2.length()+el3.length(), m.getDataSizeB());
-
     }
 
     @Test
@@ -63,4 +62,56 @@ public class MemoryMonitorTest {
         Assert.assertTrue(fired[0]==1 && fired[1]==1);
     }
 
+    @Test
+    public void testSizeDoesNotGrowIfSameReferenceCounted() {
+        String el1 = "foobar";
+
+        MemoryMonitor<String> m = new MemoryMonitor<>( (el) ->  el.length());
+
+        Assert.assertEquals(0, m.getDataSizeB());
+        m.apply(el1);
+        Assert.assertEquals(el1.length(), m.getDataSizeB());
+        m.apply(el1);
+        Assert.assertEquals(el1.length(), m.getDataSizeB());
+    }
+
+    @Test
+    public void testSizeGrowingIfEqualButNotSameReference() {
+        SomeType el1 = new SomeType("1");
+        SomeType el2 = new SomeType("1");
+        SomeType el3 = new SomeType("1");
+
+        MemoryMonitor<SomeType> m = new MemoryMonitor<>(el -> el.value.length());
+
+        Assert.assertEquals(0, m.getDataSizeB());
+        m.apply(el1);
+        Assert.assertEquals(el1.value.length(), m.getDataSizeB());
+        m.apply(el2);
+        Assert.assertEquals(el1.value.length() * 2, m.getDataSizeB());
+        m.apply(el3);
+        Assert.assertEquals(el1.value.length() * 3, m.getDataSizeB());
+    }
+
+    class SomeType {
+        String value;
+
+        public SomeType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            SomeType someType = (SomeType) o;
+
+            return value != null ? value.equals(someType.value) : someType.value == null;
+        }
+
+        @Override
+        public int hashCode() {
+            return value != null ? value.hashCode() : 0;
+        }
+    }
 }

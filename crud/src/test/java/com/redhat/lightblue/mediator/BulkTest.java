@@ -162,7 +162,7 @@ public class BulkTest extends AbstractMediatorTest {
         mockCrudController.insertCb=ctx->{
             ArrayList<DocCtx> docs=new ArrayList<>();
             for(int i=0;i<10;i++) {
-                docs.add(new DocCtx(new JsonDoc(sampleDoc), new ResultMetadata()));
+                docs.add(new DocCtx(new JsonDoc(sampleDoc.deepCopy()), new ResultMetadata()));
             }
             ctx.setDocumentStream(new ListDocumentStream<DocCtx>(docs));
         };
@@ -171,7 +171,7 @@ public class BulkTest extends AbstractMediatorTest {
         mockCrudController.findCb=ctx->{
             ArrayList<DocCtx> docs=new ArrayList<>();
             for(int i=0;i<10;i++) {
-                docs.add(new DocCtx(new JsonDoc(sampleDoc), new ResultMetadata()));
+                docs.add(new DocCtx(new JsonDoc(sampleDoc.deepCopy()), new ResultMetadata()));
             }
             ctx.setDocumentStream(new ListDocumentStream<DocCtx>(docs));
         };
