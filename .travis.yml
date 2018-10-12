@@ -12,8 +12,8 @@ script:
     - mvn -B clean verify
 after_failure: ~/onFailure.sh
 after_success: ~/onSuccess.sh
-after_script:
-    - mvn -B cobertura:cobertura coveralls:report
+#after_script:
+#    - mvn -B cobertura:cobertura coveralls:report
 notifications:
     email: false
     irc:
