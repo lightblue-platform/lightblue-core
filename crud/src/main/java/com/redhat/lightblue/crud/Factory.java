@@ -269,7 +269,8 @@ public class Factory implements Serializable {
         return "Factory [fieldConstraintValidatorRegistry=" + fieldConstraintValidatorRegistry + ", entityConstraintValidatorRegistry="
                 + entityConstraintValidatorRegistry + ", crudControllers=" + crudControllers + ", hookResolver=" + hookResolver + ", interceptors="
                 + interceptors + ", generators=" + generators + ", nodeFactory=" + nodeFactory + ", bulkParallelExecutions=" + bulkParallelExecutions
-                + ", memoryIndexThreshold=" + memoryIndexThreshold + ", maxResultSetSizeForReadsB=" + maxResultSetSizeForReadsB + ", warnResultSetSizeB="
-                + warnResultSetSizeB + ", maxResultSetSizeForWritesB=" + maxResultSetSizeForWritesB + "]";
+                + ", memoryIndexThreshold=" + memoryIndexThreshold + ", maxResultSetSizeForReadsB=" + maxResultSetSizeForReadsB
+                + ", maxExecutionContextSizeForCompositeFindB=" + maxExecutionContextSizeForCompositeFindB + ", warnResultSetSizeB=" + warnResultSetSizeB
+                + ", maxResultSetSizeForWritesB=" + maxResultSetSizeForWritesB + "]";
     }
 }
