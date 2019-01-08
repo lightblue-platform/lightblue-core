@@ -53,12 +53,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.9.7</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.9.7</version>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fge</groupId>
@@ -184,6 +189,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.compiler.debuglevel>lines,vars,source</maven.compiler.debuglevel>
         <maven.compiler.verbose>true</maven.compiler.verbose>
+        <jackson.version>2.9.7</jackson.version>
     </properties>
     <build>
         <plugins>
