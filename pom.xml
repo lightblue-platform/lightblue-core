@@ -189,7 +189,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.compiler.debuglevel>lines,vars,source</maven.compiler.debuglevel>
         <maven.compiler.verbose>true</maven.compiler.verbose>
-        <jackson.version>2.9.7</jackson.version>
+        <jackson.version>2.9.8</jackson.version>
     </properties>
     <build>
         <plugins>
