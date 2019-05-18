@@ -1,0 +1,13 @@
+{
+  "name": "user",
+  "enums" : [
+    {
+      "name":"site_type_enum",
+      "values": [ "billing", "marketing", "service", "shipping" ]
+    }
+  ],
+  "datastore": {
+    "backend":"empty"
+  },
+  "manageIndexes": false
+}

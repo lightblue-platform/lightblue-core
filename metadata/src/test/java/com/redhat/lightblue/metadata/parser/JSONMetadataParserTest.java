@@ -19,6 +19,7 @@
 package com.redhat.lightblue.metadata.parser;
 
 import static com.redhat.lightblue.util.JsonUtils.json;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -47,6 +48,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.EnumValue;
@@ -158,9 +160,9 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue("More than a single property (it should contain just rdbms)", properties.size() == 1);
         Object rdbms = properties.get("rdbms");
         Assert.assertNotNull(rdbms);
-        Assert.assertEquals("42", ((Map<String, Object>) rdbms).get("answer"));
+        assertEquals("42", ((Map<String, Object>) rdbms).get("answer"));
         JsonNode c = parser.convert(em);
-        Assert.assertEquals(object.get("schema").get("rdbms"), c.get("schema").get("rdbms"));
+        assertEquals(object.get("schema").get("rdbms"), c.get("schema").get("rdbms"));
     }
 
     //    @Test hooks not implemented yet
@@ -174,7 +176,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         ObjectNode parent = new ObjectNode(factory);
         parent.put(name, value);
 
-        Assert.assertEquals(value, parser.getStringProperty(parent, name));
+        assertEquals(value, parser.getStringProperty(parent, name));
     }
 
     @Test
@@ -188,7 +190,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode object = parser.getObjectProperty(parent, name);
 
         Assert.assertNotNull("couldn't find node by name", object);
-        Assert.assertEquals(value, object.textValue());
+        assertEquals(value, object.textValue());
     }
 
     @Test
@@ -202,7 +204,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         Assert.assertTrue("expected instanceof Number", object instanceof Number);
 
-        Assert.assertEquals(value.intValue(), ((Number) object).intValue());
+        assertEquals(value.intValue(), ((Number) object).intValue());
     }
 
     @Test
@@ -216,7 +218,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         Assert.assertTrue("expected instanceof String", object instanceof String);
 
-        Assert.assertEquals(value, object);
+        assertEquals(value, object);
     }
 
     @Test
@@ -234,10 +236,10 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         List<String> l = parser.getStringList(parent, name);
 
         Assert.assertNotNull(l);
-        Assert.assertEquals(count, l.size());
+        assertEquals(count, l.size());
 
         for (int i = 0; i < count; i++) {
-            Assert.assertEquals("value at index wrong: " + i, String.valueOf(i), l.get(i));
+            assertEquals("value at index wrong: " + i, String.valueOf(i), l.get(i));
         }
     }
 
@@ -256,10 +258,10 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         List<JsonNode> l = parser.getObjectList(parent, name);
 
         Assert.assertNotNull(l);
-        Assert.assertEquals(count, l.size());
+        assertEquals(count, l.size());
 
         for (int i = 0; i < count; i++) {
-            Assert.assertEquals("value at index wrong: " + i, i, l.get(i).intValue());
+            assertEquals("value at index wrong: " + i, i, l.get(i).intValue());
         }
     }
 
@@ -280,7 +282,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Set<String> s = parser.getChildNames(parent);
 
         Assert.assertNotNull(s);
-        Assert.assertEquals(childNames.size(), s.size());
+        assertEquals(childNames.size(), s.size());
 
         for (String childName : childNames) {
             s.remove(childName);
@@ -307,7 +309,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value, x.textValue());
+        assertEquals(value, x.textValue());
     }
 
     @Test
@@ -322,7 +324,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         Assert.assertNotNull(x);
         Assert.assertTrue("expected instanceof ObjectNode", x instanceof ObjectNode);
-        Assert.assertEquals(value, x);
+        assertEquals(value, x);
     }
 
     @Test
@@ -336,7 +338,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.booleanValue(), x.booleanValue());
+        assertEquals(value.booleanValue(), x.booleanValue());
     }
 
     @Test
@@ -350,7 +352,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value, x.decimalValue());
+        assertEquals(value, x.decimalValue());
     }
 
     @Test
@@ -364,7 +366,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value, x.bigIntegerValue());
+        assertEquals(value, x.bigIntegerValue());
     }
 
     @Test
@@ -378,7 +380,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.doubleValue(), x.doubleValue(), 0.001);
+        assertEquals(value.doubleValue(), x.doubleValue(), 0.001);
     }
 
     @Test
@@ -392,7 +394,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.floatValue(), x.floatValue(), 0.001);
+        assertEquals(value.floatValue(), x.floatValue(), 0.001);
     }
 
     @Test
@@ -406,7 +408,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.intValue(), x.intValue());
+        assertEquals(value.intValue(), x.intValue());
     }
 
     @Test
@@ -420,7 +422,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.longValue(), x.longValue());
+        assertEquals(value.longValue(), x.longValue());
     }
 
     @Test
@@ -434,7 +436,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.shortValue(), x.shortValue());
+        assertEquals(value.shortValue(), x.shortValue());
     }
 
     @Test
@@ -448,7 +450,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value, x.textValue());
+        assertEquals(value, x.textValue());
     }
 
     @Test
@@ -458,7 +460,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Object array = parser.newArrayField(parent, name);
 
         Assert.assertNotNull(array);
-        Assert.assertEquals(array, parent.get(name));
+        assertEquals(array, parent.get(name));
     }
 
     @Test
@@ -466,12 +468,12 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         String value = "bar";
         ArrayNode array = new ArrayNode(factory);
 
-        Assert.assertEquals(0, array.size());
+        assertEquals(0, array.size());
 
         parser.addStringToArray(array, value);
 
-        Assert.assertEquals(1, array.size());
-        Assert.assertEquals(value, array.get(0).textValue());
+        assertEquals(1, array.size());
+        assertEquals(value, array.get(0).textValue());
     }
 
     @Test
@@ -479,12 +481,12 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode value = new TextNode("asdf");
         ArrayNode array = new ArrayNode(factory);
 
-        Assert.assertEquals(0, array.size());
+        assertEquals(0, array.size());
 
         parser.addObjectToArray(array, value);
 
-        Assert.assertEquals(1, array.size());
-        Assert.assertEquals(value, array.get(0));
+        assertEquals(1, array.size());
+        assertEquals(value, array.get(0));
     }
 
     @Test
@@ -550,9 +552,9 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         Enum e = parser.parseEnum(enumsNode);
 
-        Assert.assertEquals(enumName, e.getName());
+        assertEquals(enumName, e.getName());
         Set<EnumValue> values = e.getEnumValues();
-        Assert.assertEquals(2, values.size());
+        assertEquals(2, values.size());
         Assert.assertTrue(values.contains(new EnumValue(enumValue1, null)));
         Assert.assertTrue(values.contains(new EnumValue(enumValue2, null)));
     }
@@ -573,10 +575,10 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         Enum e = parser.parseEnum(enumsNode);
 
-        Assert.assertEquals(enumName, e.getName());
+        assertEquals(enumName, e.getName());
 
         Set<EnumValue> values = e.getEnumValues();
-        Assert.assertEquals(2, values.size());
+        assertEquals(2, values.size());
         Assert.assertTrue(e.getEnumValues().contains(new EnumValue(enumValue1, enumDescription1)));
         Assert.assertTrue(e.getEnumValues().contains(new EnumValue(enumValue2, enumDescription2)));
     }
@@ -587,7 +589,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Fields fields = new Fields(null);
         parser.parseFields(fields, fieldsNode);
         Assert.assertNotNull(fields.getField("field"));
-        Assert.assertEquals("description not parsed", "foo", fields.getField("field").getDescription());
+        assertEquals("description not parsed", "foo", fields.getField("field").getDescription());
     }
 
     @Test
@@ -619,17 +621,17 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertNotNull(field);
         ValueGenerator vg = field.getValueGenerator();
         Assert.assertNotNull(vg);
-        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence, vg.getValueGeneratorType());
-        Assert.assertEquals("seq", vg.getProperties().get("name"));
-        Assert.assertEquals("1000", vg.getProperties().get("initialValue").toString());
+        assertEquals(ValueGenerator.ValueGeneratorType.IntSequence, vg.getValueGeneratorType());
+        assertEquals("seq", vg.getProperties().get("name"));
+        assertEquals("1000", vg.getProperties().get("initialValue").toString());
         ObjectNode obj = JsonNodeFactory.instance.objectNode();
         parser.convertValueGenerator(vg, obj);
         obj = (ObjectNode) obj.get("valueGenerator");
         System.out.println(obj);
-        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence.toString(), obj.get("type").asText());
+        assertEquals(ValueGenerator.ValueGeneratorType.IntSequence.toString(), obj.get("type").asText());
         ObjectNode props = (ObjectNode) obj.get("configuration");
-        Assert.assertEquals("seq", props.get("name").asText());
-        Assert.assertEquals("1000", props.get("initialValue").asText());
+        assertEquals("seq", props.get("name").asText());
+        assertEquals("1000", props.get("initialValue").asText());
     }
 
     @Test
@@ -638,7 +640,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         EntitySchema em = parser.parseEntitySchema(object);
         ArrayField field = (ArrayField) em.resolve(new Path("name"));
         Assert.assertNotNull(field);
-        Assert.assertEquals(1,((SimpleArrayElement)field.getElement()).getConstraints().size());
+        assertEquals(1,((SimpleArrayElement)field.getElement()).getConstraints().size());
 
         Fields fields=new Fields(null);
         fields.put(field);
@@ -653,7 +655,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode object = loadJsonNode("JSONMetadataParserTest-properties.json");
         EntitySchema em = parser.parseEntitySchema(object);
         List<Integer> list = (List<Integer>) em.getAccess().getProperties().get("accessProperty");
-        Assert.assertEquals(list.size(), 5);
+        assertEquals(list.size(), 5);
         Assert.assertTrue(list.contains(new Integer(1)));
         Assert.assertTrue(list.contains(new Integer(2)));
         Assert.assertTrue(list.contains(new Integer(3)));
@@ -661,13 +663,20 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue(list.contains(new Integer(5)));
 
         SimpleField field = (SimpleField) em.resolve(new Path("name"));
-        Assert.assertEquals("y", (String) ((Map<String, Object>) field.getProperties().get("nameProperty")).get("x"));
+        assertEquals("y", (String) ((Map<String, Object>) field.getProperties().get("nameProperty")).get("x"));
 
         field = (SimpleField) em.resolve(new Path("customerType"));
-        Assert.assertEquals(new Integer(1), (Integer) ((Map<String, Object>) field.getProperties()).get("customerTypeProperty"));
+        assertEquals(new Integer(1), (Integer) ((Map<String, Object>) field.getProperties()).get("customerTypeProperty"));
 
         Map<String, Object> scp = (Map<String, Object>) em.getProperties().get("schemaProperty");
         Map<String, Object> scpa = (Map<String, Object>) scp.get("a");
-        Assert.assertEquals("c", (String) scpa.get("b"));
+        assertEquals("c", (String) scpa.get("b"));
+    }
+
+    @Test
+    public void testEntityInfoProperties() throws IOException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-EntityInfo-properties.json");
+        EntityInfo ei = parser.parseEntityInfo(object);
+        assertEquals(false, ei.getProperties().get("manageIndexes"));
     }
 }
