@@ -2,8 +2,8 @@
 
 echo "after_success script"
 
-if [ "$TRAVIS_BRANCH" == "master" ]; then
-     if [ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+if [ "$BRANCH" == "master" ]; then
+     if [ "$JDK_VERSION" == "oraclejdk8" ] && [ "$PULL_REQUEST" == "false" ]; then
          echo "DEPLOY MASTER TRAVIS BUILD"
          echo "Current directory is $(pwd)"
          mvn clean deploy -DskipTests;
