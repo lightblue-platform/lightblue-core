@@ -270,6 +270,11 @@
                   }
               }
           }
+      },
+	  "ref" : {
+          "type":"reference",
+          "entity":"referenced_entity",
+          "query": { "field":"field1","op":"=","rfield":"$parent.field1"}
       }
     }
   }
