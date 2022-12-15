@@ -75,6 +75,13 @@ public class BaseResponse extends JsonObject {
         HOSTNAME = hostName;
     }
 
+
+    public BaseResponse() {
+        this.jsonNodeFactory = JsonNodeFactory.withExactBigDecimals(true);
+        this.dataErrors=new ArrayList<>();
+        this.errors=new ArrayList<>();
+    }
+
     public BaseResponse(JsonNodeFactory jsonNodeFactory, OperationStatus status) {
         this.jsonNodeFactory = jsonNodeFactory;
         this.hostname = HOSTNAME;
