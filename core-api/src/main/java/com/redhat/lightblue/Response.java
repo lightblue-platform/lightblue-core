@@ -67,6 +67,10 @@ public class Response extends BaseResponse  {
         super(r);
     }
 
+    public Response() {
+        super();
+    }
+
     /**
      * Result set size threshold is expressed in bytes. This is just an approximation, see @{link {@link JsonUtils#size(JsonNode)} for details.
      *
