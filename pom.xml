@@ -138,7 +138,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
-                <version>20090211</version>
+                <version>20231013</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
