@@ -26,14 +26,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
@@ -134,12 +135,23 @@ public class SetExpressionEvaluator extends Updater {
 
             if (mdNode instanceof SimpleField || mdNode instanceof SimpleArrayElement) {
                 data = initializeSimple(rvalue, refMdNode, mdNode, field, refPath);
+                setValues.add(data);
+            } else if (mdNode instanceof ReferenceField) {
+                if (rvalue.getValue() != null) {
+                    throw new EvaluationError(CrudConstants.ERR_ASSIGNMENT + field +" can't assign values to referenced fields");
+                } else {
+                    // ignore if null
+                }
             } else if (mdNode instanceof ObjectField || mdNode instanceof ObjectArrayElement) {
                 data = initializeObject(rvalue, refMdNode, mdNode, field, refPath);
+                setValues.add(data);
             } else if (mdNode instanceof ArrayField) {
                 data = initializeArray(rvalue, refMdNode, mdNode, field, refPath);
+                setValues.add(data);
+            } else {
+                throw new EvaluationError(CrudConstants.ERR_ASSIGNMENT + field + " field type "+mdNode.getClass()+" is not recognized!");
             }
-            setValues.add(data);
+
         }
     }
 
