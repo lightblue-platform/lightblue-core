@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.query.UpdateExpression;
@@ -167,6 +168,75 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertNull(jsonDoc.get(new Path("field6.ng6.7")));
         Assert.assertEquals(7, jsonDoc.get(new Path("field6.nf6#")).asInt());
         Assert.assertEquals(7, jsonDoc.get(new Path("field6.nf6")).size());
+    }
+    
+    @Test
+    public void array_foreach_set_this() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {} } } } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        for (JsonNode node : jsonDoc.get(new Path("field7"))) {
+            Assert.assertEquals(JsonNodeFactory.instance.objectNode(), node);
+            Assert.assertEquals(0, node.size());
+            Assert.assertTrue(!node.fields().hasNext());
+        }
+    }
+    
+    @Test
+    public void array_foreach_set_partial_this() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson(
+                "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ { 'field': 'elemf2' }, { 'field': 'elemf3' } ] } } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        int i = 0;
+        for (JsonNode node : jsonDoc.get(new Path("field7"))) {
+            Assert.assertEquals("elvalue" + i + "_1", node.get("elemf1").asText());
+            Assert.assertEquals("NA", node.get("elemf2").asText());
+            Assert.assertEquals(-1, node.get("elemf3").asInt());
+            Assert.assertEquals(3, node.size());
+            i++;
+        }
+    }
+    
+    @Test
+    public void array_foreach_set_partial_this_no_fields() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson(
+                "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ ] } } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        int i = 0;
+        for (JsonNode node : jsonDoc.get(new Path("field7"))) {
+            Assert.assertEquals("elvalue" + i + "_1", node.get("elemf1").asText());
+            Assert.assertEquals("elvalue" + i + "_2", node.get("elemf2").asText());
+            Assert.assertEquals(3 + i, node.get("elemf3").asInt());
+            Assert.assertEquals(3, node.size());
+            i++;
+        }
+    }
+    
+    @Test
+    public void array_foreach_set_partial_this_invalid_fields() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson(
+                "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ { 'field': 'elemf4' } ] } } }");
+        // should do nothing
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        int i = 0;
+        for (JsonNode node : jsonDoc.get(new Path("field7"))) {
+            Assert.assertEquals("elvalue" + i + "_1", node.get("elemf1").asText());
+            Assert.assertEquals("elvalue" + i + "_2", node.get("elemf2").asText());
+            Assert.assertEquals(3 + i, node.get("elemf3").asInt());
+            Assert.assertEquals(3, node.size());
+            i++;
+        }
     }
 
     @Test

@@ -19,16 +19,18 @@
 package com.redhat.lightblue.eval;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -39,6 +41,9 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.Arith;
 import com.redhat.lightblue.query.FieldAndRValue;
+import com.redhat.lightblue.query.MaskedSetExpression;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.ProjectionList;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.SetExpression;
 import com.redhat.lightblue.query.UpdateOperator;
@@ -56,6 +61,8 @@ public class SetExpressionEvaluator extends Updater {
     private final List<FieldData> setValues = new ArrayList<>();
     private final UpdateOperator op;
     private final JsonNodeFactory factory;
+    private JsonDoc project;
+    private boolean masked;
 
     private static final class FieldData {
         /**
@@ -73,14 +80,12 @@ public class SetExpressionEvaluator extends Updater {
         private final Type fieldType;
 
         /**
-         * If the field is to be set from another field, the referenced relative
-         * path to the source field
+         * If the field is to be set from another field, the referenced relative path to the source field
          */
         private final Path refPath;
 
         /**
-         * If the field is to be set from another field, the type of the source
-         * field
+         * If the field is to be set from another field, the type of the source field
          */
         private final Type refType;
 
@@ -112,9 +117,15 @@ public class SetExpressionEvaluator extends Updater {
     public SetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, SetExpression expr) {
         this.factory = factory;
         op = expr.getOp();
+        List<JsonDoc> docs = new ArrayList<JsonDoc>();
+        Projector projector = null;
+        if (expr instanceof MaskedSetExpression) {
+            MaskedSetExpression mExpr = (MaskedSetExpression) expr;
+            masked = true;
+            projector = Projector.getInstance(new ProjectionList(mExpr.getMaskFields()), Path.EMPTY, context);
+        }
         for (FieldAndRValue fld : expr.getFields()) {
             Path field = fld.getField();
-            LOGGER.debug("Parsing setter for {}", field);
             RValueExpression rvalue = fld.getRValue();
             Path refPath = null;
             FieldTreeNode refMdNode = null;
@@ -126,6 +137,10 @@ public class SetExpressionEvaluator extends Updater {
                     throw new EvaluationError(CrudConstants.ERR_CANT_ACCESS + refPath);
                 }
                 LOGGER.debug("Refpath {}", refPath);
+            }
+            if(rvalue.getType() == RValueExpression.RValueType._value && rvalue.getValue().getValue() instanceof ObjectNode && projector != null){
+                ObjectNode node = (ObjectNode) rvalue.getValue().getValue();
+                docs.add(projector.project(new JsonDoc(node), factory));
             }
             FieldTreeNode mdNode = context.resolve(field);
             if (mdNode == null) {
@@ -141,6 +156,7 @@ public class SetExpressionEvaluator extends Updater {
             }
             setValues.add(data);
         }
+        project = new JsonDoc(JsonDoc.listToDoc(docs, factory));
     }
 
     private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
@@ -196,6 +212,7 @@ public class SetExpressionEvaluator extends Updater {
     @Override
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
+
         LOGGER.debug("Starting");
         for (FieldData df : setValues) {
             LOGGER.debug("Set field {} in ctx: {} to {}/{}", df.field, contextPath, df.value, df.value.getType());
@@ -240,10 +257,22 @@ public class SetExpressionEvaluator extends Updater {
             oldValueNode = doc.get(fieldPath);
             if (newValueNode != null && oldValueNode != null) {
                 newValueNode = df.fieldType.toJson(factory, Arith.add(df.fieldType.fromJson(oldValueNode), newValue, Arith.promote(df.fieldType, newValueType)));
-                doc.modify(fieldPath, newValueNode, false);
+                if (masked) {
+                    copyProjection(project, doc, fieldPath);
+                } else {
+                    doc.modify(fieldPath, newValueNode, false);
+                }
             }
         }
         return oldValueNode;
+    }
+    
+    private void copyProjection(JsonDoc projection, JsonDoc docToModify, Path fieldPath){
+        Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
+        while (fieldsIt.hasNext()) {
+            Entry<String, JsonNode> next = fieldsIt.next();
+            docToModify.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), false);
+        }
     }
 
     private boolean oldAndNewAreDifferent(JsonNode oldValueNode, JsonNode newValueNode) {

@@ -113,6 +113,9 @@ public class Fields implements Serializable {
             } else if (name.equals(Path.ANY)) {
                 throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE, name + " in " + p.toString());
             } else if (name.equals(Path.THIS)) {
+                if (level + 1 >= p.numSegments()) {
+                    return this.parent;
+                }
                 return this.resolve(p, level + 1);
             } else if (name.equals(Path.PARENT)) {
                 if (parent != null && !(parent instanceof EntitySchema.RootNode)) {

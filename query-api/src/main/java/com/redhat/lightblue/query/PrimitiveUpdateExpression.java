@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 
@@ -39,6 +41,9 @@ public abstract class PrimitiveUpdateExpression extends PartialUpdateExpression 
      */
     public static PrimitiveUpdateExpression fromJson(ObjectNode node) {
         if (node.has(UpdateOperator._add.toString()) || node.has(UpdateOperator._set.toString())) {
+            if (node.has("fields")) {
+                return MaskedSetExpression.fromJson(node);
+            }
             return SetExpression.fromJson(node);
         } else if (node.has(UpdateOperator._unset.toString())) {
             return UnsetExpression.fromJson(node);
